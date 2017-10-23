@@ -1,4 +1,4 @@
-package de.fraunhofer.iosb.ivct;
+package de.fraunhofer.iosb.tc_lib_encodingrulestester;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

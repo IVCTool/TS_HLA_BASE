@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package de.fraunhofer.iosb.ivct;
+package de.fraunhofer.iosb.tc_lib_encodingrulestester;
 
 import java.util.HashMap;
 import java.util.Map;

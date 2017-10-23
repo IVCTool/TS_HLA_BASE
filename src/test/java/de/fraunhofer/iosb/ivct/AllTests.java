@@ -2,12 +2,22 @@ package de.fraunhofer.iosb.ivct;
 
 import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.junit.Test;
 
+import de.fraunhofer.iosb.tc_lib_encodingrulestester.AlternativeStringPair;
+import de.fraunhofer.iosb.tc_lib_encodingrulestester.EncodingRulesException;
+import de.fraunhofer.iosb.tc_lib_encodingrulestester.HlaDataBasicType;
+import de.fraunhofer.iosb.tc_lib_encodingrulestester.HlaDataEnumType;
+import de.fraunhofer.iosb.tc_lib_encodingrulestester.HlaDataFixedArrayType;
+import de.fraunhofer.iosb.tc_lib_encodingrulestester.HlaDataFixedRecordType;
+import de.fraunhofer.iosb.tc_lib_encodingrulestester.HlaDataSimpleType;
+import de.fraunhofer.iosb.tc_lib_encodingrulestester.HlaDataType;
+import de.fraunhofer.iosb.tc_lib_encodingrulestester.HlaDataTypes;
+import de.fraunhofer.iosb.tc_lib_encodingrulestester.HlaDataVariableArrayType;
+import de.fraunhofer.iosb.tc_lib_encodingrulestester.HlaDataVariantRecordType;
 import hla.rti1516e.AttributeHandle;
 import hla.rti1516e.ParameterHandle;
 
