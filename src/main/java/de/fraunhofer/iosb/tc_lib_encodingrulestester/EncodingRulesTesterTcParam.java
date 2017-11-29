@@ -16,8 +16,15 @@ limitations under the License.
 
 package de.fraunhofer.iosb.tc_lib_encodingrulestester;
 
+import java.io.File;
+import java.net.URI;
 import java.net.URL;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -34,12 +41,14 @@ import de.fraunhofer.iosb.tc_lib.TcInconclusive;
 public class EncodingRulesTesterTcParam implements IVCT_TcParam {
     // Get test case parameters
     //      use some constants for this example till we get params from a file
+    private List<String> fomFiles = new ArrayList<String>();
+    private List<String> somFiles = new ArrayList<String>();
     private String federation_name;
     private String rtiHost;
     private String rtiPort;
     private String settingsDesignator;
-    private final int    fileNum            = 1;
-    private URL[]        urls               = new URL[this.fileNum];
+    private URL[]        fomUrls;
+    private URL[]        somUrls;
     private long         sleepTimeCycle     = 1000;
     private long         sleepTimeWait      = 3000;
     private long         sleepTestTimeWait = 30000;
@@ -54,30 +63,70 @@ public class EncodingRulesTesterTcParam implements IVCT_TcParam {
 			// get a String from the JSON object
 			federation_name =  (String) jsonObject.get("federationName");
 			if (federation_name == null) {
-                throw new TcInconclusive("The key  federationName  was not found");
+                throw new TcInconclusive("EncodingRulesTesterTcParam: the key  federationName  was not found");
 			}
 			// get a String from the JSON object
 			rtiHost =  (String) jsonObject.get("rtiHostName");
 			if (rtiHost == null) {
-                throw new TcInconclusive("The key  rtiHostName  was not found");
+                throw new TcInconclusive("EncodingRulesTesterTcParam: the key  rtiHostName  was not found");
 			}
 			rtiPort = (String) jsonObject.get("rtiPort");
 			if (rtiPort == null) {
-				throw new TcInconclusive("The rti port id was not found");
+				throw new TcInconclusive("EncodingRulesTesterTcParam: the rti port id was not found");
 			}
 			settingsDesignator = "crcAddress=" + this.rtiHost + ":" + this.rtiPort;
 			
 			// get a String from the JSON object
 			sutFederate =  (String) jsonObject.get("sutFederateName");
 			if (sutFederate == null) {
-                throw new TcInconclusive("The key  sutFederateName  was not found");
+                throw new TcInconclusive("EncodingRulesTesterTcParam: the key  sutFederateName  was not found");
+			}
+			// get FOM files list from the JSON object
+			JSONArray fomArray = (JSONArray) jsonObject.get("fomFiles");
+			if (fomArray == null) {
+                throw new TcInconclusive("EncodingRulesTesterTcParam: missing FOM files");
+			}
+			else {
+		        int index = 0;
+				this.fomUrls = new URL[fomArray.size()];
+				Iterator iter = fomArray.iterator();
+				while (iter.hasNext()) {
+					JSONObject element = (JSONObject) iter.next();
+					String fileName = (String) element.get("fileName");
+					this.fomFiles.add(fileName);
+			        // add FOM file in url array
+			        try {
+			        	URI uri = (new File(fileName)).toURI();
+						this.fomUrls[index++] = uri.toURL();
+					}
+			        catch (MalformedURLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+			// get SOM files list from the JSON object
+			JSONArray somArray =  (JSONArray) jsonObject.get("somFiles");
+			if (somArray == null) {
+                throw new TcInconclusive("EncodingRulesTesterTcParam: missing SOM files");
+			}
+			else {
+				this.somUrls = new URL[somArray.size()];
+				Iterator iter = somArray.iterator();
+				while (iter.hasNext()) {
+					JSONObject element = (JSONObject) iter.next();
+					String fileName = (String) element.get("fileName");
+					this.somFiles.add(fileName);
+				}
 			}
 		} catch (ParseException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-
-		this.urls[0] = this.getClass().getClassLoader().getResource("HelloWorld.xml");
     }
 
 
@@ -144,10 +193,18 @@ public class EncodingRulesTesterTcParam implements IVCT_TcParam {
 
 
     /**
-     * @return the urls
+     * @return the fomUrls
      */
     @Override
     public URL[] getUrls() {
-        return this.urls;
+        return this.fomUrls;
+    }
+
+
+    /**
+     * @return the somUrls
+     */
+    public URL[] getSomUrls() {
+        return this.somUrls;
     }
 }

@@ -1,5 +1,5 @@
 /*
-Copyright 2015, Johannes Mulder (Fraunhofer IOSB)
+Copyright 2017, Johannes Mulder (Fraunhofer IOSB)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,8 +16,23 @@ limitations under the License.
 
 package de.fraunhofer.iosb.tc_lib_encodingrulestester;
 
-import de.fraunhofer.iosb.ivct.DataTreeBuilder;
-import de.fraunhofer.iosb.ivct.HlaDataTypes;
+import java.io.IOException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.FactoryConfigurationError;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.slf4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
+
 import de.fraunhofer.iosb.tc_lib.IVCT_BaseModel;
 import de.fraunhofer.iosb.tc_lib.IVCT_RTIambassador;
 import de.fraunhofer.iosb.tc_lib.IVCT_TcParam;
@@ -36,10 +51,7 @@ import hla.rti1516e.OrderType;
 import hla.rti1516e.ParameterHandle;
 import hla.rti1516e.ParameterHandleValueMap;
 import hla.rti1516e.TransportationTypeHandle;
-import hla.rti1516e.encoding.DecoderException;
 import hla.rti1516e.encoding.EncoderFactory;
-import hla.rti1516e.encoding.HLAfloat32LE;
-import hla.rti1516e.encoding.HLAunicodeString;
 import hla.rti1516e.exceptions.AlreadyConnected;
 import hla.rti1516e.exceptions.AttributeNotDefined;
 import hla.rti1516e.exceptions.CallNotAllowedFromWithinCallback;
@@ -53,7 +65,6 @@ import hla.rti1516e.exceptions.InvalidFederateHandle;
 import hla.rti1516e.exceptions.InvalidInteractionClassHandle;
 import hla.rti1516e.exceptions.InvalidLocalSettingsDesignator;
 import hla.rti1516e.exceptions.InvalidObjectClassHandle;
-import hla.rti1516e.exceptions.NameNotFound;
 import hla.rti1516e.exceptions.NotConnected;
 import hla.rti1516e.exceptions.ObjectClassNotDefined;
 import hla.rti1516e.exceptions.RTIinternalError;
@@ -61,98 +72,27 @@ import hla.rti1516e.exceptions.RestoreInProgress;
 import hla.rti1516e.exceptions.SaveInProgress;
 import hla.rti1516e.exceptions.UnsupportedCallbackModel;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.FactoryConfigurationError;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.slf4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
-
 
 /**
  * @author mul (Fraunhofer IOSB)
  */
 public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
+	private boolean                                        errorOccurred = false;
+	private String                                         errorText = new String("Encoding error found");
 
-    private AttributeHandle                                _attributeIdName;
-    private AttributeHandle                                _attributeIdPopulation;
-    private boolean                                        receivedInteraction = false;
-    private boolean                                        receivedReflect = false;
+	private boolean                                        receivedReflect = false;
     private EncoderFactory                                 _encoderFactory;
-    private InteractionClassHandle                         messageId;
     private IVCT_RTIambassador                             ivct_rti;
+    private IVCT_TcParam ivct_TcParam;
     private Logger                                         logger;
     private ParameterHandle                                parameterIdSender;
     private ParameterHandle                                parameterIdText;
-    private String                                         message;
-    private final Map<ObjectInstanceHandle, CountryValues> knownObjects        = new HashMap<ObjectInstanceHandle, CountryValues>();
-    private Map<InteractionClassHandle, String> interactionHandleMap = new HashMap<InteractionClassHandle, String>();
+    private Set<InteractionClassHandle> interactionClassHandleSet = new HashSet<InteractionClassHandle>();
+    private Map<ParameterHandle, String> parameterHandleDataTypeMap = new HashMap<ParameterHandle, String>();
     private Map<ObjectClassHandle, AttributeHandleSet> objectClassAttributeHandleMap = new HashMap<ObjectClassHandle, AttributeHandleSet>();
-    private URL[] urls = null;
+	private Map<AttributeHandle, String> attributeHandleDataTypeMap = new HashMap<AttributeHandle, String>();
 	// FOM/SOM data types
 	private HlaDataTypes hlaDataTypes = new HlaDataTypes();
-
-    private static class CountryValues {
-        private final String countryName;
-        private float        prevPopulation = 0;
-        private float        currPopulation = 0;
-
-
-        CountryValues(final String name) {
-            this.countryName = name;
-        }
-
-
-        @Override
-        public String toString() {
-            return this.countryName;
-        }
-
-        /**
-         * @return the current population value
-         */
-        public float getPopulation() {
-            return this.currPopulation;
-        }
-
-        /**
-         * @param population the new population value
-         */
-        public void setPopulation(final float population) {
-            this.prevPopulation = this.currPopulation;
-            this.currPopulation = population;
-        }
-
-        /**
-         * @param delta the factor the population increases
-         * @param logger reference to the logger
-         * @return true when NOT within the test range
-         */
-        public boolean testPopulation(final float delta, final Logger logger) {
-            final float min = this.prevPopulation * delta * (float) 0.99;
-            final float mid = this.prevPopulation * delta;
-            final float max = this.prevPopulation * delta * (float) 1.01;
-
-            logger.info("---------------------------------------------------------------------");
-            logger.info("testPopulation: test value received " + this.currPopulation + " in range " + mid + " +/-1%");
-            logger.info("---------------------------------------------------------------------");
-            if (this.currPopulation > min && this.currPopulation < max) {
-                return false;
-            }
-
-            return true;
-        }
-
-    }
-
 
     /**
      * @param logger reference to a logger
@@ -164,8 +104,16 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
         this.logger = logger;
         this.ivct_rti = ivct_rti;
         this._encoderFactory = ivct_rti.getEncoderFactory();
+        this.ivct_TcParam = ivct_TcParam;
     }
 
+    public boolean getErrorOccured() {
+    	return errorOccurred;
+    }
+
+    public String getErrorText() {
+    	return errorText;
+    }
 
     /**
      * @param federateHandle the federate handle
@@ -186,24 +134,6 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
     /**
      * @return false if a message received, true otherwise
      */
-    public boolean getInteractionMessageStatus() {
-        for (int j = 0; j < 100; j++) {
-            if (this.receivedInteraction) {
-                return false;
-            }
-            try {
-                Thread.sleep(20);
-            }
-            catch (final InterruptedException ex) {
-                continue;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * @return false if a message received, true otherwise
-     */
     public boolean getReflectMessageStatus() {
         for (int j = 0; j < 100; j++) {
             if (this.receivedReflect) {
@@ -220,15 +150,6 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
     }
 
     /**
-     * @return the message received
-     */
-    public String getMessage() {
-        this.receivedInteraction = false;
-        return this.message;
-    }
-
-
-    /**
      * @return the parameter id text received
      */
     public ParameterHandle getParameterIdText() {
@@ -240,14 +161,6 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
      */
     public ParameterHandle getParameterIdSender() {
         return this.parameterIdSender;
-    }
-
-
-    /**
-     * @return the message id
-     */
-    public InteractionClassHandle getMessageId() {
-        return this.messageId;
     }
 
 
@@ -285,115 +198,80 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
      * @return true means error, false means correct
      */
     public boolean init() {
-    	
-//    	urls = getUrls();
+    	// Read SOM files and process them.
+    	processSOM();
 
-    	getSutPublishedClasses();
+        // Subscribe interactions
+    	this.logger.trace("EncodingRulesTesterBaseModel.init: subscribe interactions");
+		try {
+			for (InteractionClassHandle ich : interactionClassHandleSet) {
+				this.logger.trace("EncodingRulesTesterBaseModel.init: subscribe " + this.ivct_rti.getInteractionClassName(ich));
+				this.ivct_rti.subscribeInteractionClass(ich);
+			}
+		}
+		catch (FederateServiceInvocationsAreBeingReportedViaMOM | InteractionClassNotDefined | SaveInProgress | RestoreInProgress | FederateNotExecutionMember | NotConnected | RTIinternalError ex1) {
+			this.logger.error("EncodingRulesTesterBaseModel.init: cannot subcribe interaction");
+			// TODO Auto-generated catch block
+			ex1.printStackTrace();
+		} catch (InvalidInteractionClassHandle e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-        // Subscribe and publish interactions
+        // Subscribe object attributes
+	this.logger.trace("EncodingRulesTesterBaseModel.init: subscribe object attributes");
         try {
-            this.messageId = this.ivct_rti.getInteractionClassHandle("Communication");
-            this.parameterIdText = this.ivct_rti.getParameterHandle(this.messageId, "Message");
-            this.parameterIdSender = this.ivct_rti.getParameterHandle(this.messageId, "Sender");
+        	for (Map.Entry<ObjectClassHandle, AttributeHandleSet> entry : objectClassAttributeHandleMap.entrySet()) {
+        		this.logger.trace("EncodingRulesTesterBaseModel.init: subscribe " + this.ivct_rti.getObjectClassName(entry.getKey()));
+                this.ivct_rti.subscribeObjectClassAttributes(entry.getKey(), entry.getValue());
+        	}
         }
-        catch (NameNotFound | FederateNotExecutionMember | NotConnected | RTIinternalError | InvalidInteractionClassHandle ex1) {
-            this.logger.error("Cannot get interaction class handle or parameter handle");
-            return true;
-        }
-
-        try {
-            this.ivct_rti.subscribeInteractionClass(this.messageId);
-            this.ivct_rti.publishInteractionClass(this.messageId);
-        }
-        catch (FederateServiceInvocationsAreBeingReportedViaMOM | InteractionClassNotDefined | SaveInProgress | RestoreInProgress | FederateNotExecutionMember | NotConnected | RTIinternalError ex1) {
-            // TODO Auto-generated catch block
-            ex1.printStackTrace();
-        }
-
-        // Subscribe and publish objects
-        ObjectClassHandle participantId;
-        try {
-            participantId = this.ivct_rti.getObjectClassHandle("Country");
-            this._attributeIdName = this.ivct_rti.getAttributeHandle(participantId, "Name");
-            this._attributeIdPopulation = this.ivct_rti.getAttributeHandle(participantId, "Population");
-            this._attributeIdName = this.ivct_rti.getAttributeHandle(participantId, "Name");
-        }
-        catch (NameNotFound | FederateNotExecutionMember | NotConnected | RTIinternalError | InvalidObjectClassHandle ex) {
-            this.logger.error("Cannot get object class handle or attribute handle");
-            return true;
-        }
-
-        AttributeHandleSet attributeSet;
-        try {
-            attributeSet = this.ivct_rti.getAttributeHandleSetFactory().create();
-            attributeSet.add(this._attributeIdName);
-            attributeSet.add(this._attributeIdPopulation);
-        }
-        catch (FederateNotExecutionMember | NotConnected ex) {
-            this.logger.error("Cannot build attribute set");
-            return true;
-        }
-
-        try {
-            // Only need to subscribe to the object class
-            this.ivct_rti.subscribeObjectClassAttributes(participantId, attributeSet);
-        }
-        catch (AttributeNotDefined | ObjectClassNotDefined | SaveInProgress | RestoreInProgress | FederateNotExecutionMember | NotConnected | RTIinternalError ex) {
-            this.logger.error("Cannot publish/subscribe attributes");
+        catch (AttributeNotDefined | ObjectClassNotDefined | SaveInProgress | RestoreInProgress | FederateNotExecutionMember | NotConnected | RTIinternalError | InvalidObjectClassHandle ex) {
+            this.logger.error("EncodingRulesTesterBaseModel.init: cannot subscribe object attributes " + ex);
             return true;
         }
 
         return false;
     }
 
-    private void getSutPublishedClasses() {
-/*    	for (int i = 0; i < urls.length; i++) {
-    		urls[i].toURI();
-    	}*/
-//		String xmlFile = "file:///H:/Projects/Hla/MSG-134/Archive/Xml/RPR-Foundation_v2.0.xml";
-//		String xmlFile = "file:///H:/Projects/Hla/MSG-134/Archive/Xml/RPR-Minefield_v2.0.xml"; 
-//		String xmlFile = "file:///H:/Projects/Hla/MSG-134/Archive/Xml/RPR-SE_v2.0.xml"; 
-		String xmlFile = "file:///H:/Projects/Hla/MSG-106/Fom/RPR2-Base_v1.0.1r4.xml"; 
+    /**
+     * 
+     * @return true means error occurred
+     */
+    private boolean processSOM() {
+        URL[] somUrls = this.ivct_TcParam.getUrls();
 
 		try {
+			DataTreeBuilder dataTreeBuilder = new DataTreeBuilder(this.ivct_rti, this.hlaDataTypes, this.interactionClassHandleSet, this.parameterHandleDataTypeMap, this.objectClassAttributeHandleMap, this.attributeHandleDataTypeMap);
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = factory.newDocumentBuilder();
-			Document document = builder.parse(xmlFile);
-			Element elem = document.getDocumentElement();
-			DataTreeBuilder dataTreeBuilder = new DataTreeBuilder(hlaDataTypes);
-			dataTreeBuilder.buildData(elem);
+			
+			for (int i = 0; i < somUrls.length; i++) {
+				Document document = builder.parse(somUrls[i].toString());
+				Element elem = document.getDocumentElement();
+				if (dataTreeBuilder.buildData(elem)) {
+					return true;
+				}
+			}
 		}
 		catch (FactoryConfigurationError e) {
-			System.out.println("unable to get a document builder factory");
+			this.logger.error("EncodingRulesTesterBaseModel.processSOM: unable to get a document builder factory");
+            return true;
 		} 
 		catch (ParserConfigurationException e) {
-			System.out.println("parser was unable to be configured");
+			this.logger.error("EncodingRulesTesterBaseModel.processSOM: unable to configure parser");
+            return true;
 		}
 		catch (SAXException e) {
-			System.out.println("parsing error");
+			this.logger.error("EncodingRulesTesterBaseModel.processSOM: parsing error");
+            return true;
 		} 
 		catch (IOException e) {
-			System.out.println("i/o error");
+			this.logger.error("EncodingRulesTesterBaseModel.processSOM: i/o error");
+            return true;
 		}
-    }
-
-    /**
-     * @param countryName the name of the tested country
-     * @param delta the rate at which the population should be increasing
-     * @return true means error, false means correct
-     */
-    public boolean testCountryPopulation(final String countryName, final float delta) {
-        for (final Map.Entry<ObjectInstanceHandle, CountryValues> entry: this.knownObjects.entrySet()) {
-            if (entry.getValue().toString().equals(countryName)) {
-                if (entry.getValue().testPopulation(delta, this.logger)) {
-                    this.logger.error("testCountryPopulation test failed");
-                    return true;
-                }
-                return false;
-            }
-        }
-
-        return true;
+		
+		return false;
     }
 
     /**
@@ -401,22 +279,25 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
      * @param theParameters specify the parameter handles and values
      */
     private void doReceiveInteraction(final InteractionClassHandle interactionClass, final ParameterHandleValueMap theParameters) {
-        if (interactionClass.equals(this.messageId)) {
-            if (!theParameters.containsKey(this.parameterIdText)) {
-                System.out.println("Bad message received: No text.");
-                return;
-            }
+    	this.logger.trace("EncodingRulesTesterBaseModel.doReceiveInteraction: enter");
+        for (Map.Entry<ParameterHandle, byte[]> entry : theParameters.entrySet()) {
+        	this.logger.trace("EncodingRulesTesterBaseModel.doReceiveInteraction:  GOT parameter " + entry.getKey());
+            HlaDataType hdt = this.hlaDataTypes.dataTypeMap.get(this.parameterHandleDataTypeMap.get(entry.getKey()));
+            byte b[] = theParameters.get(entry.getKey());
+            this.logger.trace("EncodingRulesTesterBaseModel.doReceiveInteraction: length " + b.length);
             try {
-                final HLAunicodeString messageDecoder = this._encoderFactory.createHLAunicodeString();
-                messageDecoder.decode(theParameters.get(this.parameterIdText));
-                this.message = messageDecoder.getValue();
-            }
-            catch (final DecoderException e) {
-                System.out.println("Failed to decode incoming interaction");
-            }
+				if (hdt.testBuffer(entry.getValue(), 0, hlaDataTypes) != entry.getValue().length) {
+		            System.out.println("TEST BUFFER FAILED");
+		            errorOccurred = true;
+				} else {
+		            System.out.println("TEST BUFFER PASSED");
+				}
+			} catch (EncodingRulesException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
         }
-
-        this.receivedInteraction = true;
+    	this.logger.trace("EncodingRulesTesterBaseModel.doReceiveInteraction: leave");
     }
 
 
@@ -453,10 +334,6 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
     @Override
     public void discoverObjectInstance(final ObjectInstanceHandle theObject, final ObjectClassHandle theObjectClass, final String objectName) throws FederateInternalError {
 
-        if (!this.knownObjects.containsKey(theObject)) {
-            final CountryValues member = new CountryValues(objectName);
-            this.knownObjects.put(theObject, member);
-        }
     }
 
 
@@ -465,10 +342,7 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
      */
     @Override
     public void removeObjectInstance(final ObjectInstanceHandle theObject, final byte[] userSuppliedTag, final OrderType sentOrdering, final FederateAmbassador.SupplementalRemoveInfo removeInfo) {
-        final CountryValues member = this.knownObjects.remove(theObject);
-        if (member != null) {
-            this.logger.info("[" + member + " has left]");
-        }
+
     }
 
 
@@ -477,30 +351,26 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
      * @param theAttributes the map of attribute handle / value
      */
     public void doReflectAttributeValues(final ObjectInstanceHandle theObject, final AttributeHandleValueMap theAttributes) {
-        if (theAttributes.containsKey(this._attributeIdName) && theAttributes.containsKey(this._attributeIdPopulation)) {
+    	this.logger.trace("EncodingRulesTesterBaseModel.doReflectAttributeValues: enter");
+        for (Map.Entry<AttributeHandle, byte[]> entry : theAttributes.entrySet()) {
+        	this.logger.trace("EncodingRulesTesterBaseModel.doReflectAttributeValues: GOT attribute " + entry.getKey());
+        	this.logger.trace("EncodingRulesTesterBaseModel.doReflectAttributeValues: GOT reflectAttributeValues " + this.attributeHandleDataTypeMap.get(entry.getKey()));
+            HlaDataType hdt = this.hlaDataTypes.dataTypeMap.get(this.attributeHandleDataTypeMap.get(entry.getKey()));
+            byte b[] = theAttributes.get(entry.getKey());
+            this.logger.trace("EncodingRulesTesterBaseModel.doReflectAttributeValues: length " + b.length);
             try {
-                CountryValues cv;
-                final HLAunicodeString usernameDecoder = this._encoderFactory.createHLAunicodeString();
-                usernameDecoder.decode(theAttributes.get(this._attributeIdName));
-                final String memberName = usernameDecoder.getValue();
-                final HLAfloat32LE populationDecoder = this._encoderFactory.createHLAfloat32LE();
-                populationDecoder.decode(theAttributes.get(this._attributeIdPopulation));
-                final float population = populationDecoder.getValue();
-                this.logger.info("Population: " + population);
-                if (this.knownObjects.containsKey(theObject)) {
-                    cv = this.knownObjects.get(theObject);
-                    if (cv.toString().equals(memberName) == false) {
-                        this.logger.error("Country name not equal to country attribute name " + cv.toString() + " " + memberName);
-                    }
-                    cv.setPopulation(population);
-                }
-            }
-            catch (final DecoderException e) {
-                this.logger.error("Failed to decode incoming attribute");
-                return;
-            }
-            receivedReflect = true;
+				if (hdt.testBuffer(entry.getValue(), 0, hlaDataTypes) != entry.getValue().length) {
+		            System.out.println("TEST BUFFER FAILED");
+		            errorOccurred = true;
+				} else {
+		            System.out.println("TEST BUFFER PASSED");
+				}
+			} catch (EncodingRulesException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
         }
+    	this.logger.trace("EncodingRulesTesterBaseModel.doReflectAttributeValues: leave");
     }
 
 

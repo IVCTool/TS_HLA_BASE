@@ -104,6 +104,11 @@ public class TC0001 extends AbstractTestCase {
         if (encodingRulesTesterBaseModel.sleepFor(encodingRulesTesterTcParam.getTestTimeWait())) {
             throw new TcInconclusive("sleepFor problem");
         }
+
+        // Errors are found asynchronously.
+        if (encodingRulesTesterBaseModel.getErrorOccured()) {
+            throw new TcFailed(encodingRulesTesterBaseModel.getErrorText());
+        }
     }
 
 

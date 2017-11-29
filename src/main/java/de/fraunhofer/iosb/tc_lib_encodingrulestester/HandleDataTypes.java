@@ -7,16 +7,16 @@ import java.util.Map;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import de.fraunhofer.iosb.ivct.AlternativeStringPair;
-import de.fraunhofer.iosb.ivct.HlaDataBasicType;
-import de.fraunhofer.iosb.ivct.HlaDataEnumType;
-import de.fraunhofer.iosb.ivct.HlaDataFixedArrayType;
-import de.fraunhofer.iosb.ivct.HlaDataFixedRecordType;
-import de.fraunhofer.iosb.ivct.HlaDataType;
-import de.fraunhofer.iosb.ivct.HlaDataTypes;
-import de.fraunhofer.iosb.ivct.HlaDataVariableArrayType;
-import de.fraunhofer.iosb.ivct.HlaDataVariantRecordType;
-import de.fraunhofer.iosb.ivct.HlaDataSimpleType;
+import de.fraunhofer.iosb.tc_lib_encodingrulestester.AlternativeStringPair;
+import de.fraunhofer.iosb.tc_lib_encodingrulestester.HlaDataBasicType;
+import de.fraunhofer.iosb.tc_lib_encodingrulestester.HlaDataEnumType;
+import de.fraunhofer.iosb.tc_lib_encodingrulestester.HlaDataFixedArrayType;
+import de.fraunhofer.iosb.tc_lib_encodingrulestester.HlaDataFixedRecordType;
+import de.fraunhofer.iosb.tc_lib_encodingrulestester.HlaDataType;
+import de.fraunhofer.iosb.tc_lib_encodingrulestester.HlaDataTypes;
+import de.fraunhofer.iosb.tc_lib_encodingrulestester.HlaDataVariableArrayType;
+import de.fraunhofer.iosb.tc_lib_encodingrulestester.HlaDataVariantRecordType;
+import de.fraunhofer.iosb.tc_lib_encodingrulestester.HlaDataSimpleType;
 
 public class HandleDataTypes {
 	HlaDataTypes hlaDataTypes;

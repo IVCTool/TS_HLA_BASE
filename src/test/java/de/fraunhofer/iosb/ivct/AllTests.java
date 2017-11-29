@@ -28,6 +28,20 @@ import hla.rti1516e.ParameterHandle;
  * @author mul, @date 07.04.17 10:59
  */
 public class AllTests {
+	public class AttributeHandle {
+		public int handle;
+		public int hashCode() {
+			return handle;
+		}
+	}
+
+	public class ParameterHandle {
+		public int handle;
+		public int hashCode() {
+			return handle;
+		}
+	}
+
 	@Test
 	public void simpleDataTypeTest() {
 		// FOM/SOM data types
