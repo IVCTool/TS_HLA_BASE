@@ -1,9 +1,27 @@
+/*
+Copyright 2017, Johannes Mulder (Fraunhofer IOSB)
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package de.fraunhofer.iosb.tc_lib_encodingrulestester;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -19,6 +37,7 @@ import de.fraunhofer.iosb.tc_lib_encodingrulestester.HlaDataVariantRecordType;
 import de.fraunhofer.iosb.tc_lib_encodingrulestester.HlaDataSimpleType;
 
 public class HandleDataTypes {
+    private static Logger logger = LoggerFactory.getLogger(HandleDataTypes.class);
 	HlaDataTypes hlaDataTypes;
 	/**
 	 * 
@@ -46,7 +65,7 @@ public class HandleDataTypes {
 					if (((Element) child).getFirstChild() != null) {
 						nameStr = ((Element) child).getFirstChild().getNodeValue();
 						gotName = true;
-						System.out.println("HandleDataTypes.decodeBasicData: BasicDataName: " + nameStr);
+						logger.trace("HandleDataTypes.decodeBasicData: BasicDataName: " + nameStr);
 					}
 					continue;
 				}
@@ -55,7 +74,7 @@ public class HandleDataTypes {
 						String textStr = ((Element) child).getFirstChild().getNodeValue();
 						size = Integer.parseInt(textStr);
 						gotSize = true;
-						System.out.println("HandleDataTypes.decodeBasicData: BasicDataSize: " + size);
+						logger.trace("HandleDataTypes.decodeBasicData: BasicDataSize: " + size);
 					}
 					continue;
 				}
@@ -66,12 +85,12 @@ public class HandleDataTypes {
 							bigEndian = true;
 						}
 						gotEndian = true;
-						System.out.println("HandleDataTypes.decodeBasicData: BasicDataEndian: " + bigEndian);
+						logger.trace("HandleDataTypes.decodeBasicData: BasicDataEndian: " + bigEndian);
 					}
 					continue;
 				}
 			} catch (Exception e) {
-				System.out.println("HandleDataTypes.decodeBasicData: " + e);
+				logger.error("HandleDataTypes.decodeBasicData: " + e);
 				return true;
 			}
 		}
@@ -91,12 +110,12 @@ public class HandleDataTypes {
 				if (tmpHlaDataType instanceof HlaDataBasicType) {
 					HlaDataBasicType tmpType = (HlaDataBasicType) tmpHlaDataType;
 					if (tmpType.equalTo(hlaDataTypeBasic0)) {
-						System.out.println("HandleDataTypes.decodeBasicData: EQUAL DATA TYPE: " + nameStr + " IGNORED");
+						logger.info("HandleDataTypes.decodeBasicData: EQUAL DATA TYPE: " + nameStr + " IGNORED");
 					} else {
-						System.out.println("HandleDataTypes.decodeBasicData: UNEQUAL DATA TYPE: " + nameStr + " NOT MERGED");
+						logger.info("HandleDataTypes.decodeBasicData: UNEQUAL DATA TYPE: " + nameStr + " NOT MERGED");
 					}
 				} else {
-					System.out.println("HandleDataTypes.decodeBasicData: UNEQUAL DATA TYPES: " + nameStr + " NOT MERGED");
+					logger.info("HandleDataTypes.decodeBasicData: UNEQUAL DATA TYPES: " + nameStr + " NOT MERGED");
 				}
 			}
 			return false;
@@ -105,6 +124,16 @@ public class HandleDataTypes {
 		/*
 		 * Incomplete data
 		 */
+		if (gotName == false) {
+			logger.error("HandleDataTypes.decodeBasicData: missing name");
+		}
+		if (gotSize == false) {
+			logger.error("HandleDataTypes.decodeBasicData: missing size");
+		}
+		if (gotEndian == false) {
+			logger.error("HandleDataTypes.decodeBasicData: missing endian");
+		}
+
 		return true;
 	}
 
@@ -128,7 +157,7 @@ public class HandleDataTypes {
 				if (child.getNodeName().equals("name")) {
 					if (((Element) child).getFirstChild() != null) {
 						textPointer = ((Element) child).getFirstChild().getNodeValue();
-						System.out.println("basicDataName: " + textPointer);
+						logger.trace("basicDataName: " + textPointer);
 					}
 					continue;
 				}
@@ -139,7 +168,7 @@ public class HandleDataTypes {
 					continue;
 				}
 			} catch (Exception e) {
-				System.out.println("HandleDataTypes.decodeBasicDataTypes: " + e);
+				logger.error("HandleDataTypes.decodeBasicDataTypes: " + e);
 				return true;
 			}
 		}
@@ -157,7 +186,7 @@ public class HandleDataTypes {
 				hlaDataTypeBasic0 = new HlaDataBasicType(basicTypeName, size, bigEndian);
 				hlaDataTypes.dataTypeMap.put(basicTypeName, hlaDataTypeBasic0);
 			} else {
-				System.out.println("decodeSimpleData: unknown basicDataType " + basicTypeName + " NOT MERGED");
+				logger.trace("decodeSimpleData: unknown basicDataType " + basicTypeName + " NOT MERGED");
 				return null;
 			}
 		} else {
@@ -170,7 +199,7 @@ public class HandleDataTypes {
 		 * If the representation basicDataType not found, do not create the simpleDataType
 		 */
 		if (hlaDataTypeBasic0 == null) {
-			System.out.println("decodeSimpleData: cannot get " + basicTypeName + " NOT MERGED");
+			logger.info("decodeSimpleData: cannot get " + basicTypeName + " NOT MERGED");
 			return null;
 		}
 
@@ -203,7 +232,7 @@ public class HandleDataTypes {
 					if (((Element) child).getFirstChild() != null) {
 						nameStr = ((Element) child).getFirstChild().getNodeValue();
 						gotName = true;
-						System.out.println("SimpleDataName: " + nameStr);
+						logger.trace("SimpleDataName: " + nameStr);
 					}
 					continue;
 				}
@@ -211,12 +240,12 @@ public class HandleDataTypes {
 					if (((Element) child).getFirstChild() != null) {
 						representationStr = ((Element) child).getFirstChild().getNodeValue();
 						gotRepresentation = true;
-						System.out.println("SimpleDataRepresentation: " + representationStr);
+						logger.trace("SimpleDataRepresentation: " + representationStr);
 					}
 					continue;
 				}
 			} catch (Exception e) {
-				System.out.println("HandleDataTypes.decodeSimpleData: " + e);
+				logger.trace("HandleDataTypes.decodeSimpleData: " + e);
 				return true;
 			}
 		}
@@ -248,9 +277,9 @@ public class HandleDataTypes {
 				if (tmpHlaDataType instanceof HlaDataSimpleType) {
 					HlaDataSimpleType tmpType = (HlaDataSimpleType) tmpHlaDataType;
 					if (tmpType.equalTo(hlaDataSimpleType0)) {
-						System.out.println("EQUAL DATA TYPE: " + nameStr + " IGNORED");
+						logger.info("EQUAL DATA TYPE: " + nameStr + " IGNORED");
 					} else {
-						System.out.println("UNEQUAL DATA TYPE: " + nameStr + " NOT MERGED");
+						logger.info("UNEQUAL DATA TYPE: " + nameStr + " NOT MERGED");
 					}
 				}
 			}
@@ -260,6 +289,13 @@ public class HandleDataTypes {
 		/*
 		 * Incomplete data
 		 */
+		if (gotName == false) {
+			logger.error("HandleDataTypes.decodeSimpleData: missing name");
+		}
+		if (gotRepresentation == false) {
+			logger.error("HandleDataTypes.decodeSimpleData: missing representation");
+		}
+
 		return true;
 	}
 
@@ -283,7 +319,7 @@ public class HandleDataTypes {
 				if (child.getNodeName().equals("name")) {
 					if (((Element) child).getFirstChild() != null) {
 						textPointer = ((Element) child).getFirstChild().getNodeValue();
-						System.out.println("simpleDataName: " + textPointer);
+						logger.trace("simpleDataName: " + textPointer);
 					}
 					continue;
 				}
@@ -294,7 +330,7 @@ public class HandleDataTypes {
 					continue;
 				}
 			} catch (Exception e) {
-				System.out.println("HandleDataTypes.decodeSimpleDataTypes: " + e);
+				logger.error("HandleDataTypes.decodeSimpleDataTypes: " + e);
 				return true;
 			}
 		}
@@ -322,7 +358,7 @@ public class HandleDataTypes {
 					if (((Element) child).getFirstChild() != null) {
 						nameStr = ((Element) child).getFirstChild().getNodeValue();
 						gotName = true;
-						System.out.println("EnumeratorName: " + nameStr);
+						logger.trace("EnumeratorName: " + nameStr);
 					}
 					continue;
 				}
@@ -330,12 +366,12 @@ public class HandleDataTypes {
 					if (((Element) child).getFirstChild() != null) {
 						valueStr = ((Element) child).getFirstChild().getNodeValue();
 						gotValue = true;
-						System.out.println("EnumeratorValue: " + valueStr);
+						logger.trace("EnumeratorValue: " + valueStr);
 					}
 					continue;
 				}
 			} catch (Exception e) {
-				System.out.println("HandleDataTypes.decodeEnumerator: " + e);
+				logger.error("HandleDataTypes.decodeEnumerator: " + e);
 				return true;
 			}
 		}
@@ -374,7 +410,7 @@ public class HandleDataTypes {
 					if (((Element) child).getFirstChild() != null) {
 						nameStr = ((Element) child).getFirstChild().getNodeValue();
 						gotName = true;
-						System.out.println("HandleDataTypes.decodeEnumeratedData: EnumeratedName: " + nameStr);
+						logger.trace("HandleDataTypes.decodeEnumeratedData: EnumeratedName: " + nameStr);
 					}
 					continue;
 				}
@@ -382,7 +418,7 @@ public class HandleDataTypes {
 					if (((Element) child).getFirstChild() != null) {
 						representationStr = ((Element) child).getFirstChild().getNodeValue();
 						gotRepresentation = true;
-						System.out.println("HandleDataTypes.decodeEnumeratedData: EnumeratedRepresentation: " + representationStr);
+						logger.trace("HandleDataTypes.decodeEnumeratedData: EnumeratedRepresentation: " + representationStr);
 					}
 					continue;
 				}
@@ -394,7 +430,7 @@ public class HandleDataTypes {
 					continue;
 				}
 			} catch (Exception e) {
-				System.out.println("HandleDataTypes.decodeEnumeratedData: " + e);
+				logger.error("HandleDataTypes.decodeEnumeratedData: " + e);
 				return true;
 			}
 		}
@@ -426,9 +462,9 @@ public class HandleDataTypes {
 				if (tmpHlaDataType instanceof HlaDataEnumType) {
 					HlaDataEnumType tmpType = (HlaDataEnumType) tmpHlaDataType;
 					if (tmpType.equalTo(hlaDataTypeEnumerated0)) {
-						System.out.println("HandleDataTypes.decodeEnumeratedData: EQUAL DATA TYPE: " + nameStr + " IGNORED");
+						logger.info("HandleDataTypes.decodeEnumeratedData: EQUAL DATA TYPE: " + nameStr + " IGNORED");
 					} else {
-						System.out.println("HandleDataTypes.decodeEnumeratedData: UNEQUAL DATA TYPE: " + nameStr + " NOT MERGED");
+						logger.info("HandleDataTypes.decodeEnumeratedData: UNEQUAL DATA TYPE: " + nameStr + " NOT MERGED");
 					}
 				}
 			}
@@ -438,6 +474,16 @@ public class HandleDataTypes {
 		/*
 		 * Incomplete data
 		 */
+		if (gotName == false) {
+			logger.error("HandleDataTypes.decodeEnumeratedData: missing name");
+		}
+		if (gotRepresentation == false) {
+			logger.error("HandleDataTypes.decodeEnumeratedData: missing representation");
+		}
+		if (gotEnumerator == false) {
+			logger.error("HandleDataTypes.decodeEnumeratedData: missing enumerator");
+		}
+
 		return true;
 	}
 
@@ -460,7 +506,7 @@ public class HandleDataTypes {
 					continue;
 				}
 			} catch (Exception e) {
-				System.out.println("HandleDataTypes.decodeEnumeratedDataTypes: " + e);
+				logger.error("HandleDataTypes.decodeEnumeratedDataTypes: " + e);
 				return true;
 			}
 		}
@@ -490,7 +536,7 @@ public class HandleDataTypes {
 					if (((Element) child).getFirstChild() != null) {
 						nameStr = ((Element) child).getFirstChild().getNodeValue();
 						gotName = true;
-						System.out.println("ArrayDataName: " + nameStr);
+						logger.trace("ArrayDataName: " + nameStr);
 					}
 					continue;
 				}
@@ -498,7 +544,7 @@ public class HandleDataTypes {
 					if (((Element) child).getFirstChild() != null) {
 						dataTypeStr = ((Element) child).getFirstChild().getNodeValue();
 						gotDataType = true;
-						System.out.println("ArrayDataType: " + dataTypeStr);
+						logger.trace("ArrayDataType: " + dataTypeStr);
 					}
 					continue;
 				}
@@ -506,12 +552,12 @@ public class HandleDataTypes {
 					if (((Element) child).getFirstChild() != null) {
 						cardinalityStr = ((Element) child).getFirstChild().getNodeValue();
 						gotCardinality = true;
-						System.out.println("ArrayDataCardinality: " + cardinalityStr);
+						logger.trace("ArrayDataCardinality: " + cardinalityStr);
 					}
 					continue;
 				}
 			} catch (Exception e) {
-				System.out.println("HandleDataTypes.decodeArrayData: " + e);
+				logger.error("HandleDataTypes.decodeArrayData: " + e);
 				return true;
 			}
 		}
@@ -543,12 +589,12 @@ public class HandleDataTypes {
 					if (tmpHlaDataType instanceof HlaDataVariableArrayType) {
 						HlaDataVariableArrayType hlaDataVariableArrayType = (HlaDataVariableArrayType) tmpHlaDataType;
 						if (hlaDataVariableArrayType.equalTo(hlaDataTypeVariableArray)) {
-							System.out.println("HandleDataTypes.decodeFixedRecordData: EQUAL DATA TYPE: " + nameStr + " IGNORED");
+							logger.trace("HandleDataTypes.decodeFixedRecordData: EQUAL DATA TYPE: " + nameStr + " IGNORED");
 						} else {
-							System.out.println("HandleDataTypes.decodeFixedRecordData: UNEQUAL DATA TYPE: " + nameStr + " NOT MERGED");
+							logger.trace("HandleDataTypes.decodeFixedRecordData: UNEQUAL DATA TYPE: " + nameStr + " NOT MERGED");
 						}
 					} else {
-						System.out.println("HandleDataTypes.decodeFixedRecordData: UNEQUAL DATA TYPES: " + nameStr + " NOT MERGED");
+						logger.trace("HandleDataTypes.decodeFixedRecordData: UNEQUAL DATA TYPES: " + nameStr + " NOT MERGED");
 					}
 				}
 			} else {
@@ -559,17 +605,31 @@ public class HandleDataTypes {
 					if (tmpHlaDataType instanceof HlaDataFixedArrayType) {
 						HlaDataFixedArrayType hlaDataVariableArrayType = (HlaDataFixedArrayType) tmpHlaDataType;
 						if (hlaDataVariableArrayType.equalTo(hlaDataVariableArrayType)) {
-							System.out.println("HandleDataTypes.decodeFixedRecordData: EQUAL DATA TYPE: " + nameStr + " IGNORED");
+							logger.trace("HandleDataTypes.decodeFixedRecordData: EQUAL DATA TYPE: " + nameStr + " IGNORED");
 						} else {
-							System.out.println("HandleDataTypes.decodeFixedRecordData: UNEQUAL DATA TYPE: " + nameStr + " NOT MERGED");
+							logger.trace("HandleDataTypes.decodeFixedRecordData: UNEQUAL DATA TYPE: " + nameStr + " NOT MERGED");
 						}
 					} else {
-						System.out.println("HandleDataTypes.decodeFixedRecordData: UNEQUAL DATA TYPES: " + nameStr + " NOT MERGED");
+						logger.trace("HandleDataTypes.decodeFixedRecordData: UNEQUAL DATA TYPES: " + nameStr + " NOT MERGED");
 					}
 				}
 			}
 			return false;
 		}
+
+		/*
+		 * Incomplete data
+		 */
+		if (gotName) {
+			logger.error("HandleDataTypes.decodeArrayData: missing name");
+		}
+		if (gotDataType) {
+			logger.error("HandleDataTypes.decodeArrayData: missing dataType");
+		}
+		if (gotCardinality) {
+			logger.error("HandleDataTypes.decodeArrayData: missing cardinality");
+		}
+
 		return true;
 	}
 
@@ -592,7 +652,7 @@ public class HandleDataTypes {
 					continue;
 				}
 			} catch (Exception e) {
-				System.out.println("HandleDataTypes.decodeArrayDataTypes: " + e);
+				logger.error("HandleDataTypes.decodeArrayDataTypes: " + e);
 				return true;
 			}
 		}
@@ -620,7 +680,7 @@ public class HandleDataTypes {
 					if (((Element) child).getFirstChild() != null) {
 						nameStr = ((Element) child).getFirstChild().getNodeValue();
 						gotName = true;
-						System.out.println("FieldName: " + nameStr);
+						logger.trace("FieldName: " + nameStr);
 					}
 					continue;
 				}
@@ -628,12 +688,12 @@ public class HandleDataTypes {
 					if (((Element) child).getFirstChild() != null) {
 						dataTypeStr = ((Element) child).getFirstChild().getNodeValue();
 						gotDataType = true;
-						System.out.println("FieldDataType: " + dataTypeStr);
+						logger.trace("FieldDataType: " + dataTypeStr);
 					}
 					continue;
 				}
 			} catch (Exception e) {
-				System.out.println("HandleDataTypes.decodeField: " + e);
+				logger.error("HandleDataTypes.decodeField: " + e);
 				return true;
 			}
 		}
@@ -643,7 +703,7 @@ public class HandleDataTypes {
 		 */
 		HlaDataType tmpHlaDataType = hlaDataTypes.dataTypeMap.get(nameStr);
 		if (tmpHlaDataType != null) {
-			System.out.println("HandleDataTypes.decodeField dataType not found: " + nameStr);
+			logger.trace("HandleDataTypes.decodeField dataType not found: " + nameStr);
 			return true;
 		}
 		
@@ -653,7 +713,7 @@ public class HandleDataTypes {
 				fields.put(nameStr, dataTypeStr);
 			} else {
 				if (s.equals(dataTypeStr) == false) {
-					System.out.println("HandleDataTypes.decodeField: duplicate field key " + nameStr);
+					logger.trace("HandleDataTypes.decodeField: duplicate field key " + nameStr);
 					return true;
 				}
 			}
@@ -684,7 +744,7 @@ public class HandleDataTypes {
 					if (((Element) child).getFirstChild() != null) {
 						nameStr = ((Element) child).getFirstChild().getNodeValue();
 						gotName = true;
-						System.out.println("FixedRecordDataName: " + nameStr);
+						logger.trace("FixedRecordDataName: " + nameStr);
 					}
 					continue;
 				}
@@ -692,7 +752,7 @@ public class HandleDataTypes {
 					if (((Element) child).getFirstChild() != null) {
 						textPointer = ((Element) child).getFirstChild().getNodeValue();
 						gotEncoding = true;
-						System.out.println("FixedRecordDataEncoding: " + textPointer);
+						logger.trace("FixedRecordDataEncoding: " + textPointer);
 					}
 					continue;
 				}
@@ -704,11 +764,11 @@ public class HandleDataTypes {
 					continue;
 				}
 			} catch (Exception e) {
-				System.out.println("HandleDataTypes.decodeFixedRecordData: " + e);
+				logger.trace("HandleDataTypes.decodeFixedRecordData: " + e);
 				return true;
 			}
 		}
-		
+
 		if (gotName && gotEncoding && gotField) {
 			HlaDataFixedRecordType hlaDataTypeFixedRecord = new HlaDataFixedRecordType(nameStr, fields, false);
 
@@ -717,14 +777,27 @@ public class HandleDataTypes {
 				hlaDataTypes.dataTypeMap.put(nameStr, hlaDataTypeFixedRecord);
 			} else {
 				if (tmpHlaDataType.equalTo(hlaDataTypeFixedRecord)) {
-					System.out.println("HandleDataTypes.decodeFixedRecordData: EQUAL DATA TYPE: " + nameStr + " IGNORED");
+					logger.trace("HandleDataTypes.decodeFixedRecordData: EQUAL DATA TYPE: " + nameStr + " IGNORED");
 				} else {
-					System.out.println("HandleDataTypes.decodeFixedRecordData: EQUAL DATA TYPE: " + nameStr + " NOT MERGED");
+					logger.trace("HandleDataTypes.decodeFixedRecordData: EQUAL DATA TYPE: " + nameStr + " NOT MERGED");
 				}
 			}
 			return false;
 		}
-		
+
+		/*
+		 * Incomplete data
+		 */
+		if (gotName) {
+			logger.error("HandleDataTypes.decodeFixedRecordData: missing name");
+		}
+		if (gotEncoding) {
+			logger.error("HandleDataTypes.decodeFixedRecordData: missing encoding");
+		}
+		if (gotField) {
+			logger.error("HandleDataTypes.decodeFixedRecordData: missing field");
+		}
+
 		return true;
 	}
 
@@ -747,7 +820,7 @@ public class HandleDataTypes {
 					continue;
 				}
 			} catch (Exception e) {
-				System.out.println("HandleDataTypes.decodeFixedRecordDataTypes: " + e);
+				logger.error("HandleDataTypes.decodeFixedRecordDataTypes: " + e);
 				return true;
 			}
 		}
@@ -777,7 +850,7 @@ public class HandleDataTypes {
 					if (((Element) child).getFirstChild() != null) {
 						enumeratorStr = ((Element) child).getFirstChild().getNodeValue();
 						gotEnumerator = true;
-						System.out.println("AlternativeEnumerator: " + enumeratorStr);
+						logger.trace("AlternativeEnumerator: " + enumeratorStr);
 					}
 					continue;
 				}
@@ -785,7 +858,7 @@ public class HandleDataTypes {
 					if (((Element) child).getFirstChild() != null) {
 						nameStr = ((Element) child).getFirstChild().getNodeValue();
 						gotName = true;
-						System.out.println("AlternativeName: " + nameStr);
+						logger.trace("AlternativeName: " + nameStr);
 					}
 					continue;
 				}
@@ -793,12 +866,12 @@ public class HandleDataTypes {
 					if (((Element) child).getFirstChild() != null) {
 						dataTypeStr = ((Element) child).getFirstChild().getNodeValue();
 						gotDataType = true;
-						System.out.println("AlternativeDataType: " + dataTypeStr);
+						logger.trace("AlternativeDataType: " + dataTypeStr);
 					}
 					continue;
 				}
 			} catch (Exception e) {
-				System.out.println("HandleDataTypes.decodeAlternative: " + e);
+				logger.error("HandleDataTypes.decodeAlternative: " + e);
 				return true;
 			}
 		}
@@ -808,7 +881,7 @@ public class HandleDataTypes {
 			AlternativeStringPair tmpAlternativeStringPair = alternativeMap.get(enumeratorStr);
 			if (tmpAlternativeStringPair != null) {
 				if (alternativeStringPair.equalTo(tmpAlternativeStringPair) == false) {
-					System.out.println("HandleDataTypes.decodeAlternative: alternativeStringPair enumeratorStr differ IGNORED");
+					logger.trace("HandleDataTypes.decodeAlternative: alternativeStringPair enumeratorStr differ IGNORED");
 					return true;
 				}
 			}
@@ -843,7 +916,7 @@ public class HandleDataTypes {
 					if (((Element) child).getFirstChild() != null) {
 						nameStr = ((Element) child).getFirstChild().getNodeValue();
 						gotName = true;
-						System.out.println("VariantRecordName: " + nameStr);
+						logger.trace("VariantRecordName: " + nameStr);
 					}
 					continue;
 				}
@@ -851,7 +924,7 @@ public class HandleDataTypes {
 					if (((Element) child).getFirstChild() != null) {
 						discriminantStr = ((Element) child).getFirstChild().getNodeValue();
 						gotDiscriminant = true;
-						System.out.println("VariantRecordDiscriminant: " + discriminantStr);
+						logger.trace("VariantRecordDiscriminant: " + discriminantStr);
 					}
 					continue;
 				}
@@ -859,7 +932,7 @@ public class HandleDataTypes {
 					if (((Element) child).getFirstChild() != null) {
 						dataTypeStr = ((Element) child).getFirstChild().getNodeValue();
 						gotDataType = true;
-						System.out.println("VariantRecordDataType: " + dataTypeStr);
+						logger.trace("VariantRecordDataType: " + dataTypeStr);
 					}
 					continue;
 				}
@@ -871,7 +944,7 @@ public class HandleDataTypes {
 					continue;
 				}
 			} catch (Exception e) {
-				System.out.println("HandleDataTypes.decodeVariantRecordData: " + e);
+				logger.error("HandleDataTypes.decodeVariantRecordData: " + e);
 				return true;
 			}
 		}
@@ -888,16 +961,33 @@ public class HandleDataTypes {
 				if (tmpHlaDataType instanceof HlaDataVariantRecordType) {
 					HlaDataVariantRecordType tmpType = (HlaDataVariantRecordType) tmpHlaDataType;
 					if (tmpType.equalTo(hlaDataTypeVariantRecord)) {
-						System.out.println("HandleDataTypes.decodeVariantRecordData: EQUAL DATA TYPE: " + nameStr + " IGNORED");
+						logger.trace("HandleDataTypes.decodeVariantRecordData: EQUAL DATA TYPE: " + nameStr + " IGNORED");
 					} else {
-						System.out.println("HandleDataTypes.decodeVariantRecordData: UNEQUAL DATA TYPE: " + nameStr + " NOT MERGED");
+						logger.trace("HandleDataTypes.decodeVariantRecordData: UNEQUAL DATA TYPE: " + nameStr + " NOT MERGED");
 					}
 				} else {
-					System.out.println("HandleDataTypes.decodeVariantRecordData: UNEQUAL DATA TYPES: " + nameStr + " NOT MERGED");
+					logger.trace("HandleDataTypes.decodeVariantRecordData: UNEQUAL DATA TYPES: " + nameStr + " NOT MERGED");
 				}
 			}
 			return false;
 		}
+
+		/*
+		 * Incomplete data
+		 */
+		if (gotName) {
+			logger.error("HandleDataTypes.decodeVariantRecordData: missing name");
+		}
+		if (gotDiscriminant) {
+			logger.error("HandleDataTypes.decodeVariantRecordData: missing discriminant");
+		}
+		if (gotDataType) {
+			logger.error("HandleDataTypes.decodeVariantRecordData: missing dataType");
+		}
+		if (gotAlternative) {
+			logger.error("HandleDataTypes.decodeVariantRecordData: missing alternative");
+		}
+
 		return true;
 	}
 
@@ -920,7 +1010,7 @@ public class HandleDataTypes {
 					continue;
 				}
 			} catch (Exception e) {
-				System.out.println("HandleDataTypes.decodeVariantRecordDataTypes: " + e);
+				logger.error("HandleDataTypes.decodeVariantRecordDataTypes: " + e);
 				return true;
 			}
 		}
@@ -938,7 +1028,7 @@ public class HandleDataTypes {
 		this.hlaDataTypes = hlaDataTypes;
 		if (theSelectedNode.getNodeType() == Node.ELEMENT_NODE) {
 			textPointer = theSelectedNode.getNodeName();
-			System.out.println("decode: " + textPointer);
+			logger.trace("decode: " + textPointer);
 		}
 		// Need basicDataRepresentations first, all others refer to these
 		for (Node child = theSelectedNode.getFirstChild(); child != null; child = child.getNextSibling()) {
@@ -947,7 +1037,7 @@ public class HandleDataTypes {
 			}
 			textPointer = child.getNodeName();
 			if (child.getNodeName().equals("basicDataRepresentations")) {
-				System.out.println("Got basicDataRepresentations!");
+				logger.trace("Got basicDataRepresentations!");
 				if (decodeBasicDataTypes(child)) {
 					return true;
 				}
@@ -961,14 +1051,14 @@ public class HandleDataTypes {
 				continue;
 			}
 			if (child.getNodeName().equals("simpleDataTypes")) {
-				System.out.println("Got simpleDataTypes!");
+				logger.trace("Got simpleDataTypes!");
 				if (decodeSimpleDataTypes(child)) {
 					return true;
 				}
 				continue;
 			}
 			if (child.getNodeName().equals("enumeratedDataTypes")) {
-				System.out.println("Got enumeratedDataTypes!");
+				logger.trace("Got enumeratedDataTypes!");
 				if (decodeEnumeratedDataTypes(child)) {
 					return true;
 				}
@@ -981,21 +1071,21 @@ public class HandleDataTypes {
 				continue;
 			}
 			if (child.getNodeName().equals("arrayDataTypes")) {
-				System.out.println("Got arrayDataTypes!");
+				logger.trace("Got arrayDataTypes!");
 				if (decodeArrayDataTypes(child)) {
 					return true;
 				}
 				continue;
 			}
 			if (child.getNodeName().equals("fixedRecordDataTypes")) {
-				System.out.println("Got fixedRecordDataTypes!");
+				logger.trace("Got fixedRecordDataTypes!");
 				if (decodeFixedRecordDataTypes(child)) {
 					return true;
 				}
 				continue;
 			}
 			if (child.getNodeName().equals("variantRecordDataTypes")) {
-				System.out.println("Got variantRecordDataTypes!");
+				logger.trace("Got variantRecordDataTypes!");
 				if (decodeVariantRecordDataTypes(child)) {
 					return true;
 				}

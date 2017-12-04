@@ -36,6 +36,7 @@ import org.xml.sax.SAXException;
 import de.fraunhofer.iosb.tc_lib.IVCT_BaseModel;
 import de.fraunhofer.iosb.tc_lib.IVCT_RTIambassador;
 import de.fraunhofer.iosb.tc_lib.IVCT_TcParam;
+import de.fraunhofer.iosb.tc_lib.TcInconclusive;
 import hla.rti1516e.AttributeHandle;
 import hla.rti1516e.AttributeHandleSet;
 import hla.rti1516e.AttributeHandleValueMap;
@@ -81,6 +82,8 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 	private String                                         errorText = new String("Encoding error found");
 
 	private boolean                                        receivedReflect = false;
+	private int correct = 0;
+	private int incorrect = 0;
     private EncoderFactory                                 _encoderFactory;
     private IVCT_RTIambassador                             ivct_rti;
     private IVCT_TcParam ivct_TcParam;
@@ -107,12 +110,32 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
         this.ivct_TcParam = ivct_TcParam;
     }
 
-    public boolean getErrorOccured() {
+    /**
+     * @return returns whether an error was detected
+     */
+    public boolean getErrorOccurred() {
     	return errorOccurred;
     }
 
+    /**
+     * @return returns the error text
+     */
     public String getErrorText() {
     	return errorText;
+    }
+
+    /**
+     * @return returns the failed count
+     */
+    public int getCorrect() {
+    	return correct;
+    }
+
+    /**
+     * @return returns the inconclusive count
+     */
+    public int getIncorrect() {
+    	return incorrect;
     }
 
     /**
@@ -124,7 +147,6 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
             return this.ivct_rti.getFederateName(federateHandle);
         }
         catch (InvalidFederateHandle | FederateHandleNotKnown | FederateNotExecutionMember | NotConnected | RTIinternalError ex) {
-            // TODO Auto-generated catch block
             ex.printStackTrace();
             return null;
         }
@@ -196,8 +218,9 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 
     /**
      * @return true means error, false means correct
+     * @throws TcInconclusive 
      */
-    public boolean init() {
+    public boolean init() throws TcInconclusive {
     	// Read SOM files and process them.
     	processSOM();
 
@@ -211,25 +234,25 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 		}
 		catch (FederateServiceInvocationsAreBeingReportedViaMOM | InteractionClassNotDefined | SaveInProgress | RestoreInProgress | FederateNotExecutionMember | NotConnected | RTIinternalError ex1) {
 			this.logger.error("EncodingRulesTesterBaseModel.init: cannot subcribe interaction");
-			// TODO Auto-generated catch block
 			ex1.printStackTrace();
+            return true;
 		} catch (InvalidInteractionClassHandle e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+            return true;
 		}
 
         // Subscribe object attributes
-	this.logger.trace("EncodingRulesTesterBaseModel.init: subscribe object attributes");
-        try {
-        	for (Map.Entry<ObjectClassHandle, AttributeHandleSet> entry : objectClassAttributeHandleMap.entrySet()) {
-        		this.logger.trace("EncodingRulesTesterBaseModel.init: subscribe " + this.ivct_rti.getObjectClassName(entry.getKey()));
-                this.ivct_rti.subscribeObjectClassAttributes(entry.getKey(), entry.getValue());
-        	}
-        }
-        catch (AttributeNotDefined | ObjectClassNotDefined | SaveInProgress | RestoreInProgress | FederateNotExecutionMember | NotConnected | RTIinternalError | InvalidObjectClassHandle ex) {
-            this.logger.error("EncodingRulesTesterBaseModel.init: cannot subscribe object attributes " + ex);
-            return true;
-        }
+		this.logger.trace("EncodingRulesTesterBaseModel.init: subscribe object attributes");
+		try {
+			for (Map.Entry<ObjectClassHandle, AttributeHandleSet> entry : objectClassAttributeHandleMap.entrySet()) {
+				this.logger.trace("EncodingRulesTesterBaseModel.init: subscribe " + this.ivct_rti.getObjectClassName(entry.getKey()));
+				this.ivct_rti.subscribeObjectClassAttributes(entry.getKey(), entry.getValue());
+			}
+		}
+		catch (AttributeNotDefined | ObjectClassNotDefined | SaveInProgress | RestoreInProgress | FederateNotExecutionMember | NotConnected | RTIinternalError | InvalidObjectClassHandle ex) {
+			this.logger.error("EncodingRulesTesterBaseModel.init: cannot subscribe object attributes " + ex);
+			return true;
+		}
 
         return false;
     }
@@ -237,8 +260,9 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
     /**
      * 
      * @return true means error occurred
+     * @throws TcInconclusive 
      */
-    private boolean processSOM() {
+    private boolean processSOM() throws TcInconclusive {
         URL[] somUrls = this.ivct_TcParam.getUrls();
 
 		try {
@@ -279,25 +303,33 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
      * @param theParameters specify the parameter handles and values
      */
     private void doReceiveInteraction(final InteractionClassHandle interactionClass, final ParameterHandleValueMap theParameters) {
-    	this.logger.trace("EncodingRulesTesterBaseModel.doReceiveInteraction: enter");
+    	this.logger.info("EncodingRulesTesterBaseModel.doReceiveInteraction: enter");
         for (Map.Entry<ParameterHandle, byte[]> entry : theParameters.entrySet()) {
-        	this.logger.trace("EncodingRulesTesterBaseModel.doReceiveInteraction:  GOT parameter " + entry.getKey());
+        	this.logger.info("EncodingRulesTesterBaseModel.doReceiveInteraction:  GOT parameter " + entry.getKey());
+        	this.logger.info("EncodingRulesTesterBaseModel.doReceiveInteraction: GOT receiveInteraction " + this.parameterHandleDataTypeMap.get(entry.getKey()));
             HlaDataType hdt = this.hlaDataTypes.dataTypeMap.get(this.parameterHandleDataTypeMap.get(entry.getKey()));
             byte b[] = theParameters.get(entry.getKey());
             this.logger.trace("EncodingRulesTesterBaseModel.doReceiveInteraction: length " + b.length);
+            for (int i = 0; i < b.length; i++) {
+                this.logger.trace("EncodingRulesTesterBaseModel.doReceiveInteraction: byte " + b[i]);
+            }
             try {
-				if (hdt.testBuffer(entry.getValue(), 0, hlaDataTypes) != entry.getValue().length) {
-		            System.out.println("TEST BUFFER FAILED");
+            	int calculatedLength = hdt.testBuffer(entry.getValue(), 0, hlaDataTypes);
+				if (calculatedLength != entry.getValue().length) {
+					this.logger.info("TEST BUFFER INCORRECT: overall length caculation: " + calculatedLength + " Buffer length: " + entry.getValue().length);
 		            errorOccurred = true;
+		            incorrect += 1;
 				} else {
-		            System.out.println("TEST BUFFER PASSED");
+					this.logger.info("TEST BUFFER CORRECT");
+					correct += 1;
 				}
 			} catch (EncodingRulesException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				this.logger.info("TEST BUFFER INCORRECT: " + e.getMessage());
+	            errorOccurred = true;
+	            incorrect += 1;
 			}
         }
-    	this.logger.trace("EncodingRulesTesterBaseModel.doReceiveInteraction: leave");
+    	this.logger.info("EncodingRulesTesterBaseModel.doReceiveInteraction: leave");
     }
 
 
@@ -351,26 +383,33 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
      * @param theAttributes the map of attribute handle / value
      */
     public void doReflectAttributeValues(final ObjectInstanceHandle theObject, final AttributeHandleValueMap theAttributes) {
-    	this.logger.trace("EncodingRulesTesterBaseModel.doReflectAttributeValues: enter");
+    	this.logger.info("EncodingRulesTesterBaseModel.doReflectAttributeValues: enter");
         for (Map.Entry<AttributeHandle, byte[]> entry : theAttributes.entrySet()) {
-        	this.logger.trace("EncodingRulesTesterBaseModel.doReflectAttributeValues: GOT attribute " + entry.getKey());
-        	this.logger.trace("EncodingRulesTesterBaseModel.doReflectAttributeValues: GOT reflectAttributeValues " + this.attributeHandleDataTypeMap.get(entry.getKey()));
+        	this.logger.info("EncodingRulesTesterBaseModel.doReflectAttributeValues: GOT attribute " + entry.getKey());
+        	this.logger.info("EncodingRulesTesterBaseModel.doReflectAttributeValues: GOT reflectAttributeValues " + this.attributeHandleDataTypeMap.get(entry.getKey()));
             HlaDataType hdt = this.hlaDataTypes.dataTypeMap.get(this.attributeHandleDataTypeMap.get(entry.getKey()));
             byte b[] = theAttributes.get(entry.getKey());
             this.logger.trace("EncodingRulesTesterBaseModel.doReflectAttributeValues: length " + b.length);
+            for (int i = 0; i < b.length; i++) {
+                this.logger.trace("EncodingRulesTesterBaseModel.doReflectAttributeValues: byte " + b[i]);
+            }
             try {
-				if (hdt.testBuffer(entry.getValue(), 0, hlaDataTypes) != entry.getValue().length) {
-		            System.out.println("TEST BUFFER FAILED");
+            	int calculatedLength = hdt.testBuffer(entry.getValue(), 0, hlaDataTypes);
+				if (calculatedLength != entry.getValue().length) {
+					this.logger.info("TEST BUFFER INCORRECT: overall length caculation: " + calculatedLength + " Buffer length: " + entry.getValue().length);
 		            errorOccurred = true;
+		            incorrect += 1;
 				} else {
-		            System.out.println("TEST BUFFER PASSED");
+					this.logger.info("TEST BUFFER CORRECT");
+					correct += 1;
 				}
 			} catch (EncodingRulesException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				this.logger.info("TEST BUFFER INCORRECT: " + e.getMessage());
+	            errorOccurred = true;
+	            incorrect += 1;
 			}
         }
-    	this.logger.trace("EncodingRulesTesterBaseModel.doReflectAttributeValues: leave");
+    	this.logger.info("EncodingRulesTesterBaseModel.doReflectAttributeValues: leave");
     }
 
 

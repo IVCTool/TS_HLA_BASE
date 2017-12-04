@@ -1,5 +1,5 @@
 /*
-Copyright 2015, Johannes Mulder (Fraunhofer IOSB)
+Copyright 2017, Johannes Mulder (Fraunhofer IOSB)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -81,6 +81,15 @@ public class EncodingRulesTesterTcParam implements IVCT_TcParam {
 			if (sutFederate == null) {
                 throw new TcInconclusive("EncodingRulesTesterTcParam: the key  sutFederateName  was not found");
 			}
+
+			// get an integer from the JSON object
+			String tempString = (String) jsonObject.get("sleepTestTimeWaitSeconds");
+			if (tempString != null) {
+				sleepTestTimeWait = Long.parseLong(tempString) * 1000;
+			} else {
+				sleepTestTimeWait = 30000;
+			}
+
 			// get FOM files list from the JSON object
 			JSONArray fomArray = (JSONArray) jsonObject.get("fomFiles");
 			if (fomArray == null) {
@@ -100,12 +109,12 @@ public class EncodingRulesTesterTcParam implements IVCT_TcParam {
 						this.fomUrls[index++] = uri.toURL();
 					}
 			        catch (MalformedURLException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
+		                throw new TcInconclusive("EncodingRulesTesterTcParam: MalformedURLException");
 					}
 					catch (Exception e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
+		                throw new TcInconclusive("EncodingRulesTesterTcParam: Exception");
 					}
 				}
 			}
@@ -124,8 +133,8 @@ public class EncodingRulesTesterTcParam implements IVCT_TcParam {
 				}
 			}
 		} catch (ParseException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
+            throw new TcInconclusive("EncodingRulesTesterTcParam: ParseException");
 		}
     }
 
@@ -165,7 +174,7 @@ public class EncodingRulesTesterTcParam implements IVCT_TcParam {
 
 
     /**
-     * @return value of sleep time for tmr
+     * @return value of sleep time cycle
      */
     public long getSleepTimeCycle() {
         return this.sleepTimeCycle;
@@ -173,12 +182,15 @@ public class EncodingRulesTesterTcParam implements IVCT_TcParam {
 
 
     /**
-     * @return value of sleep time for tmr
+     * @return value of sleep time wait
      */
     public long getSleepTimeWait() {
         return this.sleepTimeWait;
     }
     
+    /**
+     * @return value of test sleep time wait
+     */
     public long getTestTimeWait() {
         return this.sleepTestTimeWait;
     }

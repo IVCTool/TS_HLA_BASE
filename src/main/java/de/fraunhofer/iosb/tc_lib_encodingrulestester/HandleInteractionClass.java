@@ -1,8 +1,26 @@
+/*
+Copyright 2017, Johannes Mulder (Fraunhofer IOSB)
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package de.fraunhofer.iosb.tc_lib_encodingrulestester;
 
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -14,12 +32,14 @@ import hla.rti1516e.exceptions.FederateNotExecutionMember;
 import hla.rti1516e.exceptions.NotConnected;
 
 public class HandleInteractionClass {
+	private static Logger logger = LoggerFactory.getLogger(HandleInteractionClass.class);
 	/**
 	 * 
 	 * @param theSelectedNode the Xerces node at this level
 	 * @return true means error
 	 */
 	private boolean decodeInteractionClass(Node theSelectedNode, final IVCT_RTIambassador ivct_rti, String parentClassName, Set<InteractionClassHandle> interactionHandleSet, Map<ParameterHandle, String> parameterHandleDataTypeMap) {
+		logger.trace("HandleInteractionClass.decodeInteractionClass: enter");
 		InteractionClassHandle ich = null;
 		String myClassName = null;
 		String textPointer = null;
@@ -33,45 +53,46 @@ public class HandleInteractionClass {
 				continue;
 			}
 			// ---------------------------------------------------------------------------
-			System.out.println("decodeInteractionClass: AAAAA " + parentClassName);
 			try {
-				System.out.println("decodeInteractionClass: BBBBB");
 				if (child.getNodeName().equals("name")) {
-					System.out.println("decodeInteractionClass: CCCCC");
+					logger.trace("HandleInteractionClass.decodeInteractionClass: name enter");
 					if (((Element) child).getFirstChild() != null) {
 						textPointer = ((Element) child).getFirstChild().getNodeValue();
-						System.out.println("Name: " + textPointer);
+						logger.trace("Name: " + textPointer);
 						if (parentClassName.isEmpty()) {
 							myClassName = textPointer;
 						} else {
 							myClassName = parentClassName + "." + textPointer;
 						}
-						System.out.println("GET_INTERACTION_CLASS_HANDLE: " + myClassName);
+						logger.trace("RTI GET_INTERACTION_CLASS_HANDLE: " + myClassName);
 						ich = ivct_rti.getInteractionClassHandle(myClassName);
 					}
-					System.out.println("decodeInteractionClass: DDDDD");
+					logger.trace("HandleInteractionClass.decodeInteractionClass: name leave");
 					continue;
 				}
 				if (child.getNodeName().equals("sharing")) {
-					System.out.println("Got sharing: " + child.getNodeName());
+					logger.trace("HandleInteractionClass.decodeInteractionClass: sharing enter");
 					if (((Element) child).getFirstChild() != null) {
 						textPointer = ((Element) child).getFirstChild().getNodeValue();
-						System.out.println("Sharing: " + textPointer);
+						logger.trace("Sharing: " + textPointer);
 						if (textPointer.equals("Publish") || textPointer.equals("PublishSubscribe")) {
 							interactionHandleSet.add(ich);
 						}
 					}
+					logger.trace("HandleInteractionClass.decodeInteractionClass: sharing leave");
 					continue;
 				}
 				if (child.getNodeName().equals("parameter")) {
-					System.out.println("Got parameter: " + child.getNodeName());
+					logger.trace("HandleInteractionClass.decodeInteractionClass: parameter enter");
+					logger.trace("Got parameter: " + child.getNodeName());
 					if (decodeParameter(child, ivct_rti, ich, parameterHandleDataTypeMap)) {
 						return true;
 					}
+					logger.trace("HandleInteractionClass.decodeInteractionClass: parameter leave");
 					continue;
 				}
 			} catch (Exception e) {
-				System.out.println("HandleInteractionClass.decodeInteractionClass: " + e);
+				logger.error("HandleInteractionClass.decodeInteractionClass: " + e);
 			}
 		}
 		// Do the child level
@@ -82,17 +103,18 @@ public class HandleInteractionClass {
 			// ---------------------------------------------------------------------------
 			try {
 				if (child.getNodeName().equals("interactionClass")) {
-					System.out.println("Got interactionClass: " + child.getNodeName());
+					logger.trace("Got interactionClass: " + child.getNodeName());
 					if (decodeInteractionClass(child, ivct_rti, myClassName, interactionHandleSet, parameterHandleDataTypeMap)) {
 						return true;
 					}
 					continue;
 				}
 			} catch (Exception e) {
-				System.out.println("HandleInteractionClass.decodeInteractionClass: " + e);
+				logger.error("HandleInteractionClass.decodeInteractionClass: " + e);
 				return true;
 			}
 		}
+		logger.trace("HandleInteractionClass.decodeInteractionClass: leave");
 		return false;
 	}
 
@@ -105,6 +127,7 @@ public class HandleInteractionClass {
 	 * @return true means error
 	 */
 	private boolean decodeParameter(final Node theSelectedNode, final IVCT_RTIambassador ivct_rti, final InteractionClassHandle ich, final Map<ParameterHandle, String> parameterHandleDataTypeMap) {
+		logger.trace("HandleInteractionClass.decodeParameter: enter");
 		ParameterHandle pHandle = null;
 		String nameStr = null;
 		String dataTypeStr = null;
@@ -119,24 +142,28 @@ public class HandleInteractionClass {
 			// ---------------------------------------------------------------------------
 			try {
 				if (child.getNodeName().equals("name")) {
+					logger.trace("HandleInteractionClass.decodeParameter: name enter");
 					if (((Element) child).getFirstChild() != null) {
 						nameStr = ((Element) child).getFirstChild().getNodeValue();
-						System.out.println("Name: " + nameStr);
+						logger.trace("Name: " + nameStr);
 						pHandle = ivct_rti.getParameterHandle(ich, nameStr);
 						gotName = true;
 					}
+					logger.trace("HandleInteractionClass.decodeParameter: name leave");
 					continue;
 				}
 				if (child.getNodeName().equals("dataType")) {
+					logger.trace("HandleInteractionClass.decodeParameter: dataType enter");
 					if (((Element) child).getFirstChild() != null) {
 						dataTypeStr = ((Element) child).getFirstChild().getNodeValue();
-						System.out.println("dataType: " + dataTypeStr);
+						logger.trace("dataType: " + dataTypeStr);
 						gotDataType = true;
 					}
+					logger.trace("HandleInteractionClass.decodeParameter: dataType leave");
 					continue;
 				}
 			} catch (Exception e) {
-				System.out.println("HandleInteractionClass.decodeParameter: " + e);
+				logger.error("HandleInteractionClass.decodeParameter: " + e);
 				return true;
 			}
 		}
@@ -144,15 +171,16 @@ public class HandleInteractionClass {
 		// All found
 		if (gotName && gotDataType) {
 			parameterHandleDataTypeMap.put(pHandle, dataTypeStr);
+			logger.trace("HandleInteractionClass.decodeParameter: leave");
 			return false;
 		}
 		
 		// An error occurred
 		if (gotName == false) {
-			System.out.println("HandleInteractionClass.decodeParameter: missing name");
+			logger.error("HandleInteractionClass.decodeParameter: missing name");
 		}
 		if (gotDataType == false) {
-			System.out.println("HandleInteractionClass.decodeParameter: missing dataType");
+			logger.error("HandleInteractionClass.decodeParameter: missing dataType");
 		}
 		return true;
 	}
@@ -163,11 +191,12 @@ public class HandleInteractionClass {
 	 * @return true means error
 	 */
 	boolean decode(Node theSelectedNode, final IVCT_RTIambassador ivct_rti, String parentClass, Set<InteractionClassHandle> interactionHandleSet, Map<ParameterHandle, String> parameterHandleDataTypeMap) {
+		logger.trace("HandleInteractionClass.decode: enter");
 		String textPointer = null;
 
 		if (theSelectedNode.getNodeType() == Node.ELEMENT_NODE) {
 			textPointer = theSelectedNode.getNodeName();
-			System.out.println("decode: " + textPointer);
+			logger.trace("HandleInteractionClass.decode: " + textPointer);
 		}
 		for (Node child = theSelectedNode.getFirstChild(); child != null; child = child.getNextSibling()) {
 			if (child.getNodeType() != Node.ELEMENT_NODE) {
@@ -179,6 +208,7 @@ public class HandleInteractionClass {
 				}
 			}
 		}
+		logger.trace("HandleInteractionClass.decode: leave");
 		return false;
 	}
 }

@@ -1,8 +1,22 @@
+/*
+Copyright 2017, Johannes Mulder (Fraunhofer IOSB)
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package de.fraunhofer.iosb.tc_lib_encodingrulestester;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -10,7 +24,8 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import de.fraunhofer.iosb.tc_lib_encodingrulestester.HlaDataTypes;
+import de.fraunhofer.iosb.tc_lib.IVCT_RTIambassador;
+import de.fraunhofer.iosb.tc_lib.TcInconclusive;
 import hla.rti1516e.AttributeHandle;
 import hla.rti1516e.AttributeHandleSet;
 import hla.rti1516e.AttributeHandleSetFactory;
@@ -19,7 +34,6 @@ import hla.rti1516e.ObjectClassHandle;
 import hla.rti1516e.ParameterHandle;
 import hla.rti1516e.exceptions.FederateNotExecutionMember;
 import hla.rti1516e.exceptions.NotConnected;
-import de.fraunhofer.iosb.tc_lib.IVCT_RTIambassador;
 
 public class DataTreeBuilder {
     private static Logger logger = LoggerFactory.getLogger(DataTreeBuilder.class);
@@ -48,8 +62,9 @@ public class DataTreeBuilder {
 	 * @param interactionHandleSet the interactions to subscribe to
 	 * @param parameterHandleDataTypeMap the parameter dataType mapper
 	 * @param objectClassAttributeHandleMap the attribute dataType mapper
+	 * @throws TcInconclusive
 	 */
-	public DataTreeBuilder(final IVCT_RTIambassador ivct_rti, final HlaDataTypes hlaDataTypes, final Set<InteractionClassHandle> interactionHandleSet, Map<ParameterHandle, String> parameterHandleDataTypeMap, Map<ObjectClassHandle, AttributeHandleSet> objectClassAttributeHandleMap, Map<AttributeHandle, String> attributeHandleDataTypeMap) {
+	public DataTreeBuilder(final IVCT_RTIambassador ivct_rti, final HlaDataTypes hlaDataTypes, final Set<InteractionClassHandle> interactionHandleSet, Map<ParameterHandle, String> parameterHandleDataTypeMap, Map<ObjectClassHandle, AttributeHandleSet> objectClassAttributeHandleMap, Map<AttributeHandle, String> attributeHandleDataTypeMap) throws TcInconclusive {
 		logger.trace("DataTreeBuilder: enter");
 		this.ivct_rti = ivct_rti;
 		this.hlaDataTypes = hlaDataTypes;
@@ -60,9 +75,13 @@ public class DataTreeBuilder {
 		try {
 			this.attributeHandleSetFactory = ivct_rti.getAttributeHandleSetFactory();
 			this.attributeHandleBaseClassSet = this.attributeHandleSetFactory.create();
-		} catch (FederateNotExecutionMember | NotConnected e) {
-			// TODO Auto-generated catch block
+		} catch (FederateNotExecutionMember e) {
 			e.printStackTrace();
+			throw new TcInconclusive("DataTreeBuilder: FederateNotExecutionMember");
+		}
+		catch (NotConnected e) {
+			e.printStackTrace();
+			throw new TcInconclusive("DataTreeBuilder: NotConnected");
 		}
 		logger.trace("DataTreeBuilder: leave");
 	}
@@ -100,7 +119,7 @@ public class DataTreeBuilder {
 				}
 				// ---------------------------------------------------------------------------
 				if (child.getNodeName().equals("tags")) {
-					System.out.println("Got tags!");
+					logger.trace("Got tags!");
 					if (((Element) child).getFirstChild() != null) {
 						// handleTags.decode(child);
 					}

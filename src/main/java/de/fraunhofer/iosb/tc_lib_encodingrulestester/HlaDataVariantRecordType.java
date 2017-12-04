@@ -1,9 +1,29 @@
+/*
+Copyright 2017, Johannes Mulder (Fraunhofer IOSB)
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package de.fraunhofer.iosb.tc_lib_encodingrulestester;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class HlaDataVariantRecordType extends HlaDataType {
+    private static Logger logger = LoggerFactory.getLogger(HlaDataVariantRecordType.class);
 	/**
 	 * The number of octets in the datatype
 	 */
@@ -46,15 +66,15 @@ public class HlaDataVariantRecordType extends HlaDataType {
 	 */
 	public boolean equalTo(HlaDataVariantRecordType other) {
 		if (this.dataTypeName.equals(other.dataTypeName) == false) {
-			System.out.println("HlaDataVariantRecordType data name inconsistency: " + dataTypeName + " IGNORED");
+			logger.info("HlaDataVariantRecordType data name inconsistency: " + dataTypeName + " IGNORED");
 			return false;
 		}
 		if (this.discriminantName.equals(other.discriminantName) == false) {
-			System.out.println("HlaDataVariantRecordType discriminantName inconsistency: " + discriminantName + " IGNORED");
+			logger.info("HlaDataVariantRecordType discriminantName inconsistency: " + discriminantName + " IGNORED");
 			return false;
 		}
 		if (this.discriminantType.equals(other.discriminantType) == false) {
-			System.out.println("HlaDataVariantRecordType discriminantType inconsistency: " + discriminantType + " IGNORED");
+			logger.info("HlaDataVariantRecordType discriminantType inconsistency: " + discriminantType + " IGNORED");
 			return false;
 		}
 		
@@ -67,7 +87,7 @@ public class HlaDataVariantRecordType extends HlaDataType {
 			AlternativeStringPair alternativeStringPair = entry.getValue();
 			AlternativeStringPair tmpAlternativeStringPair = other.alternativeMap.get(entry.getKey());
 			if (alternativeStringPair.equalTo(tmpAlternativeStringPair) == false) {
-				System.out.println("HlaDataVariantRecordType alternativeMap inconsistency: " + entry.getKey() + " IGNORED");
+				logger.info("HlaDataVariantRecordType alternativeMap inconsistency: " + entry.getKey() + " IGNORED");
 				return false;
 			}
 		}
@@ -146,6 +166,11 @@ public class HlaDataVariantRecordType extends HlaDataType {
 		String basicType = hlaDataEnumType.getElementTypeName();
 		long discriminantValue = decodeInteger(buffer, currentPosition, basicType);
 		myCurrentPosition += hlaDataEnumType.dataSize;
+		if (myCurrentPosition > buffer.length) {
+			String errorMessageString = "HlaDataVariantRecordType: testBuffer: calculated value length : " + myCurrentPosition + " exceeds buffer length: " + buffer.length;
+			logger.error(errorMessageString);
+			throw new EncodingRulesException(errorMessageString);
+		}
 
 		/*
 		 * Get the value based on the enum defined type
@@ -160,7 +185,17 @@ public class HlaDataVariantRecordType extends HlaDataType {
 		 */
 		int myAlignment = getAlternativeAlignment(dataTypes);
 		myCurrentPosition += calcPaddingBytes(myCurrentPosition, myAlignment);
+		if (myCurrentPosition > buffer.length) {
+			String errorMessageString = "HlaDataVariantRecordType: testBuffer: calculated alignment position : " + myCurrentPosition + " exceeds buffer length: " + buffer.length;
+			logger.error(errorMessageString);
+			throw new EncodingRulesException(errorMessageString);
+		}
 		myCurrentPosition = hlaDataTypeTmp.testBuffer(buffer, myCurrentPosition, dataTypes);
+		if (myCurrentPosition > buffer.length) {
+			String errorMessageString = "HlaDataVariantRecordType: testBuffer: calculated total value length : " + myCurrentPosition + " exceeds buffer length: " + buffer.length;
+			logger.error(errorMessageString);
+			throw new EncodingRulesException(errorMessageString);
+		}
 		return myCurrentPosition;
 	}
 }

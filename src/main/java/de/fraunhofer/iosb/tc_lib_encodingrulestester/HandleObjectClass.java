@@ -1,3 +1,19 @@
+/*
+Copyright 2017, Johannes Mulder (Fraunhofer IOSB)
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package de.fraunhofer.iosb.tc_lib_encodingrulestester;
 
 import java.util.Map;
@@ -51,13 +67,13 @@ public class HandleObjectClass {
 				if (child.getNodeName().equals("name")) {
 					if (((Element) child).getFirstChild() != null) {
 						textPointer = ((Element) child).getFirstChild().getNodeValue();
-						System.out.println("Name: " + textPointer);
+						logger.trace("HandleObjectClass.decodeObjectClass: Name: " + textPointer);
 						if (parentClassName.isEmpty()) {
 							myClassName = textPointer;
 						} else {
 							myClassName = parentClassName + "." + textPointer;
 						}
-						System.out.println("GET_OBJECT_CLASS_HANDLE: " + myClassName);
+						logger.trace("RTI GET_OBJECT_CLASS_HANDLE: " + myClassName);
 						och = ivct_rti.getObjectClassHandle(myClassName);
 					}
 					continue;
@@ -122,7 +138,7 @@ public class HandleObjectClass {
 					logger.trace("HandleObjectClass.decodeAttribute name enter");
 					if (((Element) child).getFirstChild() != null) {
 						nameStr = ((Element) child).getFirstChild().getNodeValue();
-						System.out.println("Name: " + nameStr);
+						logger.trace("Name: " + nameStr);
 						aHandle = ivct_rti.getAttributeHandle(och, nameStr);
 						gotName = true;
 					}
@@ -133,7 +149,7 @@ public class HandleObjectClass {
 					logger.trace("HandleObjectClass.decodeAttribute sharing enter");
 					if (((Element) child).getFirstChild() != null) {
 						sharingStr = ((Element) child).getFirstChild().getNodeValue();
-						System.out.println("Sharing: " + sharingStr);
+						logger.trace("Sharing: " + sharingStr);
 						if (sharingStr.equals("Publish") || sharingStr.equals("PublishSubscribe")) {
 							gotPublish = true;
 						}
@@ -145,7 +161,7 @@ public class HandleObjectClass {
 					logger.trace("HandleObjectClass.decodeAttribute dataType enter");
 					if (((Element) child).getFirstChild() != null) {
 						dataTypeStr = ((Element) child).getFirstChild().getNodeValue();
-						System.out.println("DataType: " + dataTypeStr);
+						logger.trace("DataType: " + dataTypeStr);
 						gotDataType = true;
 					}
 					logger.trace("HandleObjectClass.decodeAttribute dataType leave");
@@ -160,10 +176,10 @@ public class HandleObjectClass {
 		// All found
 		if (gotName && gotDataType && gotPublish) {
 			attributeHandleWorkingSet.add(aHandle);
-			System.out.println("HandleObjectClass.decodeAttribute OOOOOO b1 " + attributeHandleDataTypeMap);
-			System.out.println("HandleObjectClass.decodeAttribute OOOOOO b2 " + aHandle);
-			System.out.println("HandleObjectClass.decodeAttribute OOOOOO b3 " + dataTypeStr);
+			logger.trace("HandleObjectClass.decodeAttribute aHandle " + aHandle);
+			logger.trace("HandleObjectClass.decodeAttribute dataTypeStr " + dataTypeStr);
 			attributeHandleDataTypeMap.put(aHandle, dataTypeStr);
+			logger.trace("HandleObjectClass.decodeAttribute: leave");
 			return false;
 		}
 
@@ -174,8 +190,10 @@ public class HandleObjectClass {
 		if (gotDataType == false) {
 			logger.error("HandleObjectClass.decodeAttribute: missing dataType");
 		}
+		if (gotPublish == false) {
+			logger.error("HandleObjectClass.decodeAttribute: missing publish");
+		}
 
-		logger.trace("HandleObjectClass.decodeAttribute: leave");
 		return true;
 	}
 
@@ -199,7 +217,7 @@ public class HandleObjectClass {
 
 		if (theSelectedNode.getNodeType() == Node.ELEMENT_NODE) {
 			textPointer = theSelectedNode.getNodeName();
-			System.out.println("decode: " + textPointer);
+			logger.error("HandleObjectClass.decode: " + textPointer);
 		}
 		for (Node child = theSelectedNode.getFirstChild(); child != null; child = child.getNextSibling()) {
 			if (child.getNodeType() != Node.ELEMENT_NODE) {

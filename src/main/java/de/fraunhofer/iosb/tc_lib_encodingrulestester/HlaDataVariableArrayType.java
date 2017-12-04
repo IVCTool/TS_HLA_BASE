@@ -1,6 +1,26 @@
+/*
+Copyright 2017, Johannes Mulder (Fraunhofer IOSB)
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package de.fraunhofer.iosb.tc_lib_encodingrulestester;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class HlaDataVariableArrayType extends HlaDataType {
+    private static Logger logger = LoggerFactory.getLogger(HlaDataVariableArrayType.class);
 	/**
 	 * The number of octets in the datatype
 	 */
@@ -75,6 +95,11 @@ public class HlaDataVariableArrayType extends HlaDataType {
 		lengthValue += buffer[myCurrentPosition + 3];
 		HlaDataType elementDataType = dataTypes.dataTypeMap.get(elementType);
 		myCurrentPosition += 4;
+		if (myCurrentPosition + lengthValue > buffer.length) {
+			String errorMessageString = "HlaDataVariableArrayType: testBuffer: field value length : " + myCurrentPosition + lengthValue + " exceeds buffer length: " + buffer.length;
+			logger.error(errorMessageString);
+			throw new EncodingRulesException(errorMessageString);
+		}
 		if (elementDataType.getDataSizeFixed()) {
 			myCurrentPosition += calcPaddingBytes(myCurrentPosition, elementDataType.dataTypeName, dataTypes);
 			myCurrentPosition += lengthValue * elementDataType.getDataSize() + (lengthValue - 1) * (this.alignment - dataSize);
@@ -83,6 +108,11 @@ public class HlaDataVariableArrayType extends HlaDataType {
 				myCurrentPosition += calcPaddingBytes(myCurrentPosition, elementDataType.dataTypeName, dataTypes);
 				myCurrentPosition = elementDataType.testBuffer(buffer, myCurrentPosition, dataTypes);
 			}
+		}
+		if (currentPosition > buffer.length) {
+			String errorMessageString = "HlaDataVariableArrayType: testBuffer: field value length : " + currentPosition + " exceeds buffer length: " + buffer.length;
+			logger.error(errorMessageString);
+			throw new EncodingRulesException(errorMessageString);
 		}
 		return myCurrentPosition;
 	}
