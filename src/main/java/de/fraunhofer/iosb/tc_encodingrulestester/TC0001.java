@@ -107,7 +107,9 @@ public class TC0001 extends AbstractTestCase {
         
         int correct = encodingRulesTesterBaseModel.getCorrect();
         int incorrect = encodingRulesTesterBaseModel.getIncorrect();
-        logger.info("TC0001 verdicts: CORRECT: " + correct + " INCORRECT: " + incorrect);
+        logger.info("\n\nVerdict Summary:\nCORRECT: " + correct + " INCORRECT: " + incorrect + "\n");
+        encodingRulesTesterBaseModel.printAttributeResults();
+        encodingRulesTesterBaseModel.printParameterResults();
 
         // Errors are found asynchronously.
         if (encodingRulesTesterBaseModel.getErrorOccurred()) {
