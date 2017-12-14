@@ -24,7 +24,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import de.fraunhofer.iosb.tc_lib.IVCT_RTIambassador;
-import de.fraunhofer.iosb.testrunner.JMSTestRunner;
 import hla.rti1516e.AttributeHandle;
 import hla.rti1516e.AttributeHandleSet;
 import hla.rti1516e.AttributeHandleSetFactory;
