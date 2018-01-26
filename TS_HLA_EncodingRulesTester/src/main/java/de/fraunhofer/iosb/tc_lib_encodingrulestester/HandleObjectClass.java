@@ -78,7 +78,9 @@ public class HandleObjectClass {
 					continue;
 				}
 				if (child.getNodeName().equals("attribute")) {
-					decodeAttribute(child, ivct_rti, och, attributeHandleWorkingSet, attributeHandleDataTypeMap);
+					if (decodeAttribute(child, ivct_rti, och, attributeHandleWorkingSet, attributeHandleDataTypeMap)) {
+						return true;
+					}
 					continue;
 				}
 			} catch (Exception e) {

@@ -77,6 +77,12 @@ import hla.rti1516e.exceptions.RestoreInProgress;
 import hla.rti1516e.exceptions.SaveInProgress;
 import hla.rti1516e.exceptions.UnsupportedCallbackModel;
 
+/**
+ * This class holds common result information for interaction
+ * parameters and object attributes
+ *
+ * @author mul (Fraunhofer IOSB)
+ */
 class ResultInfo {
 	private int correctCount = 0;
 	private int incorrectCount = 0;
@@ -85,7 +91,13 @@ class ResultInfo {
 		correctCount = 0;
 		incorrectCount = 0;
 	}
-	
+
+	/**
+	 * Stores the result data
+	 *
+	 * @param correct true is PASSED, false is FAILED
+	 * @param text the result verdict text
+	 */
 	void addInfo(final boolean correct, final String text) {
 		// Manage the count of correct/incorrect
 		if (correct) {
@@ -103,16 +115,90 @@ class ResultInfo {
 		}
 	}
 
+	/**
+	 * Gets the number of correct encodings parsed
+	 *
+	 * @return the number of correct encodings
+	 */
 	int getCorrectCount() {
 		return this.correctCount;
 	}
 	
+	/**
+	 * Gets the number of incorrect encodings parsed
+	 *
+	 * @return the number of incorrect encodings
+	 */
 	int getIncorrectCount() {
 		return this.incorrectCount;
 	}
-	
+
+	/**
+	 * Get the text associated with the result verdict
+	 *
+	 * @return the text
+	 */
 	String getText() {
 		return this.text;
+	}
+}
+
+/**
+ * This class adds attribute specific result information
+ *
+ * @author mul (Fraunhofer IOSB)
+ */
+class ResultInfoAttribute extends ResultInfo{
+	private FederateHandle federateHandle;
+	private String federateName;
+	private boolean gotFederateName = false;
+	void addOwner() {
+	}
+
+	/**
+	 * Store the federate handle
+	 *
+	 * @param federateHandle
+	 */
+	void addFederateHandle(final FederateHandle federateHandle) {
+		this.federateHandle = federateHandle;
+	}
+
+	/**
+	 * Store the federate name
+	 *
+	 * @param federateName
+	 */
+	void addFederateName(final String federateName) {
+		this.federateName = federateName;
+		gotFederateName = true;
+	}
+
+	/**
+	 * Get the federate handle
+	 *
+	 * @return the federate handle
+	 */
+	FederateHandle getFederateHandle() {
+		return this.federateHandle;
+	}
+
+	/**
+	 * Get the federate name
+	 *
+	 * @return the federate name
+	 */
+	String getFederateName() {
+		return this.federateName;
+	}
+
+	/**
+	 * Check if the federate name is known
+	 *
+	 * @return whether the federate name is known
+	 */
+	boolean haveFederateName() {
+		return gotFederateName;
 	}
 }
 
@@ -136,7 +222,7 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
     private Map<ParameterHandle, String> parameterHandleDataTypeMap = new HashMap<ParameterHandle, String>();
     private Map<ObjectClassHandle, AttributeHandleSet> objectClassAttributeHandleMap = new HashMap<ObjectClassHandle, AttributeHandleSet>();
 	private final Map<InteractionClassHandle, Map<ParameterHandle, ResultInfo>> interactionParameterResultsmap = new HashMap<InteractionClassHandle, Map<ParameterHandle, ResultInfo>>();
-	private final Map<ObjectInstanceHandle, Map<AttributeHandle, ResultInfo>> objectAttributeResultsmap = new HashMap<ObjectInstanceHandle, Map<AttributeHandle, ResultInfo>>();
+	private final Map<ObjectInstanceHandle, Map<AttributeHandle, ResultInfoAttribute>> objectAttributeResultsmap = new HashMap<ObjectInstanceHandle, Map<AttributeHandle, ResultInfoAttribute>>();
 	private Map<AttributeHandle, String> attributeHandleDataTypeMap = new HashMap<AttributeHandle, String>();
 	// FOM/SOM data types
 	private HlaDataTypes hlaDataTypes = new HlaDataTypes();
@@ -386,10 +472,13 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
     	}
     	this.logger.trace("EncodingRulesTesterBaseModel.addParameterResult: leave");
     }
-    
+
+    /**
+     * Print the result data for all interactions parameters
+     */
     public void printParameterResults() {
     	final StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("\n\nInteraction Parameter Summary\n");
+        stringBuilder.append("\n\nInteraction Parameter Summary \n");
         if (interactionParameterResultsmap.isEmpty()) {
             stringBuilder.append("- No Results -\n");
         	this.logger.info(stringBuilder.toString());
@@ -424,10 +513,10 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
      * @param theParameters specify the parameter handles and values
      */
     private void doReceiveInteraction(final InteractionClassHandle interactionClass, final ParameterHandleValueMap theParameters) {
-    	this.logger.info("EncodingRulesTesterBaseModel.doReceiveInteraction: enter");
+        this.logger.trace("EncodingRulesTesterBaseModel.doReceiveInteraction: enter");
         for (Map.Entry<ParameterHandle, byte[]> entry : theParameters.entrySet()) {
-        	this.logger.info("EncodingRulesTesterBaseModel.doReceiveInteraction:  GOT parameter " + entry.getKey());
-        	this.logger.info("EncodingRulesTesterBaseModel.doReceiveInteraction: GOT receiveInteraction " + this.parameterHandleDataTypeMap.get(entry.getKey()));
+            this.logger.trace("EncodingRulesTesterBaseModel.doReceiveInteraction:  GOT parameter " + entry.getKey());
+            this.logger.trace("EncodingRulesTesterBaseModel.doReceiveInteraction: GOT receiveInteraction " + this.parameterHandleDataTypeMap.get(entry.getKey()));
             HlaDataType hdt = this.hlaDataTypes.dataTypeMap.get(this.parameterHandleDataTypeMap.get(entry.getKey()));
             byte b[] = theParameters.get(entry.getKey());
             this.logger.trace("EncodingRulesTesterBaseModel.doReceiveInteraction: length " + b.length);
@@ -438,7 +527,7 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
             	int calculatedLength = hdt.testBuffer(entry.getValue(), 0, hlaDataTypes);
 				if (calculatedLength != entry.getValue().length) {
 					String error = "TEST BUFFER INCORRECT: overall length caculation: " + calculatedLength + " Buffer length: " + entry.getValue().length;
-					this.logger.info(error);
+					this.logger.error(error);
 		            errorOccurred = true;
 		            addParameterResult(interactionClass, entry.getKey(), false, error);
 		            incorrect += 1;
@@ -450,13 +539,13 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 				}
 			} catch (EncodingRulesException e) {
 				String error = "TEST BUFFER INCORRECT: " + e.getMessage();
-				this.logger.info(error);
+				this.logger.error(error);
 	            errorOccurred = true;
 				addParameterResult(interactionClass, entry.getKey(), false, error);
 	            incorrect += 1;
 			}
         }
-    	this.logger.info("EncodingRulesTesterBaseModel.doReceiveInteraction: leave");
+        this.logger.trace("EncodingRulesTesterBaseModel.doReceiveInteraction: leave");
     }
 
     /**
@@ -513,53 +602,70 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
      */
     void addAttributeResult(final ObjectInstanceHandle theObject, final AttributeHandle theAttribute, final boolean b, final String text) {
     	this.logger.trace("EncodingRulesTesterBaseModel.addAttributeResult: enter");
+        ResultInfoAttribute tmpResultInfo;
+
     	/*
     	 * Check if object already managed
     	 */
-    	Map<AttributeHandle, ResultInfo> attributeResultMap = objectAttributeResultsmap.get(theObject);
+        Map<AttributeHandle, ResultInfoAttribute> attributeResultMap = objectAttributeResultsmap.get(theObject);
     	if (attributeResultMap == null) {
         	this.logger.trace("EncodingRulesTesterBaseModel.addAttributeResult: A");
     		// Object not managed - create all elements
-        	ResultInfo resultInfo = new ResultInfo();
-        	resultInfo.addInfo(b, text);
-        	Map<AttributeHandle, ResultInfo> tmpAttributeResultMap = new HashMap<AttributeHandle, ResultInfo>();
-        	tmpAttributeResultMap.put(theAttribute, resultInfo);
+            tmpResultInfo = new ResultInfoAttribute();
+            tmpResultInfo.addInfo(b, text);
+            Map<AttributeHandle, ResultInfoAttribute> tmpAttributeResultMap = new HashMap<AttributeHandle, ResultInfoAttribute>();
+            tmpAttributeResultMap.put(theAttribute, tmpResultInfo);
         	objectAttributeResultsmap.put(theObject, tmpAttributeResultMap);
         	this.logger.trace("EncodingRulesTesterBaseModel.addAttributeResult: A size " + objectAttributeResultsmap.size());
     	} else {
         	this.logger.trace("EncodingRulesTesterBaseModel.addAttributeResult: B");
     		// Object is already managed
-    		ResultInfo tmpResultInfo = attributeResultMap.get(theAttribute);
+            tmpResultInfo = attributeResultMap.get(theAttribute);
     		/*
     		 * Check if attribute is already managed
     		 */
     		if (tmpResultInfo == null) {
             	this.logger.trace("EncodingRulesTesterBaseModel.addAttributeResult: C");
     			// Attribute not managed - create result info
-            	ResultInfo resultInfo = new ResultInfo();
-            	resultInfo.addInfo(b, text);
-            	attributeResultMap.put(theAttribute, resultInfo);
+                tmpResultInfo = new ResultInfoAttribute();
+                tmpResultInfo.addInfo(b, text);
+                attributeResultMap.put(theAttribute, tmpResultInfo);
     		} else {
             	this.logger.trace("EncodingRulesTesterBaseModel.addAttributeResult: D");
     			// Attribute is already managed - update.
     			tmpResultInfo.addInfo(b, text);
     		}
     	}
+        if (b == false) {
+            try {
+                this.logger.trace("EncodingRulesTesterBaseModel.addAttributeResult: AA");
+                if (tmpResultInfo.haveFederateName() == false) {
+                    this.logger.trace("EncodingRulesTesterBaseModel.addAttributeResult: AAA");
+                    ivct_rti.queryAttributeOwnership(theObject, theAttribute);
+                    this.logger.trace("EncodingRulesTesterBaseModel.addAttributeResult: BBB");
+                }
+				this.logger.trace("EncodingRulesTesterBaseModel.addAttributeResult: BB");
+            } catch (AttributeNotDefined | ObjectInstanceNotKnown | SaveInProgress | RestoreInProgress
+                    | FederateNotExecutionMember | NotConnected | RTIinternalError e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
     	this.logger.trace("EncodingRulesTesterBaseModel.addAttributeResult: leave");
     }
     
     public void printAttributeResults() {
     	final StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("\n\nObject Attribute Summary\n");
+        stringBuilder.append("\n\nObject Attribute Summary \n");
         if (objectAttributeResultsmap.isEmpty()) {
             stringBuilder.append("- No Results -\n");
-        	this.logger.info(stringBuilder.toString());
+            this.logger.trace(stringBuilder.toString());
             return;
         }
     	String objectName = null;
     	String objectClassName = null;
     	ObjectClassHandle objectClassHandle;
-    	for (Map.Entry<ObjectInstanceHandle, Map<AttributeHandle, ResultInfo>> entryObject : objectAttributeResultsmap.entrySet()) {
+        for (Map.Entry<ObjectInstanceHandle, Map<AttributeHandle, ResultInfoAttribute>> entryObject : objectAttributeResultsmap.entrySet()) {
     		try {
     			objectName = ivct_rti.getObjectInstanceName(entryObject.getKey());
         		objectClassHandle = ivct_rti.getKnownObjectClassHandle(entryObject.getKey());
@@ -570,7 +676,7 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 				continue;
 			}
     		String attributeName = null;
-    		for (Map.Entry<AttributeHandle, ResultInfo> entryAttribute : entryObject.getValue().entrySet()) {
+            for (Map.Entry<AttributeHandle, ResultInfoAttribute> entryAttribute : entryObject.getValue().entrySet()) {
     			try {
 					attributeName = ivct_rti.getAttributeName(objectClassHandle, entryAttribute.getKey());
 				} catch (AttributeNotDefined | InvalidAttributeHandle | InvalidObjectClassHandle
@@ -578,7 +684,11 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-    			stringBuilder.append("OBJECT: " + objectName + " ATTRIBUTE: " + attributeName + " CORRECT: " + entryAttribute.getValue().getCorrectCount() + " INCORRECT: " + entryAttribute.getValue().getIncorrectCount() + " TEXT: " + entryAttribute.getValue().getText() + "\n");
+                stringBuilder.append("OBJECT: " + objectName + " ATTRIBUTE: " + attributeName + " CORRECT: " + entryAttribute.getValue().getCorrectCount() + " INCORRECT: " + entryAttribute.getValue().getIncorrectCount());
+                if (entryAttribute.getValue().getIncorrectCount() > 0) {
+					stringBuilder.append(" TEXT: " + entryAttribute.getValue().getText() + " Federate: " + entryAttribute.getValue().getFederateName());
+                }
+                stringBuilder.append("\n");
     		}
     	}
     	this.logger.info(stringBuilder.toString());
@@ -589,10 +699,10 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
      * @param theAttributes the map of attribute handle / value
      */
     public void doReflectAttributeValues(final ObjectInstanceHandle theObject, final AttributeHandleValueMap theAttributes) {
-    	this.logger.info("EncodingRulesTesterBaseModel.doReflectAttributeValues: enter");
+        this.logger.trace("EncodingRulesTesterBaseModel.doReflectAttributeValues: enter");
         for (Map.Entry<AttributeHandle, byte[]> entry : theAttributes.entrySet()) {
-        	this.logger.info("EncodingRulesTesterBaseModel.doReflectAttributeValues: GOT attribute " + entry.getKey());
-        	this.logger.info("EncodingRulesTesterBaseModel.doReflectAttributeValues: GOT reflectAttributeValues " + this.attributeHandleDataTypeMap.get(entry.getKey()));
+            this.logger.trace("EncodingRulesTesterBaseModel.doReflectAttributeValues: GOT attribute " + entry.getKey());
+            this.logger.trace("EncodingRulesTesterBaseModel.doReflectAttributeValues: GOT reflectAttributeValues " + this.attributeHandleDataTypeMap.get(entry.getKey()));
             HlaDataType hdt = this.hlaDataTypes.dataTypeMap.get(this.attributeHandleDataTypeMap.get(entry.getKey()));
             byte b[] = theAttributes.get(entry.getKey());
             this.logger.trace("EncodingRulesTesterBaseModel.doReflectAttributeValues: length " + b.length);
@@ -602,8 +712,8 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
             try {
             	int calculatedLength = hdt.testBuffer(entry.getValue(), 0, hlaDataTypes);
 				if (calculatedLength != entry.getValue().length) {
-					String error = "TEST BUFFER INCORRECT: overall length caculation: " + calculatedLength + " Buffer length: " + entry.getValue().length;
-					this.logger.info(error);
+					String error = "TEST BUFFER INCORRECT: overall length calculation: " + calculatedLength + " Buffer length: " + entry.getValue().length;
+					this.logger.error(error);
 		            errorOccurred = true;
 		            addAttributeResult(theObject, entry.getKey(), false, error);
 		            incorrect += 1;
@@ -615,13 +725,13 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 				}
 			} catch (EncodingRulesException e) {
 				String error = "TEST BUFFER INCORRECT: " + e.getMessage();
-				this.logger.info(error);
+				this.logger.error(error);
 	            errorOccurred = true;
 	            addAttributeResult(theObject, entry.getKey(), false, error);
 	            incorrect += 1;
 			}
         }
-    	this.logger.info("EncodingRulesTesterBaseModel.doReflectAttributeValues: leave");
+        this.logger.trace("EncodingRulesTesterBaseModel.doReflectAttributeValues: leave");
     }
 
 
@@ -654,4 +764,32 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
         this.doReflectAttributeValues(theObject, theAttributes);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void informAttributeOwnership (
+            ObjectInstanceHandle theObject,
+            AttributeHandle      theAttribute,
+            FederateHandle       theOwner)
+                    throws FederateInternalError {
+        this.logger.trace("EncodingRulesTesterBaseModel.informAttributeOwnership: ENTER");
+        Map<AttributeHandle, ResultInfoAttribute> attributeResultInfoAttribute = objectAttributeResultsmap.get(theObject);
+        if (attributeResultInfoAttribute != null) {
+            ResultInfoAttribute resultInfoAttribute = attributeResultInfoAttribute.get(theAttribute);
+            if (resultInfoAttribute != null) {
+                resultInfoAttribute.addFederateHandle(theOwner);
+                try {
+                    this.logger.trace("EncodingRulesTesterBaseModel.informAttributeOwnership: BEFORE");
+                    resultInfoAttribute.addFederateName(ivct_rti.getFederateName(theOwner));
+                    this.logger.trace("EncodingRulesTesterBaseModel.informAttributeOwnership: AFTER");
+				} catch (InvalidFederateHandle | FederateHandleNotKnown | FederateNotExecutionMember | NotConnected
+						| RTIinternalError e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+            }
+        }
+        this.logger.trace("EncodingRulesTesterBaseModel.informAttributeOwnership: LEAVE");
+    }
 }
