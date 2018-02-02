@@ -1,4 +1,4 @@
-# TS_HLA_EncodingRulesTester (Still work in progress)
+# TS_HLA_EncodingRulesTester
 
 This test system will test whether a System Under Test (SUT) correctly encodes the data types used in interaction parameters or object attributes.
 
