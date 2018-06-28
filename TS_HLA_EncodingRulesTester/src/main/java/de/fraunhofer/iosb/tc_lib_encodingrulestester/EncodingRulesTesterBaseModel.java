@@ -211,8 +211,10 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
     private Map<ParameterHandle, String> parameterHandleDataTypeMap = new HashMap<ParameterHandle, String>();
     private Map<ObjectClassHandle, AttributeHandleSet> objectClassAttributeHandleMap = new HashMap<ObjectClassHandle, AttributeHandleSet>();
 	private final Map<InteractionClassHandle, Map<ParameterHandle, ResultInfo>> interactionParameterResultsmap = new HashMap<InteractionClassHandle, Map<ParameterHandle, ResultInfo>>();
+    private Map<InteractionClassHandle, Boolean> interactionClassChecked = new HashMap<InteractionClassHandle, Boolean>();
 	private final Map<ObjectInstanceHandle, Map<AttributeHandle, ResultInfoAttribute>> objectAttributeResultsmap = new HashMap<ObjectInstanceHandle, Map<AttributeHandle, ResultInfoAttribute>>();
 	private Map<AttributeHandle, String> attributeHandleDataTypeMap = new HashMap<AttributeHandle, String>();
+	private Map<AttributeHandle, Boolean> attributeHandleChecked = new HashMap<AttributeHandle, Boolean>();
 	// FOM/SOM data types
 	private HlaDataTypes hlaDataTypes = new HlaDataTypes();
 
@@ -226,6 +228,30 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
         this.logger = logger;
         this.ivct_rti = ivct_rti;
         this.ivct_TcParam = ivct_TcParam;
+    }
+
+    /**
+     * @return returns whether all interactions have been checked
+     */
+    public boolean getWhetherAllInteractionsChecked() {
+		for (Map.Entry<InteractionClassHandle, Boolean> entry : this.interactionClassChecked.entrySet()) {
+			if (Boolean.FALSE.equals(entry.getValue())) {
+				return false;
+			}
+		}
+    	return true;
+    }
+
+    /**
+     * @return returns whether all attribute have been checked detected
+     */
+    public boolean getWhetherAllAttibutesChecked() {
+		for (Map.Entry<AttributeHandle, Boolean> entry : this.attributeHandleChecked.entrySet()) {
+			if (Boolean.FALSE.equals(entry.getValue())) {
+				return false;
+			}
+		}
+    	return true;
     }
 
     /**
@@ -279,6 +305,7 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
     public boolean init() throws TcInconclusive {
     	// Read SOM files and process them.
     	processSOM();
+    	Boolean b = new Boolean(false);
 
         // Subscribe interactions
     	this.logger.trace("EncodingRulesTesterBaseModel.init: subscribe interactions");
@@ -286,6 +313,7 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 			for (InteractionClassHandle ich : this.interactionClassHandleSet) {
 				this.logger.trace("EncodingRulesTesterBaseModel.init: subscribe " + this.ivct_rti.getInteractionClassName(ich));
 				this.ivct_rti.subscribeInteractionClass(ich);
+				interactionClassChecked.put(ich, b);
 			}
 		}
 		catch (FederateServiceInvocationsAreBeingReportedViaMOM | InteractionClassNotDefined | SaveInProgress | RestoreInProgress | FederateNotExecutionMember | NotConnected | RTIinternalError ex1) {
@@ -303,6 +331,9 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 			for (Map.Entry<ObjectClassHandle, AttributeHandleSet> entry : this.objectClassAttributeHandleMap.entrySet()) {
 				this.logger.trace("EncodingRulesTesterBaseModel.init: subscribe " + this.ivct_rti.getObjectClassName(entry.getKey()));
 				this.ivct_rti.subscribeObjectClassAttributes(entry.getKey(), entry.getValue());
+				for (AttributeHandle ah: entry.getValue()) {
+		            this.attributeHandleChecked.put(ah, b);
+				}
 			}
 		}
 		catch (AttributeNotDefined | ObjectClassNotDefined | SaveInProgress | RestoreInProgress | FederateNotExecutionMember | NotConnected | RTIinternalError | InvalidObjectClassHandle ex) {
@@ -440,6 +471,10 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
      */
     private void doReceiveInteraction(final InteractionClassHandle interactionClass, final ParameterHandleValueMap theParameters) {
         this.logger.trace("EncodingRulesTesterBaseModel.doReceiveInteraction: enter");
+
+        Boolean bool =true;
+        this.interactionClassChecked.put(interactionClass, bool);
+
         for (Map.Entry<ParameterHandle, byte[]> entry : theParameters.entrySet()) {
             this.logger.trace("EncodingRulesTesterBaseModel.doReceiveInteraction:  GOT parameter " + entry.getKey());
             this.logger.trace("EncodingRulesTesterBaseModel.doReceiveInteraction: GOT receiveInteraction " + this.parameterHandleDataTypeMap.get(entry.getKey()));
@@ -621,9 +656,14 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
      */
     private void doReflectAttributeValues(final ObjectInstanceHandle theObject, final AttributeHandleValueMap theAttributes) {
         this.logger.trace("EncodingRulesTesterBaseModel.doReflectAttributeValues: enter");
+
+        Boolean bool = new Boolean(true);
         for (Map.Entry<AttributeHandle, byte[]> entry : theAttributes.entrySet()) {
             this.logger.trace("EncodingRulesTesterBaseModel.doReflectAttributeValues: GOT attribute " + entry.getKey());
             this.logger.trace("EncodingRulesTesterBaseModel.doReflectAttributeValues: GOT reflectAttributeValues " + this.attributeHandleDataTypeMap.get(entry.getKey()));
+
+            this.attributeHandleChecked.put(entry.getKey(), bool);
+
             HlaDataType hdt = this.hlaDataTypes.dataTypeMap.get(this.attributeHandleDataTypeMap.get(entry.getKey()));
             byte b[] = theAttributes.get(entry.getKey());
             this.logger.trace("EncodingRulesTesterBaseModel.doReflectAttributeValues: length " + b.length);

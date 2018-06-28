@@ -83,9 +83,24 @@ public class TC0001 extends AbstractTestCase {
         logger.info(testPurpose);
     }
 
+    public void displayOperatorInstructions(final Logger logger) {
+        String s = new String();
+        s = "\n"
+        +   "---------------------------------------------------------------------\n"
+        +   "OPERATOR INSTRUCTIONS: Start the test federate before starting the test case with the same\n"
+        +   "OPERATOR INSTRUCTIONS: federate name as in the TcParam.json file\n"
+        +   "OPERATOR INSTRUCTIONS: The federate should run for the full duration of all the encoding\n"
+        +   "OPERATOR INSTRUCTIONS: rules test\n"
+        +   "---------------------------------------------------------------------\n";
+
+        logger.info(s);
+    }
 
     @Override
     protected void preambleAction(final Logger logger) throws TcInconclusive {
+
+        // Notify the operator
+        displayOperatorInstructions(logger);
 
         // Initiate rti
         this.federateHandle = encodingRulesTesterBaseModel.initiateRti(this.federateName, ivct_LoggingFederateAmbassador);
@@ -110,6 +125,16 @@ public class TC0001 extends AbstractTestCase {
         logger.info("\n\nVerdict Summary:\nCORRECT: " + correct + " INCORRECT: " + incorrect + "\n");
         encodingRulesTesterBaseModel.printAttributeResults();
         encodingRulesTesterBaseModel.printParameterResults();
+
+        // If not all attributes were checked, will not be passed.
+        if (encodingRulesTesterBaseModel.getWhetherAllAttibutesChecked() == false) {
+            throw new TcInconclusive("Have not seen all required attributes");
+        }
+
+        // If not all interactions were checked, will not be passed.
+        if (encodingRulesTesterBaseModel.getWhetherAllInteractionsChecked() == false) {
+            throw new TcInconclusive("Have not seen all required interactions");
+        }
 
         // Errors are found asynchronously.
         if (encodingRulesTesterBaseModel.getErrorOccurred()) {
