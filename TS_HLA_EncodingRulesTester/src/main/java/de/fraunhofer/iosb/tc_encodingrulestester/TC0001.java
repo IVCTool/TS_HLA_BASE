@@ -115,10 +115,14 @@ public class TC0001 extends AbstractTestCase {
     @Override
     protected void performTest(final Logger logger) throws TcInconclusive, TcFailed {
 
-        // Allow time to work and test some reflect/receive values.
-        if (encodingRulesTesterBaseModel.sleepFor(encodingRulesTesterTcParam.getTestTimeWait())) {
-            throw new TcInconclusive("sleepFor problem");
-        }
+    	long sleepTime = encodingRulesTesterTcParam.getTestTimeWait() / 10;
+    	// Allow time to work and test some reflect/receive values.
+    	for (int i = 0; i < 10; i++) {
+    		if (encodingRulesTesterBaseModel.sleepFor(sleepTime)) {
+    			throw new TcInconclusive("sleepFor problem");
+    		}
+            sendTcStatus ("running", i*10);
+    	}
         
         int correct = encodingRulesTesterBaseModel.getCorrect();
         int incorrect = encodingRulesTesterBaseModel.getIncorrect();
