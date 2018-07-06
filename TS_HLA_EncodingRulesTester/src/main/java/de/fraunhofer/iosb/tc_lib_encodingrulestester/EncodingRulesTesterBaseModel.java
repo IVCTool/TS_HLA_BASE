@@ -388,6 +388,18 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
     }
 
     /**
+     * @param in byte value to be displayed as string
+     * @return the string value corresponding to the byte value
+     */
+    private static String bytesToHex(byte[] in) {
+        final StringBuilder builder = new StringBuilder();
+        for(byte b : in) {
+            builder.append(String.format("%02x", b));
+        }
+        return builder.toString();
+    }
+
+    /**
      * A function to deal with all the possibilities of adding to a map within a map.
      * 
      * @param theInteraction the HLA interaction handle
@@ -466,6 +478,37 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
     }
 
     /**
+     * @param interactionClass the interaction class
+     * @param parameterHandle the parameter handle
+     * @param b byte field containing attribute data
+     * @param errorBool whether to use logger error (true) or debug (false)
+     */
+    private void displayReceiveParameterValuesMessage(final InteractionClassHandle interactionClass, final ParameterHandle parameterHandle, final byte b[], final boolean errorBool) {
+        String interactionName = null;
+        String parameterName = null;
+        try {
+            interactionName = this.ivct_rti.getInteractionClassName(interactionClass);
+            parameterName = this.ivct_rti.getParameterName(interactionClass, parameterHandle);
+        } catch (InvalidInteractionClassHandle | FederateNotExecutionMember | NotConnected | RTIinternalError | InteractionParameterNotDefined | InvalidParameterHandle e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return;
+        }
+        String sNames = new String("Interaction: " + interactionName + " Parameter: " + parameterName);
+        String sIDs = new String("Interaction class handle: " + interactionClass + " Parameter handle: " + parameterHandle);
+        String sBytes = new String("Parameter value bytes: " + bytesToHex(b));
+        if (errorBool) {
+            this.logger.error(sNames);
+            this.logger.error(sIDs);
+            this.logger.error(sBytes);
+        } else {
+            this.logger.debug(sNames);
+            this.logger.debug(sIDs);
+            this.logger.debug(sBytes);
+        }
+    }
+
+    /**
      * @param interactionClass specify the interaction class
      * @param theParameters specify the parameter handles and values
      */
@@ -481,9 +524,9 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
             HlaDataType hdt = this.hlaDataTypes.dataTypeMap.get(this.parameterHandleDataTypeMap.get(entry.getKey()));
             byte b[] = theParameters.get(entry.getKey());
             this.logger.trace("EncodingRulesTesterBaseModel.doReceiveInteraction: length " + b.length);
-            for (int i = 0; i < b.length; i++) {
-                this.logger.trace("EncodingRulesTesterBaseModel.doReceiveInteraction: byte " + b[i]);
-            }
+//            for (int i = 0; i < b.length; i++) {
+//                this.logger.trace("EncodingRulesTesterBaseModel.doReceiveInteraction: byte " + b[i]);
+//            }
             try {
             	int calculatedLength = hdt.testBuffer(entry.getValue(), 0, this.hlaDataTypes);
 				if (calculatedLength != entry.getValue().length) {
@@ -491,11 +534,13 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 					this.logger.error(error);
 		            this.errorOccurred = true;
 		            addParameterResult(interactionClass, entry.getKey(), false, error);
+		            displayReceiveParameterValuesMessage(interactionClass, entry.getKey(), b, true);
 		            this.incorrect += 1;
 				} else {
 					String ok = "TEST BUFFER CORRECT";
 					this.logger.trace(ok);
 					addParameterResult(interactionClass, entry.getKey(), true, ok);
+		            displayReceiveParameterValuesMessage(interactionClass, entry.getKey(), b, false);
 					this.correct += 1;
 				}
 			} catch (EncodingRulesException e) {
@@ -503,6 +548,7 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 				this.logger.error(error);
 	            this.errorOccurred = true;
 				addParameterResult(interactionClass, entry.getKey(), false, error);
+	            displayReceiveParameterValuesMessage(interactionClass, entry.getKey(), b, true);
 				this.incorrect += 1;
 			}
         }
@@ -651,6 +697,38 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
     }
 
     /**
+     * @param theObjecttheObject the object instance handle
+     * @param attributeHandletheObject the attribute handle
+     * @param b byte field containing attribute data
+     * @param errorBool whether to use logger error (true) or debug (false)
+     */
+    private void displayReflectAttributeValuesMessage(final ObjectInstanceHandle theObject, final AttributeHandle attributeHandle, final byte b[], final boolean errorBool) {
+        String attributeName = null;
+        String objectName = null;
+        try {
+            objectName = this.ivct_rti.getObjectInstanceName(theObject);
+            ObjectClassHandle objectClassHandle = this.ivct_rti.getKnownObjectClassHandle(theObject);
+            attributeName = this.ivct_rti.getAttributeName(objectClassHandle, attributeHandle);
+        } catch (ObjectInstanceNotKnown | FederateNotExecutionMember | NotConnected | RTIinternalError | AttributeNotDefined | InvalidAttributeHandle | InvalidObjectClassHandle e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return;
+        }
+        String sNames = new String("Object: " + objectName + " Attribute: " + attributeName);
+        String sIDs = new String("Object handle: " + theObject + " Attribute handle: " + attributeHandle);
+        String sBytes = new String("Attribute value bytes: " + bytesToHex(b));
+        if (errorBool) {
+            this.logger.error(sNames);
+            this.logger.error(sIDs);
+            this.logger.error(sBytes);
+        } else {
+            this.logger.debug(sNames);
+            this.logger.debug(sIDs);
+            this.logger.debug(sBytes);
+        }
+    }
+
+    /**
      * @param theObject the object instance handle
      * @param theAttributes the map of attribute handle / value
      */
@@ -666,10 +744,10 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 
             HlaDataType hdt = this.hlaDataTypes.dataTypeMap.get(this.attributeHandleDataTypeMap.get(entry.getKey()));
             byte b[] = theAttributes.get(entry.getKey());
-            this.logger.trace("EncodingRulesTesterBaseModel.doReflectAttributeValues: length " + b.length);
-            for (int i = 0; i < b.length; i++) {
-                this.logger.trace("EncodingRulesTesterBaseModel.doReflectAttributeValues: byte " + b[i]);
-            }
+            this.logger.debug("EncodingRulesTesterBaseModel.doReflectAttributeValues: length " + b.length);
+//            for (int i = 0; i < b.length; i++) {
+//                this.logger.trace("EncodingRulesTesterBaseModel.doReflectAttributeValues: byte " + b[i]);
+//            }
             try {
             	int calculatedLength = hdt.testBuffer(entry.getValue(), 0, this.hlaDataTypes);
 				if (calculatedLength != entry.getValue().length) {
@@ -677,11 +755,13 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 					this.logger.error(error);
 		            this.errorOccurred = true;
 		            addAttributeResult(theObject, entry.getKey(), false, error);
+		            displayReflectAttributeValuesMessage(theObject, entry.getKey(), b, true);
 		            this.incorrect += 1;
 				} else {
 					String ok = "TEST BUFFER CORRECT";
 					this.logger.trace(ok);
 		            addAttributeResult(theObject, entry.getKey(), true, ok);
+		            displayReflectAttributeValuesMessage(theObject, entry.getKey(), b, false);
 		            this.correct += 1;
 				}
 			} catch (EncodingRulesException e) {
@@ -689,6 +769,7 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 				this.logger.error(error);
 	            this.errorOccurred = true;
 	            addAttributeResult(theObject, entry.getKey(), false, error);
+	            displayReflectAttributeValuesMessage(theObject, entry.getKey(), b, true);
 	            this.incorrect += 1;
 			}
         }
