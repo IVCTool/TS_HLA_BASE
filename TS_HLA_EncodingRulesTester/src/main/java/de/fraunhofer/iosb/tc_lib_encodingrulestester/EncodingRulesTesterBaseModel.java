@@ -501,10 +501,12 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
             this.logger.error(sNames);
             this.logger.error(sIDs);
             this.logger.error(sBytes);
+            this.logger.error("");
         } else {
             this.logger.debug(sNames);
             this.logger.debug(sIDs);
             this.logger.debug(sBytes);
+            this.logger.debug("");
         }
     }
 
@@ -704,27 +706,31 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
      */
     private void displayReflectAttributeValuesMessage(final ObjectInstanceHandle theObject, final AttributeHandle attributeHandle, final byte b[], final boolean errorBool) {
         String attributeName = null;
+        String knownObjectClass = null;
         String objectName = null;
         try {
             objectName = this.ivct_rti.getObjectInstanceName(theObject);
-            ObjectClassHandle objectClassHandle = this.ivct_rti.getKnownObjectClassHandle(theObject);
-            attributeName = this.ivct_rti.getAttributeName(objectClassHandle, attributeHandle);
+            ObjectClassHandle knownObjectClassHandle = this.ivct_rti.getKnownObjectClassHandle(theObject);
+            knownObjectClass = this.ivct_rti.getObjectClassName(knownObjectClassHandle);
+            attributeName = this.ivct_rti.getAttributeName(knownObjectClassHandle, attributeHandle);
         } catch (ObjectInstanceNotKnown | FederateNotExecutionMember | NotConnected | RTIinternalError | AttributeNotDefined | InvalidAttributeHandle | InvalidObjectClassHandle e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
             return;
         }
-        String sNames = new String("Object: " + objectName + " Attribute: " + attributeName);
+        String sNames = new String("Object name: " + objectName + " Known object class: " + knownObjectClass + " Attribute name: " + attributeName);
         String sIDs = new String("Object handle: " + theObject + " Attribute handle: " + attributeHandle);
         String sBytes = new String("Attribute value bytes: " + bytesToHex(b));
         if (errorBool) {
             this.logger.error(sNames);
             this.logger.error(sIDs);
             this.logger.error(sBytes);
+            this.logger.error("");
         } else {
             this.logger.debug(sNames);
             this.logger.debug(sIDs);
             this.logger.debug(sBytes);
+            this.logger.debug("");
         }
     }
 
