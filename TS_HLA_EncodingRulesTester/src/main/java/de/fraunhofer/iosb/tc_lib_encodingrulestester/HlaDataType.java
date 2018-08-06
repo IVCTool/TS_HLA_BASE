@@ -33,7 +33,11 @@ public abstract class HlaDataType {
 	protected boolean dataSizeFixed;
 
 	/**
+	 * Calculate the number of padding bytes required
 	 * 
+	 * @param currentPosition the current position in the buffer
+	 * @param alignment the aligment value of the current type
+	 * @return the number of padding bytes
 	 */
 	protected static int calcPaddingBytes(final int currentPosition, final int alignment) {
 		if (currentPosition % alignment != 0) {
@@ -43,7 +47,12 @@ public abstract class HlaDataType {
 	}
 
 	/**
+	 * Calculate the number of padding bytes required
 	 * 
+	 * @param currentPosition the current position in the buffer
+	 * @param dataTypeName the name of the data type
+	 * @param dataTypes a map of data types
+	 * @return the number of padding bytes
 	 */
 	protected static int calcPaddingBytes(final int currentPosition, final String dataTypeName, final HlaDataTypes dataTypes) {
 		HlaDataType dataType = dataTypes.dataTypeMap.get(dataTypeName);
@@ -51,7 +60,8 @@ public abstract class HlaDataType {
 	}
 
 	/**
-	 * 
+	 * @param dataSize the width of the data type
+	 * @return the alignment position
 	 */
 	protected static int calcAlignment(final int dataSize) {
 		int alignment;
@@ -71,7 +81,10 @@ public abstract class HlaDataType {
 	}
 
 	/**
-	 * 
+	 * @param buffer the byte array containing the integer
+	 * @param currentPosition the position of the integer value
+	 * @param elementType describes the coded integer width
+	 * @return the integer value
 	 */
 	protected long decodeInteger(final byte[] buffer, final int currentPosition, final String elementType) {
 		long testVal = 0;
@@ -154,8 +167,8 @@ public abstract class HlaDataType {
 
 	/**
 	 * 
-	 * @param dataTypeName
-	 * @return
+	 * @param dataTypeName hla name of the data type
+	 * @return the size of the data type
 	 */
 	public static int getBasicDataSizeBits(String dataTypeName) {
 		int basicDataSize = 0;
@@ -208,8 +221,8 @@ public abstract class HlaDataType {
 
 	/**
 	 * 
-	 * @param dataTypeName
-	 * @return
+	 * @param dataTypeName hla name of the data type
+	 * @return whether big endian
 	 */
 	public static boolean getBigEndian(String dataTypeName) {
 		boolean bigEndian = false;
@@ -259,7 +272,9 @@ public abstract class HlaDataType {
 		}
 		return bigEndian;
 	}
+
 	/**
+	 * @param dataTypes map of data types
 	 * @return the alignment of the dataype
 	 */
 	public abstract int getAlignment(final HlaDataTypes dataTypes);
@@ -287,7 +302,7 @@ public abstract class HlaDataType {
 	 * @param currentPosition position of data to process
 	 * @param dataTypes the map of datatype information from FOM/SOM
 	 * @return the current position of next unprocessed data
-	 * @throws EncodingRulesException
+	 * @throws EncodingRulesException if an encoding rules error is detected
 	 */
 	public abstract int testBuffer(final byte[] buffer, final int currentPosition, final HlaDataTypes dataTypes) throws EncodingRulesException;
 }

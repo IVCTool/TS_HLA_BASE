@@ -62,7 +62,7 @@ public class DataTreeBuilder {
 	 * @param interactionHandleSet the interactions to subscribe to
 	 * @param parameterHandleDataTypeMap the parameter dataType mapper
 	 * @param objectClassAttributeHandleMap the attribute dataType mapper
-	 * @throws TcInconclusive
+	 * @throws TcInconclusive in case of rti error
 	 */
 	public DataTreeBuilder(final IVCT_RTIambassador ivct_rti, final HlaDataTypes hlaDataTypes, final Set<InteractionClassHandle> interactionHandleSet, Map<ParameterHandle, String> parameterHandleDataTypeMap, Map<ObjectClassHandle, AttributeHandleSet> objectClassAttributeHandleMap, Map<AttributeHandle, String> attributeHandleDataTypeMap) throws TcInconclusive {
 		logger.trace("DataTreeBuilder: enter");

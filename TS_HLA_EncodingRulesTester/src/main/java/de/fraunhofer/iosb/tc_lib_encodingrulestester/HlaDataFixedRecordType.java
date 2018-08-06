@@ -68,8 +68,8 @@ public class HlaDataFixedRecordType extends HlaDataType {
 
 	/**
 	 * 
-	 * @param theName
-	 * @param theType
+	 * @param theName the field name
+	 * @param theType the field type
 	 */
 	public void addField(String theName, String theType) {
 		fields.put(theName, theType);
@@ -124,8 +124,8 @@ public class HlaDataFixedRecordType extends HlaDataType {
 			myCurrentPosition += calcPaddingBytes(myCurrentPosition, "HLAinteger32BE", dataTypes);
 			myCurrentPosition = hlaDataType.testBuffer(buffer, myCurrentPosition, dataTypes);
 		}
-		if (currentPosition > buffer.length) {
-			String errorMessageString = "HlaDataFixedRecordType: testBuffer: calculated value length : " + currentPosition + " exceeds buffer length: " + buffer.length;
+		if (myCurrentPosition > buffer.length) {
+			String errorMessageString = "HlaDataFixedRecordType: testBuffer: current position: " + currentPosition + " calculated total buffer length : " + myCurrentPosition + " exceeds buffer length: " + buffer.length;
 			logger.error(errorMessageString);
 			throw new EncodingRulesException(errorMessageString);
 		}

@@ -33,6 +33,10 @@ public class HlaDataBasicType extends HlaDataType {
 	
 	/**
 	 * Set some values based on dataTypeName defined in OMT standard
+	 *
+	 * @param dataTypeName name of the data type
+	 * @param dataSizeBits number of bits in the data type
+	 * @param bigEndian whether data is big endian
 	 */
 	public HlaDataBasicType(final String dataTypeName, final int dataSizeBits, final boolean bigEndian) {
 		this.dataTypeName = dataTypeName;
@@ -81,7 +85,7 @@ public class HlaDataBasicType extends HlaDataType {
 	 */
 	public int testBuffer(final byte[] buffer, final int currentPosition, final HlaDataTypes dataTypes) throws EncodingRulesException {
 		if (currentPosition + this.dataSize > buffer.length) {
-			String errorMessageString = "HlaDataBasicType: testBuffer: field value length : " + currentPosition + this.dataSize + " exceeds buffer length: " + buffer.length;
+			String errorMessageString = "HlaDataBasicType: testBuffer: current position: " + currentPosition + " plus field value length : " + this.dataSize + " exceeds buffer length: " + buffer.length;
 			logger.error(errorMessageString);
 			throw new EncodingRulesException(errorMessageString);
 		}

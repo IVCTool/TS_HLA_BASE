@@ -33,8 +33,8 @@ public class HlaDataVariableArrayType extends HlaDataType {
 
 	/**
 	 * 
-	 * @param dataTypeName
-	 * @param hlaDataTypeElement
+	 * @param dataTypeName the data type name
+	 * @param hlaDataTypeElement the data type element
 	 */
 	public HlaDataVariableArrayType(final String dataTypeName, final HlaDataType hlaDataTypeElement) {
 		this.dataTypeName = dataTypeName;
@@ -109,8 +109,8 @@ public class HlaDataVariableArrayType extends HlaDataType {
 				myCurrentPosition = elementDataType.testBuffer(buffer, myCurrentPosition, dataTypes);
 			}
 		}
-		if (currentPosition > buffer.length) {
-			String errorMessageString = "HlaDataVariableArrayType: testBuffer: field value length : " + currentPosition + " exceeds buffer length: " + buffer.length;
+		if (myCurrentPosition > buffer.length) {
+			String errorMessageString = "HlaDataVariableArrayType: testBuffer: current position: " + currentPosition + " calculated total buffer length : " + myCurrentPosition + " exceeds buffer length: " + buffer.length;
 			logger.error(errorMessageString);
 			throw new EncodingRulesException(errorMessageString);
 		}

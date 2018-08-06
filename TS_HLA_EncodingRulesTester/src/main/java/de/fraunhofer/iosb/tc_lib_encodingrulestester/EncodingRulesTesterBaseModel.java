@@ -300,7 +300,7 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 
     /**
      * @return true means error, false means correct
-     * @throws TcInconclusive 
+     * @throws TcInconclusive for some other errors
      */
     public boolean init() throws TcInconclusive {
     	// Read SOM files and process them.
@@ -349,7 +349,7 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
      * library.
      * 
      * @return true means error occurred
-     * @throws TcInconclusive 
+     * @throws TcInconclusive for some other errors
      */
     private boolean processSOM() throws TcInconclusive {
         URL[] somUrls = this.ivct_TcParam.getUrls();

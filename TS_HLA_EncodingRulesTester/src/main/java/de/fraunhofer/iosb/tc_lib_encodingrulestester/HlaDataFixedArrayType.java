@@ -37,7 +37,11 @@ public class HlaDataFixedArrayType extends HlaDataType {
 	String elementType;
 
 	/**
-	 *
+	 * @param dataTypeName data type name
+	 * @param elementType the element type
+	 * @param dataSize the data size
+	 * @param dataSizeFixed if the data size is fixed
+	 * @param cardinality the cardinality
 	 */
 	public HlaDataFixedArrayType(final String dataTypeName, final String elementType, final int dataSize, final boolean dataSizeFixed, final int cardinality) {
 		this.dataTypeName = dataTypeName;
@@ -101,8 +105,8 @@ public class HlaDataFixedArrayType extends HlaDataType {
 			HlaDataType hlaDataType = dataTypes.dataTypeMap.get(elementType);
 			myCurrentPosition = hlaDataType.testBuffer(buffer, myCurrentPosition, dataTypes);
 		}
-		if (currentPosition > buffer.length) {
-			String errorMessageString = "HlaDataFixedArrayType: testBuffer: calculated value length : " + currentPosition + " exceeds buffer length: " + buffer.length;
+		if (myCurrentPosition > buffer.length) {
+			String errorMessageString = "HlaDataFixedArrayType: testBuffer: currentPosition: " + currentPosition + " calculated total buffer length : " + myCurrentPosition + " exceeds buffer length: " + buffer.length;
 			logger.error(errorMessageString);
 			throw new EncodingRulesException(errorMessageString);
 		}
