@@ -299,10 +299,11 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 
 
     /**
-     * @return true means error, false means correct
-     * @throws TcInconclusive for some other errors
+     * Subscribe interactions and object attributes
+     *
+     * @throws TcInconclusive for errors
      */
-    public boolean init() throws TcInconclusive {
+    public void init() throws TcInconclusive {
     	// Read SOM files and process them.
     	processSOM();
     	Boolean b = new Boolean(false);
@@ -316,13 +317,37 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 				interactionClassChecked.put(ich, b);
 			}
 		}
-		catch (FederateServiceInvocationsAreBeingReportedViaMOM | InteractionClassNotDefined | SaveInProgress | RestoreInProgress | FederateNotExecutionMember | NotConnected | RTIinternalError ex1) {
-			this.logger.error("EncodingRulesTesterBaseModel.init: cannot subcribe interaction");
-			ex1.printStackTrace();
-            return true;
-		} catch (InvalidInteractionClassHandle e) {
-			e.printStackTrace();
-            return true;
+		catch (FederateServiceInvocationsAreBeingReportedViaMOM e) {
+			this.logger.error("EncodingRulesTesterBaseModel.init: exception: " + e);
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.init: exception: FederateServiceInvocationsAreBeingReportedViaMOM");
+		}
+		catch (InteractionClassNotDefined e) {
+			this.logger.error("EncodingRulesTesterBaseModel.init: exception: " + e);
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.init: exception: InteractionClassNotDefined");
+		}
+		catch (SaveInProgress e) {
+			this.logger.error("EncodingRulesTesterBaseModel.init: exception: " + e);
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.init: exception: SaveInProgress");
+		}
+		catch (RestoreInProgress e) {
+			this.logger.error("EncodingRulesTesterBaseModel.init: exception: " + e);
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.init: exception: RestoreInProgress");
+		}
+		catch (FederateNotExecutionMember e) {
+			this.logger.error("EncodingRulesTesterBaseModel.init: exception: " + e);
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.init: exception: FederateNotExecutionMember");
+		}
+		catch (NotConnected e) {
+			this.logger.error("EncodingRulesTesterBaseModel.init: exception: " + e);
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.init: exception: NotConnected");
+		}
+		catch (RTIinternalError e) {
+			this.logger.error("EncodingRulesTesterBaseModel.init: exception: " + e);
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.init: exception: RTIinternalError");
+		}
+		catch (InvalidInteractionClassHandle e) {
+			this.logger.error("EncodingRulesTesterBaseModel.init: exception: " + e);
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.init: exception: InvalidInteractionClassHandle");
 		}
 
         // Subscribe object attributes
@@ -336,22 +361,47 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 				}
 			}
 		}
-		catch (AttributeNotDefined | ObjectClassNotDefined | SaveInProgress | RestoreInProgress | FederateNotExecutionMember | NotConnected | RTIinternalError | InvalidObjectClassHandle ex) {
-			this.logger.error("EncodingRulesTesterBaseModel.init: cannot subscribe object attributes " + ex);
-			return true;
+		catch (AttributeNotDefined e) {
+			this.logger.error("EncodingRulesTesterBaseModel.init: exception: " + e);
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.init: cannot subscribe object attributes: exception: AttributeNotDefinede");
 		}
-
-        return false;
+		catch (ObjectClassNotDefined e) {
+			this.logger.error("EncodingRulesTesterBaseModel.init: exception: " + e);
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.init: cannot subscribe object attributes: exception: ObjectClassNotDefined");
+		}
+		catch (SaveInProgress e) {
+			this.logger.error("EncodingRulesTesterBaseModel.init: exception: " + e);
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.init: cannot subscribe object attributes: exception: SaveInProgress");
+		}
+		catch (RestoreInProgress e) {
+			this.logger.error("EncodingRulesTesterBaseModel.init: exception: " + e);
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.init: cannot subscribe object attributes: exception: RestoreInProgress");
+		}
+		catch (FederateNotExecutionMember e) {
+			this.logger.error("EncodingRulesTesterBaseModel.init: exception: " + e);
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.init: cannot subscribe object attributes: exception: FederateNotExecutionMember");
+		}
+		catch (NotConnected e) {
+			this.logger.error("EncodingRulesTesterBaseModel.init: exception: " + e);
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.init: cannot subscribe object attributes: exception: NotConnected");
+		}
+		catch (RTIinternalError e) {
+			this.logger.error("EncodingRulesTesterBaseModel.init: exception: " + e);
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.init: cannot subscribe object attributes: exception: RTIinternalError");
+		}
+		catch (InvalidObjectClassHandle e) {
+			this.logger.error("EncodingRulesTesterBaseModel.init: exception: " + e);
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.init: cannot subscribe object attributes: exception InvalidObjectClassHandle");
+		}
     }
 
     /**
      * Read the SOM files and build up an internal data cache to use within this
      * library.
      * 
-     * @return true means error occurred
-     * @throws TcInconclusive for some other errors
+     * @throws TcInconclusive for errors
      */
-    private boolean processSOM() throws TcInconclusive {
+    private void processSOM() throws TcInconclusive {
         URL[] somUrls = this.ivct_TcParam.getUrls();
 
 		try {
@@ -363,28 +413,26 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 				Document document = builder.parse(somUrls[i].toString());
 				Element elem = document.getDocumentElement();
 				if (dataTreeBuilder.buildData(elem)) {
-					return true;
+		            throw new TcInconclusive("EncodingRulesTesterBaseModel.processSOM: error in dataTreeBuilder.buildData");
 				}
 			}
 		}
 		catch (FactoryConfigurationError e) {
-			this.logger.error("EncodingRulesTesterBaseModel.processSOM: unable to get a document builder factory");
-            return true;
+			this.logger.error("EncodingRulesTesterBaseModel.processSOM: exception: " + e);
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.processSOM: exception: FactoryConfigurationError");
 		} 
 		catch (ParserConfigurationException e) {
-			this.logger.error("EncodingRulesTesterBaseModel.processSOM: unable to configure parser");
-            return true;
+			this.logger.error("EncodingRulesTesterBaseModel.processSOM: exception: " + e);
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.processSOM: exception: ParserConfigurationException");
 		}
 		catch (SAXException e) {
-			this.logger.error("EncodingRulesTesterBaseModel.processSOM: parsing error");
-            return true;
+			this.logger.error("EncodingRulesTesterBaseModel.processSOM: exception: " + e);
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.processSOM: exception: SAXException");
 		} 
 		catch (IOException e) {
-			this.logger.error("EncodingRulesTesterBaseModel.processSOM: i/o error");
-            return true;
+			this.logger.error("EncodingRulesTesterBaseModel.processSOM: exception: " + e);
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.processSOM: exception: IOException");
 		}
-		
-		return false;
     }
 
     /**

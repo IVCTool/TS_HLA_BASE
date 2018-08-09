@@ -106,9 +106,7 @@ public class TC0001 extends AbstractTestCase {
         this.federateHandle = encodingRulesTesterBaseModel.initiateRti(this.federateName, ivct_LoggingFederateAmbassador);
 
         // Do the necessary calls to get handles and subscribe to the classes published by the federate
-        if (encodingRulesTesterBaseModel.init()) {
-            throw new TcInconclusive("Cannot encoderTesterBaseModel.init()");
-        }
+        encodingRulesTesterBaseModel.init();
     }
 
 
