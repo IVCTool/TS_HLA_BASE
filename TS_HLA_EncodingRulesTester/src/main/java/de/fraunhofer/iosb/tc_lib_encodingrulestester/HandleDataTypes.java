@@ -39,12 +39,13 @@ import de.fraunhofer.iosb.tc_lib_encodingrulestester.HlaDataSimpleType;
 public class HandleDataTypes {
     private static Logger logger = LoggerFactory.getLogger(HandleDataTypes.class);
 	HlaDataTypes hlaDataTypes;
+
 	/**
 	 * 
 	 * @param theSelectedNode the Xerces node at this level
-	 * @return true means error
+	 * @throws EncodingRulesException
 	 */
-	private boolean decodeBasicData(Node theSelectedNode) {
+	private void decodeBasicData(Node theSelectedNode) throws EncodingRulesException {
 		boolean gotName = false;
 		boolean gotSize = false;
 		boolean gotEndian = false;
@@ -59,39 +60,33 @@ public class HandleDataTypes {
 			if (child.getNodeType() != Node.ELEMENT_NODE) {
 				continue;
 			}
-			// ---------------------------------------------------------------------------
-			try {
-				if (child.getNodeName().equals("name")) {
-					if (((Element) child).getFirstChild() != null) {
-						nameStr = ((Element) child).getFirstChild().getNodeValue();
-						gotName = true;
-						logger.trace("HandleDataTypes.decodeBasicData: BasicDataName: " + nameStr);
-					}
-					continue;
+			if (child.getNodeName().equals("name")) {
+				if (((Element) child).getFirstChild() != null) {
+					nameStr = ((Element) child).getFirstChild().getNodeValue();
+					gotName = true;
+					logger.trace("HandleDataTypes.decodeBasicData: BasicDataName: " + nameStr);
 				}
-				if (child.getNodeName().equals("size")) {
-					if (((Element) child).getFirstChild() != null) {
-						String textStr = ((Element) child).getFirstChild().getNodeValue();
-						size = Integer.parseInt(textStr);
-						gotSize = true;
-						logger.trace("HandleDataTypes.decodeBasicData: BasicDataSize: " + size);
-					}
-					continue;
+				continue;
+			}
+			if (child.getNodeName().equals("size")) {
+				if (((Element) child).getFirstChild() != null) {
+					String textStr = ((Element) child).getFirstChild().getNodeValue();
+					size = Integer.parseInt(textStr);
+					gotSize = true;
+					logger.trace("HandleDataTypes.decodeBasicData: BasicDataSize: " + size);
 				}
-				if (child.getNodeName().equals("endian")) {
-					if (((Element) child).getFirstChild() != null) {
-						String textStr = ((Element) child).getFirstChild().getNodeValue();
-						if (textStr.equalsIgnoreCase("Big")) {
-							bigEndian = true;
-						}
-						gotEndian = true;
-						logger.trace("HandleDataTypes.decodeBasicData: BasicDataEndian: " + bigEndian);
+				continue;
+			}
+			if (child.getNodeName().equals("endian")) {
+				if (((Element) child).getFirstChild() != null) {
+					String textStr = ((Element) child).getFirstChild().getNodeValue();
+					if (textStr.equalsIgnoreCase("Big")) {
+						bigEndian = true;
 					}
-					continue;
+					gotEndian = true;
+					logger.trace("HandleDataTypes.decodeBasicData: BasicDataEndian: " + bigEndian);
 				}
-			} catch (Exception e) {
-				logger.error("HandleDataTypes.decodeBasicData: " + e);
-				return true;
+				continue;
 			}
 		}
 
@@ -118,7 +113,7 @@ public class HandleDataTypes {
 					logger.info("HandleDataTypes.decodeBasicData: UNEQUAL DATA TYPES: " + nameStr + " NOT MERGED");
 				}
 			}
-			return false;
+			return;
 		}
 
 		/*
@@ -134,15 +129,15 @@ public class HandleDataTypes {
 			logger.error("HandleDataTypes.decodeBasicData: missing endian");
 		}
 
-		return true;
+		throw new EncodingRulesException("decodeBasicData: missing data");
 	}
 
 	/**
 	 * 
 	 * @param theSelectedNode the Xerces node at this level
-	 * @return true means error
+	 * @throws EncodingRulesException
 	 */
-	private boolean decodeBasicDataTypes(Node theSelectedNode) {
+	private void decodeBasicDataTypes(Node theSelectedNode) throws EncodingRulesException {
 		String textPointer = null;
 
 		/*
@@ -152,30 +147,22 @@ public class HandleDataTypes {
 			if (child.getNodeType() != Node.ELEMENT_NODE) {
 				continue;
 			}
-			// ---------------------------------------------------------------------------
-			try {
-				if (child.getNodeName().equals("name")) {
-					if (((Element) child).getFirstChild() != null) {
-						textPointer = ((Element) child).getFirstChild().getNodeValue();
-						logger.trace("basicDataName: " + textPointer);
-					}
-					continue;
+			if (child.getNodeName().equals("name")) {
+				if (((Element) child).getFirstChild() != null) {
+					textPointer = ((Element) child).getFirstChild().getNodeValue();
+					logger.trace("basicDataName: " + textPointer);
 				}
-				if (child.getNodeName().equals("basicData")) {
-					if (decodeBasicData(child)) {
-						return true;
-					}
-					continue;
-				}
-			} catch (Exception e) {
-				logger.error("HandleDataTypes.decodeBasicDataTypes: " + e);
-				return true;
+				continue;
+			}
+			if (child.getNodeName().equals("basicData")) {
+				decodeBasicData(child);
+				continue;
 			}
 		}
-		return false;
+		return;
 	}
 	
-	private HlaDataBasicType checkAddBasicDefault(final String basicTypeName) {
+	private HlaDataBasicType checkAddBasicDefault(final String basicTypeName) throws EncodingRulesException {
 		HlaDataBasicType hlaDataTypeBasic0 = null;
 		HlaDataType tmpHlaDataType = hlaDataTypes.dataTypeMap.get(basicTypeName);
 
@@ -186,8 +173,7 @@ public class HandleDataTypes {
 				hlaDataTypeBasic0 = new HlaDataBasicType(basicTypeName, size, bigEndian);
 				hlaDataTypes.dataTypeMap.put(basicTypeName, hlaDataTypeBasic0);
 			} else {
-				logger.trace("decodeSimpleData: unknown basicDataType " + basicTypeName + " NOT MERGED");
-				return null;
+				throw new EncodingRulesException("checkAddBasicDefault: unknown basicDataType: " + basicTypeName + " NOT MERGED");
 			}
 		} else {
 			if (tmpHlaDataType instanceof HlaDataBasicType) {
@@ -199,8 +185,7 @@ public class HandleDataTypes {
 		 * If the representation basicDataType not found, do not create the simpleDataType
 		 */
 		if (hlaDataTypeBasic0 == null) {
-			logger.info("decodeSimpleData: cannot get " + basicTypeName + " NOT MERGED");
-			return null;
+			throw new EncodingRulesException("checkAddBasicDefault: cannot get basicDataType: " + basicTypeName + " NOT MERGED");
 		}
 
 		return hlaDataTypeBasic0;
@@ -209,9 +194,9 @@ public class HandleDataTypes {
 	/**
 	 * 
 	 * @param theSelectedNode the Xerces node at this level
-	 * @return true means error
+	 * @throws EncodingRulesException
 	 */
-	private boolean decodeSimpleData(Node theSelectedNode) {
+	private void decodeSimpleData(Node theSelectedNode) throws EncodingRulesException {
 		boolean gotName = false;
 		boolean gotRepresentation = false;
 		String nameStr = null;
@@ -226,27 +211,21 @@ public class HandleDataTypes {
 			if (child.getNodeType() != Node.ELEMENT_NODE) {
 				continue;
 			}
-			// ---------------------------------------------------------------------------
-			try {
-				if (child.getNodeName().equals("name")) {
-					if (((Element) child).getFirstChild() != null) {
-						nameStr = ((Element) child).getFirstChild().getNodeValue();
-						gotName = true;
-						logger.trace("SimpleDataName: " + nameStr);
-					}
-					continue;
+			if (child.getNodeName().equals("name")) {
+				if (((Element) child).getFirstChild() != null) {
+					nameStr = ((Element) child).getFirstChild().getNodeValue();
+					gotName = true;
+					logger.trace("SimpleDataName: " + nameStr);
 				}
-				if (child.getNodeName().equals("representation")) {
-					if (((Element) child).getFirstChild() != null) {
-						representationStr = ((Element) child).getFirstChild().getNodeValue();
-						gotRepresentation = true;
-						logger.trace("SimpleDataRepresentation: " + representationStr);
-					}
-					continue;
+				continue;
+			}
+			if (child.getNodeName().equals("representation")) {
+				if (((Element) child).getFirstChild() != null) {
+					representationStr = ((Element) child).getFirstChild().getNodeValue();
+					gotRepresentation = true;
+					logger.trace("SimpleDataRepresentation: " + representationStr);
 				}
-			} catch (Exception e) {
-				logger.trace("HandleDataTypes.decodeSimpleData: " + e);
-				return true;
+				continue;
 			}
 		}
 
@@ -258,9 +237,6 @@ public class HandleDataTypes {
 			 * Check if we already have the basicDataType, if not add a standard basicDataType
 			 */
 			hlaDataTypeBasic0 = checkAddBasicDefault(representationStr);
-			if (hlaDataTypeBasic0 == null) {
-				return true;
-			}
 
 			/*
 			 * Create the simpleDataType
@@ -283,7 +259,7 @@ public class HandleDataTypes {
 					}
 				}
 			}
-			return false;
+			return;
 		}
 
 		/*
@@ -296,15 +272,15 @@ public class HandleDataTypes {
 			logger.error("HandleDataTypes.decodeSimpleData: missing representation");
 		}
 
-		return true;
+		throw new EncodingRulesException("decodeSimpleData: missing data");
 	}
 
 	/**
 	 * 
 	 * @param theSelectedNode the Xerces node at this level
-	 * @return true means error
+	 * @throws EncodingRulesException
 	 */
-	private boolean decodeSimpleDataTypes(Node theSelectedNode) {
+	private void decodeSimpleDataTypes(Node theSelectedNode) throws EncodingRulesException {
 		String textPointer = null;
 
 		/*
@@ -314,35 +290,28 @@ public class HandleDataTypes {
 			if (child.getNodeType() != Node.ELEMENT_NODE) {
 				continue;
 			}
-			// ---------------------------------------------------------------------------
-			try {
-				if (child.getNodeName().equals("name")) {
-					if (((Element) child).getFirstChild() != null) {
-						textPointer = ((Element) child).getFirstChild().getNodeValue();
-						logger.trace("simpleDataName: " + textPointer);
-					}
-					continue;
+			if (child.getNodeName().equals("name")) {
+				if (((Element) child).getFirstChild() != null) {
+					textPointer = ((Element) child).getFirstChild().getNodeValue();
+					logger.trace("simpleDataName: " + textPointer);
 				}
-				if (child.getNodeName().equals("simpleData")) {
-					if (decodeSimpleData(child)) {
-						return true;
-					}
-					continue;
-				}
-			} catch (Exception e) {
-				logger.error("HandleDataTypes.decodeSimpleDataTypes: " + e);
-				return true;
+				continue;
+			}
+			if (child.getNodeName().equals("simpleData")) {
+				decodeSimpleData(child);
+				continue;
 			}
 		}
-		return false;
+		return;
 	}
 
 	/**
 	 * 
 	 * @param theSelectedNode the Xerces node at this level
-	 * @return true means error
+	 * @param enumValueMap map of enum values
+	 * @throws EncodingRulesException
 	 */
-	private boolean decodeEnumerator(final Node theSelectedNode, final Map<Long, String> enumValueMap) {
+	private void decodeEnumerator(final Node theSelectedNode, final Map<Long, String> enumValueMap) throws EncodingRulesException {
 		boolean gotName = false;
 		boolean gotValue = false;
 		String nameStr = null;
@@ -352,44 +321,49 @@ public class HandleDataTypes {
 			if (child.getNodeType() != Node.ELEMENT_NODE) {
 				continue;
 			}
-			// ---------------------------------------------------------------------------
-			try {
-				if (child.getNodeName().equals("name")) {
-					if (((Element) child).getFirstChild() != null) {
-						nameStr = ((Element) child).getFirstChild().getNodeValue();
-						gotName = true;
-						logger.trace("EnumeratorName: " + nameStr);
-					}
-					continue;
+			if (child.getNodeName().equals("name")) {
+				if (((Element) child).getFirstChild() != null) {
+					nameStr = ((Element) child).getFirstChild().getNodeValue();
+					gotName = true;
+					logger.trace("EnumeratorName: " + nameStr);
 				}
-				if (child.getNodeName().equals("value")) {
-					if (((Element) child).getFirstChild() != null) {
-						valueStr = ((Element) child).getFirstChild().getNodeValue();
-						gotValue = true;
-						logger.trace("EnumeratorValue: " + valueStr);
-					}
-					continue;
+				continue;
+			}
+			if (child.getNodeName().equals("value")) {
+				if (((Element) child).getFirstChild() != null) {
+					valueStr = ((Element) child).getFirstChild().getNodeValue();
+					gotValue = true;
+					logger.trace("EnumeratorValue: " + valueStr);
 				}
-			} catch (Exception e) {
-				logger.error("HandleDataTypes.decodeEnumerator: " + e);
-				return true;
+				continue;
 			}
 		}
 		
 		if (gotName && gotValue) {
 			long l = Long.parseLong(valueStr);
 			enumValueMap.put(l, nameStr);
-			return false;
+			return;
 		}
-		return true;
+
+		/*
+		 * Incomplete data
+		 */
+		if (gotName == false) {
+			logger.error("decodeEnumerator: missing name");
+		}
+		if (gotValue == false) {
+			logger.error("decodeEnumerator: missing value");
+		}
+
+		throw new EncodingRulesException("decodeEnumerator: missing data");
 	}
 
 	/**
 	 * 
 	 * @param theSelectedNode the Xerces node at this level
-	 * @return true means error
+	 * @throws EncodingRulesException
 	 */
-	private boolean decodeEnumeratedData(Node theSelectedNode) {
+	private void decodeEnumeratedData(Node theSelectedNode) throws EncodingRulesException {
 		boolean gotEnumerator = false;
 		boolean gotName = false;
 		boolean gotRepresentation = false;
@@ -404,34 +378,26 @@ public class HandleDataTypes {
 			if (child.getNodeType() != Node.ELEMENT_NODE) {
 				continue;
 			}
-			// ---------------------------------------------------------------------------
-			try {
-				if (child.getNodeName().equals("name")) {
-					if (((Element) child).getFirstChild() != null) {
-						nameStr = ((Element) child).getFirstChild().getNodeValue();
-						gotName = true;
-						logger.trace("HandleDataTypes.decodeEnumeratedData: EnumeratedName: " + nameStr);
-					}
-					continue;
+			if (child.getNodeName().equals("name")) {
+				if (((Element) child).getFirstChild() != null) {
+					nameStr = ((Element) child).getFirstChild().getNodeValue();
+					gotName = true;
+					logger.trace("HandleDataTypes.decodeEnumeratedData: EnumeratedName: " + nameStr);
 				}
-				if (child.getNodeName().equals("representation")) {
-					if (((Element) child).getFirstChild() != null) {
-						representationStr = ((Element) child).getFirstChild().getNodeValue();
-						gotRepresentation = true;
-						logger.trace("HandleDataTypes.decodeEnumeratedData: EnumeratedRepresentation: " + representationStr);
-					}
-					continue;
+				continue;
+			}
+			if (child.getNodeName().equals("representation")) {
+				if (((Element) child).getFirstChild() != null) {
+					representationStr = ((Element) child).getFirstChild().getNodeValue();
+					gotRepresentation = true;
+					logger.trace("HandleDataTypes.decodeEnumeratedData: EnumeratedRepresentation: " + representationStr);
 				}
-				if (child.getNodeName().equals("enumerator")) {
-					if (decodeEnumerator(child, enumValueMap)) {
-						return true;
-					}
-					gotEnumerator = true;
-					continue;
-				}
-			} catch (Exception e) {
-				logger.error("HandleDataTypes.decodeEnumeratedData: " + e);
-				return true;
+				continue;
+			}
+			if (child.getNodeName().equals("enumerator")) {
+				decodeEnumerator(child, enumValueMap);
+				gotEnumerator = true;
+				continue;
 			}
 		}
 
@@ -443,9 +409,6 @@ public class HandleDataTypes {
 			 * Check if we already have the basicDataType, if not add a standard basicDataType
 			 */
 			hlaDataTypeBasic0 = checkAddBasicDefault(representationStr);
-			if (hlaDataTypeBasic0 == null) {
-				return true;
-			}
 
 			/*
 			 * Create the enumDataType
@@ -468,7 +431,7 @@ public class HandleDataTypes {
 					}
 				}
 			}
-			return false;
+			return;
 		}
 
 		/*
@@ -484,41 +447,33 @@ public class HandleDataTypes {
 			logger.error("HandleDataTypes.decodeEnumeratedData: missing enumerator");
 		}
 
-		return true;
+		throw new EncodingRulesException("decodeEnumeratedData: missing data");
 	}
 
 	/**
 	 * 
 	 * @param theSelectedNode the Xerces node at this level
-	 * @return true means error
+	 * @throws EncodingRulesException
 	 */
-	private boolean decodeEnumeratedDataTypes(Node theSelectedNode) {
+	private void decodeEnumeratedDataTypes(Node theSelectedNode) throws EncodingRulesException {
 		for (Node child = theSelectedNode.getFirstChild(); child != null; child = child.getNextSibling()) {
 			if (child.getNodeType() != Node.ELEMENT_NODE) {
 				continue;
 			}
-			// ---------------------------------------------------------------------------
-			try {
-				if (child.getNodeName().equals("enumeratedData")) {
-					if (decodeEnumeratedData(child)) {
-						return true;
-					}
-					continue;
-				}
-			} catch (Exception e) {
-				logger.error("HandleDataTypes.decodeEnumeratedDataTypes: " + e);
-				return true;
+			if (child.getNodeName().equals("enumeratedData")) {
+				decodeEnumeratedData(child);
+				continue;
 			}
 		}
-		return false;
+		return;
 	}
 
 	/**
 	 * 
 	 * @param theSelectedNode the Xerces node at this level
-	 * @return true means error
+	 * @throws EncodingRulesException
 	 */
-	private boolean decodeArrayData(Node theSelectedNode) {
+	private void decodeArrayData(Node theSelectedNode) throws EncodingRulesException {
 		boolean gotName = false;
 		boolean gotDataType = false;
 		boolean gotCardinality = false;
@@ -530,35 +485,29 @@ public class HandleDataTypes {
 			if (child.getNodeType() != Node.ELEMENT_NODE) {
 				continue;
 			}
-			// ---------------------------------------------------------------------------
-			try {
-				if (child.getNodeName().equals("name")) {
-					if (((Element) child).getFirstChild() != null) {
-						nameStr = ((Element) child).getFirstChild().getNodeValue();
-						gotName = true;
-						logger.trace("ArrayDataName: " + nameStr);
-					}
-					continue;
+			if (child.getNodeName().equals("name")) {
+				if (((Element) child).getFirstChild() != null) {
+					nameStr = ((Element) child).getFirstChild().getNodeValue();
+					gotName = true;
+					logger.trace("ArrayDataName: " + nameStr);
 				}
-				if (child.getNodeName().equals("dataType")) {
-					if (((Element) child).getFirstChild() != null) {
-						dataTypeStr = ((Element) child).getFirstChild().getNodeValue();
-						gotDataType = true;
-						logger.trace("ArrayDataType: " + dataTypeStr);
-					}
-					continue;
+				continue;
+			}
+			if (child.getNodeName().equals("dataType")) {
+				if (((Element) child).getFirstChild() != null) {
+					dataTypeStr = ((Element) child).getFirstChild().getNodeValue();
+					gotDataType = true;
+					logger.trace("ArrayDataType: " + dataTypeStr);
 				}
-				if (child.getNodeName().equals("cardinality")) {
-					if (((Element) child).getFirstChild() != null) {
-						cardinalityStr = ((Element) child).getFirstChild().getNodeValue();
-						gotCardinality = true;
-						logger.trace("ArrayDataCardinality: " + cardinalityStr);
-					}
-					continue;
+				continue;
+			}
+			if (child.getNodeName().equals("cardinality")) {
+				if (((Element) child).getFirstChild() != null) {
+					cardinalityStr = ((Element) child).getFirstChild().getNodeValue();
+					gotCardinality = true;
+					logger.trace("ArrayDataCardinality: " + cardinalityStr);
 				}
-			} catch (Exception e) {
-				logger.error("HandleDataTypes.decodeArrayData: " + e);
-				return true;
+				continue;
 			}
 		}
 		
@@ -573,7 +522,7 @@ public class HandleDataTypes {
 			
 			// TODO
 			if (tmpHlaDataTypeElement == null) {
-				return false;
+				return;
 			}
 
 			
@@ -614,57 +563,50 @@ public class HandleDataTypes {
 					}
 				}
 			}
-			return false;
+			return;
 		}
 
 		/*
 		 * Incomplete data
 		 */
-		if (gotName) {
+		if (gotName == false) {
 			logger.error("HandleDataTypes.decodeArrayData: missing name");
 		}
-		if (gotDataType) {
+		if (gotDataType == false) {
 			logger.error("HandleDataTypes.decodeArrayData: missing dataType");
 		}
-		if (gotCardinality) {
+		if (gotCardinality == false) {
 			logger.error("HandleDataTypes.decodeArrayData: missing cardinality");
 		}
 
-		return true;
+		throw new EncodingRulesException("decodeArrayData: missing data");
 	}
 
 	/**
 	 * 
 	 * @param theSelectedNode the Xerces node at this level
-	 * @return true means error
+	 * @throws EncodingRulesException
 	 */
-	private boolean decodeArrayDataTypes(Node theSelectedNode) {
+	private void decodeArrayDataTypes(Node theSelectedNode) throws EncodingRulesException {
 		for (Node child = theSelectedNode.getFirstChild(); child != null; child = child.getNextSibling()) {
 			if (child.getNodeType() != Node.ELEMENT_NODE) {
 				continue;
 			}
-			// ---------------------------------------------------------------------------
-			try {
-				if (child.getNodeName().equals("arrayData")) {
-					if (decodeArrayData(child)) {
-						return true;
-					}
-					continue;
-				}
-			} catch (Exception e) {
-				logger.error("HandleDataTypes.decodeArrayDataTypes: " + e);
-				return true;
+			if (child.getNodeName().equals("arrayData")) {
+				decodeArrayData(child);
+				continue;
 			}
 		}
-		return false;
+		return;
 	}
 
 	/**
 	 * 
 	 * @param theSelectedNode the Xerces node at this level
-	 * @return true means error
+	 * @param fields the name / data type map
+	 * @throws EncodingRulesException
 	 */
-	private boolean decodeField(final Node theSelectedNode, final Map<String, String> fields) {
+	private void decodeField(final Node theSelectedNode, final Map<String, String> fields) throws EncodingRulesException {
 		boolean gotName = false;
 		boolean gotDataType = false;
 		String nameStr = null;
@@ -674,27 +616,21 @@ public class HandleDataTypes {
 			if (child.getNodeType() != Node.ELEMENT_NODE) {
 				continue;
 			}
-			// ---------------------------------------------------------------------------
-			try {
-				if (child.getNodeName().equals("name")) {
-					if (((Element) child).getFirstChild() != null) {
-						nameStr = ((Element) child).getFirstChild().getNodeValue();
-						gotName = true;
-						logger.trace("FieldName: " + nameStr);
-					}
-					continue;
+			if (child.getNodeName().equals("name")) {
+				if (((Element) child).getFirstChild() != null) {
+					nameStr = ((Element) child).getFirstChild().getNodeValue();
+					gotName = true;
+					logger.trace("FieldName: " + nameStr);
 				}
-				if (child.getNodeName().equals("dataType")) {
-					if (((Element) child).getFirstChild() != null) {
-						dataTypeStr = ((Element) child).getFirstChild().getNodeValue();
-						gotDataType = true;
-						logger.trace("FieldDataType: " + dataTypeStr);
-					}
-					continue;
+				continue;
+			}
+			if (child.getNodeName().equals("dataType")) {
+				if (((Element) child).getFirstChild() != null) {
+					dataTypeStr = ((Element) child).getFirstChild().getNodeValue();
+					gotDataType = true;
+					logger.trace("FieldDataType: " + dataTypeStr);
 				}
-			} catch (Exception e) {
-				logger.error("HandleDataTypes.decodeField: " + e);
-				return true;
+				continue;
 			}
 		}
 		
@@ -703,8 +639,7 @@ public class HandleDataTypes {
 		 */
 		HlaDataType tmpHlaDataType = hlaDataTypes.dataTypeMap.get(nameStr);
 		if (tmpHlaDataType != null) {
-			logger.trace("HandleDataTypes.decodeField dataType not found: " + nameStr);
-			return true;
+			throw new EncodingRulesException("decodeField dataType not found: " + nameStr);
 		}
 		
 		if (gotName && gotDataType) {
@@ -713,20 +648,19 @@ public class HandleDataTypes {
 				fields.put(nameStr, dataTypeStr);
 			} else {
 				if (s.equals(dataTypeStr) == false) {
-					logger.trace("HandleDataTypes.decodeField: duplicate field key " + nameStr);
-					return true;
+					throw new EncodingRulesException("HandleDataTypes.decodeField: duplicate field key: " + nameStr);
 				}
 			}
 		}
-		return false;
+		return;
 	}
 
 	/**
 	 * 
 	 * @param theSelectedNode the Xerces node at this level
-	 * @return true means error
+	 * @throws EncodingRulesException
 	 */
-	private boolean decodeFixedRecordData(Node theSelectedNode) {
+	private void decodeFixedRecordData(Node theSelectedNode) throws EncodingRulesException {
 		boolean gotName = false;
 		boolean gotEncoding = false;
 		boolean gotField = false;
@@ -738,34 +672,26 @@ public class HandleDataTypes {
 			if (child.getNodeType() != Node.ELEMENT_NODE) {
 				continue;
 			}
-			// ---------------------------------------------------------------------------
-			try {
-				if (child.getNodeName().equals("name")) {
-					if (((Element) child).getFirstChild() != null) {
-						nameStr = ((Element) child).getFirstChild().getNodeValue();
-						gotName = true;
-						logger.trace("FixedRecordDataName: " + nameStr);
-					}
-					continue;
+			if (child.getNodeName().equals("name")) {
+				if (((Element) child).getFirstChild() != null) {
+					nameStr = ((Element) child).getFirstChild().getNodeValue();
+					gotName = true;
+					logger.trace("FixedRecordDataName: " + nameStr);
 				}
-				if (child.getNodeName().equals("encoding")) {
-					if (((Element) child).getFirstChild() != null) {
-						textPointer = ((Element) child).getFirstChild().getNodeValue();
-						gotEncoding = true;
-						logger.trace("FixedRecordDataEncoding: " + textPointer);
-					}
-					continue;
+				continue;
+			}
+			if (child.getNodeName().equals("encoding")) {
+				if (((Element) child).getFirstChild() != null) {
+					textPointer = ((Element) child).getFirstChild().getNodeValue();
+					gotEncoding = true;
+					logger.trace("FixedRecordDataEncoding: " + textPointer);
 				}
-				if (child.getNodeName().equals("field")) {
-					if (decodeField(child, fields)) {
-						return true;
-					}
-					gotField = true;
-					continue;
-				}
-			} catch (Exception e) {
-				logger.trace("HandleDataTypes.decodeFixedRecordData: " + e);
-				return true;
+				continue;
+			}
+			if (child.getNodeName().equals("field")) {
+				decodeField(child, fields);
+				gotField = true;
+				continue;
 			}
 		}
 
@@ -782,57 +708,50 @@ public class HandleDataTypes {
 					logger.trace("HandleDataTypes.decodeFixedRecordData: EQUAL DATA TYPE: " + nameStr + " NOT MERGED");
 				}
 			}
-			return false;
+			return;
 		}
 
 		/*
 		 * Incomplete data
 		 */
-		if (gotName) {
+		if (gotName == false) {
 			logger.error("HandleDataTypes.decodeFixedRecordData: missing name");
 		}
-		if (gotEncoding) {
+		if (gotEncoding == false) {
 			logger.error("HandleDataTypes.decodeFixedRecordData: missing encoding");
 		}
-		if (gotField) {
+		if (gotField == false) {
 			logger.error("HandleDataTypes.decodeFixedRecordData: missing field");
 		}
 
-		return true;
+		throw new EncodingRulesException("decodeFixedRecordData: missing data");
 	}
 
 	/**
 	 * 
 	 * @param theSelectedNode the Xerces node at this level
-	 * @return true means error
+	 * @throws EncodingRulesException
 	 */
-	private boolean decodeFixedRecordDataTypes(Node theSelectedNode) {
+	private void decodeFixedRecordDataTypes(Node theSelectedNode) throws EncodingRulesException {
 		for (Node child = theSelectedNode.getFirstChild(); child != null; child = child.getNextSibling()) {
 			if (child.getNodeType() != Node.ELEMENT_NODE) {
 				continue;
 			}
-			// ---------------------------------------------------------------------------
-			try {
-				if (child.getNodeName().equals("fixedRecordData")) {
-					if (decodeFixedRecordData(child)) {
-						return true;
-					}
-					continue;
-				}
-			} catch (Exception e) {
-				logger.error("HandleDataTypes.decodeFixedRecordDataTypes: " + e);
-				return true;
+			if (child.getNodeName().equals("fixedRecordData")) {
+				decodeFixedRecordData(child);
+				continue;
 			}
 		}
-		return false;
+		return;
 	}
 
 	/**
 	 * 
 	 * @param theSelectedNode the Xerces node at this level
-	 * @return true means error
+	 * @param alternativeMap map of alternative name / dataType
+	 * @throws EncodingRulesException
 	 */
-	private boolean decodeAlternative(Node theSelectedNode, Map<String, AlternativeStringPair> alternativeMap) {
+	private void decodeAlternative(Node theSelectedNode, Map<String, AlternativeStringPair> alternativeMap) throws EncodingRulesException {
 		boolean gotEnumerator = false;
 		boolean gotName = false;
 		boolean gotDataType = false;
@@ -844,35 +763,29 @@ public class HandleDataTypes {
 			if (child.getNodeType() != Node.ELEMENT_NODE) {
 				continue;
 			}
-			// ---------------------------------------------------------------------------
-			try {
-				if (child.getNodeName().equals("enumerator")) {
-					if (((Element) child).getFirstChild() != null) {
-						enumeratorStr = ((Element) child).getFirstChild().getNodeValue();
-						gotEnumerator = true;
-						logger.trace("AlternativeEnumerator: " + enumeratorStr);
-					}
-					continue;
+			if (child.getNodeName().equals("enumerator")) {
+				if (((Element) child).getFirstChild() != null) {
+					enumeratorStr = ((Element) child).getFirstChild().getNodeValue();
+					gotEnumerator = true;
+					logger.trace("AlternativeEnumerator: " + enumeratorStr);
 				}
-				if (child.getNodeName().equals("name")) {
-					if (((Element) child).getFirstChild() != null) {
-						nameStr = ((Element) child).getFirstChild().getNodeValue();
-						gotName = true;
-						logger.trace("AlternativeName: " + nameStr);
-					}
-					continue;
+				continue;
+			}
+			if (child.getNodeName().equals("name")) {
+				if (((Element) child).getFirstChild() != null) {
+					nameStr = ((Element) child).getFirstChild().getNodeValue();
+					gotName = true;
+					logger.trace("AlternativeName: " + nameStr);
 				}
-				if (child.getNodeName().equals("dataType")) {
-					if (((Element) child).getFirstChild() != null) {
-						dataTypeStr = ((Element) child).getFirstChild().getNodeValue();
-						gotDataType = true;
-						logger.trace("AlternativeDataType: " + dataTypeStr);
-					}
-					continue;
+				continue;
+			}
+			if (child.getNodeName().equals("dataType")) {
+				if (((Element) child).getFirstChild() != null) {
+					dataTypeStr = ((Element) child).getFirstChild().getNodeValue();
+					gotDataType = true;
+					logger.trace("AlternativeDataType: " + dataTypeStr);
 				}
-			} catch (Exception e) {
-				logger.error("HandleDataTypes.decodeAlternative: " + e);
-				return true;
+				continue;
 			}
 		}
 
@@ -881,22 +794,34 @@ public class HandleDataTypes {
 			AlternativeStringPair tmpAlternativeStringPair = alternativeMap.get(enumeratorStr);
 			if (tmpAlternativeStringPair != null) {
 				if (alternativeStringPair.equalTo(tmpAlternativeStringPair) == false) {
-					logger.trace("HandleDataTypes.decodeAlternative: alternativeStringPair enumeratorStr differ IGNORED");
-					return true;
-				}
+					throw new EncodingRulesException("decodeAlternative: alternativeStringPair enumeratorStr differ IGNORED");				}
 			}
 			alternativeMap.put(enumeratorStr, alternativeStringPair);
-			return false;
+			return;
 		}
-		return true;
+
+		/*
+		 * Incomplete data
+		 */
+		if (gotEnumerator == false) {
+			logger.error("decodeAlternative: missing enumerator");
+		}
+		if (gotName == false) {
+			logger.error("decodeAlternative: missing name");
+		}
+		if (gotDataType == false) {
+			logger.error("decodeAlternative: missing dataType");
+		}
+
+		throw new EncodingRulesException("decodeAlternative: missing data");
 	}
 
 	/**
 	 * 
 	 * @param theSelectedNode the Xerces node at this level
-	 * @return true means error
+	 * @throws EncodingRulesException
 	 */
-	private boolean decodeVariantRecordData(Node theSelectedNode) {
+	private void decodeVariantRecordData(Node theSelectedNode) throws EncodingRulesException {
 		boolean gotName = false;
 		boolean gotDiscriminant = false;
 		boolean gotDataType = false;
@@ -910,42 +835,34 @@ public class HandleDataTypes {
 			if (child.getNodeType() != Node.ELEMENT_NODE) {
 				continue;
 			}
-			// ---------------------------------------------------------------------------
-			try {
-				if (child.getNodeName().equals("name")) {
-					if (((Element) child).getFirstChild() != null) {
-						nameStr = ((Element) child).getFirstChild().getNodeValue();
-						gotName = true;
-						logger.trace("VariantRecordName: " + nameStr);
-					}
-					continue;
+			if (child.getNodeName().equals("name")) {
+				if (((Element) child).getFirstChild() != null) {
+					nameStr = ((Element) child).getFirstChild().getNodeValue();
+					gotName = true;
+					logger.trace("VariantRecordName: " + nameStr);
 				}
-				if (child.getNodeName().equals("discriminant")) {
-					if (((Element) child).getFirstChild() != null) {
-						discriminantStr = ((Element) child).getFirstChild().getNodeValue();
-						gotDiscriminant = true;
-						logger.trace("VariantRecordDiscriminant: " + discriminantStr);
-					}
-					continue;
+				continue;
+			}
+			if (child.getNodeName().equals("discriminant")) {
+				if (((Element) child).getFirstChild() != null) {
+					discriminantStr = ((Element) child).getFirstChild().getNodeValue();
+					gotDiscriminant = true;
+					logger.trace("VariantRecordDiscriminant: " + discriminantStr);
 				}
-				if (child.getNodeName().equals("dataType")) {
-					if (((Element) child).getFirstChild() != null) {
-						dataTypeStr = ((Element) child).getFirstChild().getNodeValue();
-						gotDataType = true;
-						logger.trace("VariantRecordDataType: " + dataTypeStr);
-					}
-					continue;
+				continue;
+			}
+			if (child.getNodeName().equals("dataType")) {
+				if (((Element) child).getFirstChild() != null) {
+					dataTypeStr = ((Element) child).getFirstChild().getNodeValue();
+					gotDataType = true;
+					logger.trace("VariantRecordDataType: " + dataTypeStr);
 				}
-				if (child.getNodeName().equals("alternative")) {
-					if (decodeAlternative(child, alternativeMap)) {
-						return true;
-					}
-					gotAlternative = true;
-					continue;
-				}
-			} catch (Exception e) {
-				logger.error("HandleDataTypes.decodeVariantRecordData: " + e);
-				return true;
+				continue;
+			}
+			if (child.getNodeName().equals("alternative")) {
+				decodeAlternative(child, alternativeMap);
+				gotAlternative = true;
+				continue;
 			}
 		}
 		
@@ -969,58 +886,51 @@ public class HandleDataTypes {
 					logger.trace("HandleDataTypes.decodeVariantRecordData: UNEQUAL DATA TYPES: " + nameStr + " NOT MERGED");
 				}
 			}
-			return false;
+			return;
 		}
 
 		/*
 		 * Incomplete data
 		 */
-		if (gotName) {
+		if (gotName == false) {
 			logger.error("HandleDataTypes.decodeVariantRecordData: missing name");
 		}
-		if (gotDiscriminant) {
+		if (gotDiscriminant == false) {
 			logger.error("HandleDataTypes.decodeVariantRecordData: missing discriminant");
 		}
-		if (gotDataType) {
+		if (gotDataType == false) {
 			logger.error("HandleDataTypes.decodeVariantRecordData: missing dataType");
 		}
-		if (gotAlternative) {
+		if (gotAlternative == false) {
 			logger.error("HandleDataTypes.decodeVariantRecordData: missing alternative");
 		}
 
-		return true;
+		throw new EncodingRulesException("decodeVariantRecordData: missing data");
 	}
 
 	/**
 	 * 
 	 * @param theSelectedNode the Xerces node at this level
-	 * @return true means error
+	 * @throws EncodingRulesException
 	 */
-	private boolean decodeVariantRecordDataTypes(Node theSelectedNode) {
+	private void decodeVariantRecordDataTypes(Node theSelectedNode) throws EncodingRulesException {
 		for (Node child = theSelectedNode.getFirstChild(); child != null; child = child.getNextSibling()) {
 			if (child.getNodeType() != Node.ELEMENT_NODE) {
 				continue;
 			}
-			// ---------------------------------------------------------------------------
-			try {
-				if (child.getNodeName().equals("variantRecordData")) {
-					if (decodeVariantRecordData(child)) {
-						return true;
-					}
-					continue;
-				}
-			} catch (Exception e) {
-				logger.error("HandleDataTypes.decodeVariantRecordDataTypes: " + e);
-				return true;
+			if (child.getNodeName().equals("variantRecordData")) {
+				decodeVariantRecordData(child);
+				continue;
 			}
 		}
-		return false;
+		return;
 	}
 
 	/**
 	 * 
 	 * @param theSelectedNode the Xerces node at this level
-	 * @return true means error
+	 * @param hlaDataTypes
+	 * @return
 	 */
 	boolean decode(final Node theSelectedNode, final HlaDataTypes hlaDataTypes) {
 		String textPointer = null;
@@ -1030,67 +940,60 @@ public class HandleDataTypes {
 			textPointer = theSelectedNode.getNodeName();
 			logger.trace("decode: " + textPointer);
 		}
-		// Need basicDataRepresentations first, all others refer to these
-		for (Node child = theSelectedNode.getFirstChild(); child != null; child = child.getNextSibling()) {
-			if (child.getNodeType() != Node.ELEMENT_NODE) {
-				continue;
-			}
-			textPointer = child.getNodeName();
-			if (child.getNodeName().equals("basicDataRepresentations")) {
-				logger.trace("Got basicDataRepresentations!");
-				if (decodeBasicDataTypes(child)) {
-					return true;
+		try {
+			// Need basicDataRepresentations first, all others refer to these
+			for (Node child = theSelectedNode.getFirstChild(); child != null; child = child.getNextSibling()) {
+				if (child.getNodeType() != Node.ELEMENT_NODE) {
+					continue;
 				}
-				continue;
-			}
-		}
-		// Need simpleDataTypes and enumeratedDataTypes next, refer to basicDataRepresentations only and
-		// are building stones for more complex types
-		for (Node child = theSelectedNode.getFirstChild(); child != null; child = child.getNextSibling()) {
-			if (child.getNodeType() != Node.ELEMENT_NODE) {
-				continue;
-			}
-			if (child.getNodeName().equals("simpleDataTypes")) {
-				logger.trace("Got simpleDataTypes!");
-				if (decodeSimpleDataTypes(child)) {
-					return true;
+				textPointer = child.getNodeName();
+				if (child.getNodeName().equals("basicDataRepresentations")) {
+					logger.trace("Got basicDataRepresentations!");
+					decodeBasicDataTypes(child);
+					continue;
 				}
-				continue;
 			}
-			if (child.getNodeName().equals("enumeratedDataTypes")) {
-				logger.trace("Got enumeratedDataTypes!");
-				if (decodeEnumeratedDataTypes(child)) {
-					return true;
+			// Need simpleDataTypes and enumeratedDataTypes next, refer to basicDataRepresentations only and
+			// are building stones for more complex types
+			for (Node child = theSelectedNode.getFirstChild(); child != null; child = child.getNextSibling()) {
+				if (child.getNodeType() != Node.ELEMENT_NODE) {
+					continue;
 				}
-				continue;
-			}
-		}
-		// All others refer to above in some manner
-		for (Node child = theSelectedNode.getFirstChild(); child != null; child = child.getNextSibling()) {
-			if (child.getNodeType() != Node.ELEMENT_NODE) {
-				continue;
-			}
-			if (child.getNodeName().equals("arrayDataTypes")) {
-				logger.trace("Got arrayDataTypes!");
-				if (decodeArrayDataTypes(child)) {
-					return true;
+				if (child.getNodeName().equals("simpleDataTypes")) {
+					logger.trace("Got simpleDataTypes!");
+					decodeSimpleDataTypes(child);
+					continue;
 				}
-				continue;
-			}
-			if (child.getNodeName().equals("fixedRecordDataTypes")) {
-				logger.trace("Got fixedRecordDataTypes!");
-				if (decodeFixedRecordDataTypes(child)) {
-					return true;
+				if (child.getNodeName().equals("enumeratedDataTypes")) {
+					logger.trace("Got enumeratedDataTypes!");
+					decodeEnumeratedDataTypes(child);
+					continue;
 				}
-				continue;
 			}
-			if (child.getNodeName().equals("variantRecordDataTypes")) {
-				logger.trace("Got variantRecordDataTypes!");
-				if (decodeVariantRecordDataTypes(child)) {
-					return true;
+			// All others refer to above in some manner
+			for (Node child = theSelectedNode.getFirstChild(); child != null; child = child.getNextSibling()) {
+				if (child.getNodeType() != Node.ELEMENT_NODE) {
+					continue;
 				}
-				continue;
+				if (child.getNodeName().equals("arrayDataTypes")) {
+					logger.trace("Got arrayDataTypes!");
+					decodeArrayDataTypes(child);
+					continue;
+				}
+				if (child.getNodeName().equals("fixedRecordDataTypes")) {
+					logger.trace("Got fixedRecordDataTypes!");
+					decodeFixedRecordDataTypes(child);
+					continue;
+				}
+				if (child.getNodeName().equals("variantRecordDataTypes")) {
+					logger.trace("Got variantRecordDataTypes!");
+					decodeVariantRecordDataTypes(child);
+					continue;
+				}
 			}
+		} catch (EncodingRulesException e) {
+			logger.error("HandleDataTypes.decode: error: " + e);
+			return true;
 		}
 		return false;
 	}
