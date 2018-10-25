@@ -121,7 +121,8 @@ public class HlaDataFixedRecordType extends HlaDataType {
 		int myCurrentPosition = currentPosition;
 		for (Map.Entry<String, String> field : fields.entrySet()) {
 			HlaDataType hlaDataType = dataTypes.dataTypeMap.get(field.getValue());
-			myCurrentPosition += calcPaddingBytes(myCurrentPosition, "HLAinteger32BE", dataTypes);
+			int alignment = hlaDataType.getAlignment(dataTypes);
+			myCurrentPosition += hlaDataType.calcPaddingBytes(myCurrentPosition, alignment);
 			myCurrentPosition = hlaDataType.testBuffer(buffer, myCurrentPosition, dataTypes);
 		}
 		if (myCurrentPosition > buffer.length) {
