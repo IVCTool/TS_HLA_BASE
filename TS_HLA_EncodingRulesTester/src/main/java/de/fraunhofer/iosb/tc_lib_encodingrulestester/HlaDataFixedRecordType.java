@@ -16,6 +16,8 @@ limitations under the License.
 
 package de.fraunhofer.iosb.tc_lib_encodingrulestester;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -33,7 +35,8 @@ public class HlaDataFixedRecordType extends HlaDataType {
 	 *  For records
 	 * <Field name, Type Name> 
 	 */
-	Map<String, String> fields;
+	private Map<String, String> fields;
+	private List<String> fieldNamesOrdered;
 
 	//
 	public HlaDataFixedRecordType(final String dataTypeName, final boolean dataSizeFixed) {
@@ -45,11 +48,12 @@ public class HlaDataFixedRecordType extends HlaDataType {
 	}
 	
 	//
-	public HlaDataFixedRecordType(final String dataTypeName, final Map<String, String> fields, final boolean dataSizeFixed) {
+	public HlaDataFixedRecordType(final String dataTypeName, final List<String> fieldNamesOrdered, final Map<String, String> fields, final boolean dataSizeFixed) {
 		this.dataTypeName = dataTypeName;
 		this.dataSizeFixed = dataSizeFixed;
 		// Has to be calculated based on alignment of fields
 		this.alignment = 0;
+		this.fieldNamesOrdered = fieldNamesOrdered;
 		this.fields = fields;
 	}
 	
@@ -119,8 +123,9 @@ public class HlaDataFixedRecordType extends HlaDataType {
 	 */
 	public int testBuffer(final byte[] buffer, final int currentPosition, final HlaDataTypes dataTypes) throws EncodingRulesException {
 		int myCurrentPosition = currentPosition;
-		for (Map.Entry<String, String> field : fields.entrySet()) {
-			HlaDataType hlaDataType = dataTypes.dataTypeMap.get(field.getValue());
+		for (String fieldName : fieldNamesOrdered) {
+			String fieldType = fields.get(fieldName);
+			HlaDataType hlaDataType = dataTypes.dataTypeMap.get(fieldType);
 			int alignment = hlaDataType.getAlignment(dataTypes);
 			myCurrentPosition += hlaDataType.calcPaddingBytes(myCurrentPosition, alignment);
 			myCurrentPosition = hlaDataType.testBuffer(buffer, myCurrentPosition, dataTypes);

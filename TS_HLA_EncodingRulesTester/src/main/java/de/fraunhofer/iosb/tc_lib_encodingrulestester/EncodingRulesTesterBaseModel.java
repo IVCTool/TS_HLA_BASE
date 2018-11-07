@@ -354,7 +354,11 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 		this.logger.trace("EncodingRulesTesterBaseModel.init: subscribe object attributes");
 		try {
 			for (Map.Entry<ObjectClassHandle, AttributeHandleSet> entry : this.objectClassAttributeHandleMap.entrySet()) {
-				this.logger.trace("EncodingRulesTesterBaseModel.init: subscribe " + this.ivct_rti.getObjectClassName(entry.getKey()));
+				this.logger.debug("EncodingRulesTesterBaseModel.init: subscribe " + this.ivct_rti.getObjectClassName(entry.getKey()));
+				AttributeHandleSet ahs = entry.getValue();
+				for (AttributeHandle att : ahs) {
+					this.logger.debug("EncodingRulesTesterBaseModel.init: attribute " + this.ivct_rti.getAttributeName(entry.getKey(), att));
+				}
 				this.ivct_rti.subscribeObjectClassAttributes(entry.getKey(), entry.getValue());
 				for (AttributeHandle ah: entry.getValue()) {
 		            this.attributeHandleChecked.put(ah, b);
@@ -392,6 +396,9 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 		catch (InvalidObjectClassHandle e) {
 			this.logger.error("EncodingRulesTesterBaseModel.init: exception: " + e);
             throw new TcInconclusive("EncodingRulesTesterBaseModel.init: cannot subscribe object attributes: exception InvalidObjectClassHandle");
+		} catch (InvalidAttributeHandle e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
     }
 
@@ -416,6 +423,11 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 		            throw new TcInconclusive("EncodingRulesTesterBaseModel.processSOM: error in dataTreeBuilder.buildData");
 				}
 			}
+			this.logger.debug("processSOM attributeHandle: BEFORE");
+			for (Map.Entry<AttributeHandle, String> entry : this.attributeHandleDataTypeMap.entrySet() ) {
+				this.logger.debug("processSOM attributeHandle: " + entry.getKey() + " type: " + entry.getValue());
+			}
+			this.logger.debug("processSOM attributeHandle: AFTER");
 		}
 		catch (FactoryConfigurationError e) {
 			this.logger.error("EncodingRulesTesterBaseModel.processSOM: exception: " + e);
@@ -546,15 +558,15 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
         String sIDs = new String("Interaction class handle: " + interactionClass + " Parameter handle: " + parameterHandle);
         String sBytes = new String("Parameter value bytes: " + bytesToHex(b));
         if (errorBool) {
+            this.logger.error("");
             this.logger.error(sNames);
             this.logger.error(sIDs);
             this.logger.error(sBytes);
-            this.logger.error("");
         } else {
+            this.logger.debug("");
             this.logger.debug(sNames);
             this.logger.debug(sIDs);
             this.logger.debug(sBytes);
-            this.logger.debug("");
         }
     }
 
@@ -563,17 +575,17 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
      * @param theParameters specify the parameter handles and values
      */
     private void doReceiveInteraction(final InteractionClassHandle interactionClass, final ParameterHandleValueMap theParameters) {
-        this.logger.warn("EncodingRulesTesterBaseModel.doReceiveInteraction: enter");
+        this.logger.debug("EncodingRulesTesterBaseModel.doReceiveInteraction: enter");
 
         Boolean bool =true;
         this.interactionClassChecked.put(interactionClass, bool);
 
         for (Map.Entry<ParameterHandle, byte[]> entry : theParameters.entrySet()) {
-            this.logger.warn("EncodingRulesTesterBaseModel.doReceiveInteraction:  GOT parameter " + entry.getKey());
-            this.logger.warn("EncodingRulesTesterBaseModel.doReceiveInteraction: GOT receiveInteraction " + this.parameterHandleDataTypeMap.get(entry.getKey()));
+            this.logger.debug("EncodingRulesTesterBaseModel.doReceiveInteraction:  GOT parameter " + entry.getKey());
+            this.logger.debug("EncodingRulesTesterBaseModel.doReceiveInteraction: GOT receiveInteraction " + this.parameterHandleDataTypeMap.get(entry.getKey()));
             HlaDataType hdt = this.hlaDataTypes.dataTypeMap.get(this.parameterHandleDataTypeMap.get(entry.getKey()));
             byte b[] = theParameters.get(entry.getKey());
-            this.logger.warn("EncodingRulesTesterBaseModel.doReceiveInteraction: length " + b.length);
+            this.logger.debug("EncodingRulesTesterBaseModel.doReceiveInteraction: length " + b.length);
 //            for (int i = 0; i < b.length; i++) {
 //                this.logger.trace("EncodingRulesTesterBaseModel.doReceiveInteraction: byte " + b[i]);
 //            }
@@ -607,7 +619,7 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 				this.incorrect += 1;
 			}
         }
-        this.logger.warn("EncodingRulesTesterBaseModel.doReceiveInteraction: leave");
+        this.logger.debug("EncodingRulesTesterBaseModel.doReceiveInteraction: leave");
     }
 
     /**
@@ -775,15 +787,15 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
         String sIDs = new String("Object handle: " + theObject + " Attribute handle: " + attributeHandle);
         String sBytes = new String("Attribute value bytes: " + bytesToHex(b));
         if (errorBool) {
+            this.logger.error("");
             this.logger.error(sNames);
             this.logger.error(sIDs);
             this.logger.error(sBytes);
-            this.logger.error("");
         } else {
+            this.logger.debug("");
             this.logger.debug(sNames);
             this.logger.debug(sIDs);
             this.logger.debug(sBytes);
-            this.logger.debug("");
         }
     }
 
@@ -792,12 +804,12 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
      * @param theAttributes the map of attribute handle / value
      */
     private void doReflectAttributeValues(final ObjectInstanceHandle theObject, final AttributeHandleValueMap theAttributes) {
-        this.logger.warn("EncodingRulesTesterBaseModel.doReflectAttributeValues: enter");
+        this.logger.debug("EncodingRulesTesterBaseModel.doReflectAttributeValues: enter");
 
         Boolean bool = new Boolean(true);
         for (Map.Entry<AttributeHandle, byte[]> entry : theAttributes.entrySet()) {
-            this.logger.warn("EncodingRulesTesterBaseModel.doReflectAttributeValues: GOT attribute " + entry.getKey());
-            this.logger.warn("EncodingRulesTesterBaseModel.doReflectAttributeValues: GOT reflectAttributeValues " + this.attributeHandleDataTypeMap.get(entry.getKey()));
+            this.logger.debug("EncodingRulesTesterBaseModel.doReflectAttributeValues: GOT attribute " + entry.getKey());
+            this.logger.debug("EncodingRulesTesterBaseModel.doReflectAttributeValues: GOT reflectAttributeValues " + this.attributeHandleDataTypeMap.get(entry.getKey()));
 
             this.attributeHandleChecked.put(entry.getKey(), bool);
 
@@ -837,7 +849,7 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 	            this.incorrect += 1;
 			}
         }
-        this.logger.warn("EncodingRulesTesterBaseModel.doReflectAttributeValues: leave");
+        this.logger.debug("EncodingRulesTesterBaseModel.doReflectAttributeValues: leave");
     }
 
 
