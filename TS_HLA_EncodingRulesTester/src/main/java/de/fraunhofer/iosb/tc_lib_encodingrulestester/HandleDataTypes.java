@@ -479,6 +479,7 @@ public class HandleDataTypes {
 		boolean gotName = false;
 		boolean gotDataType = false;
 		boolean gotCardinality = false;
+		int cardinality = 0;
 		String nameStr = null;
 		String dataTypeStr = null;
 		String cardinalityStr = null;
@@ -506,6 +507,12 @@ public class HandleDataTypes {
 			if (child.getNodeName().equals("cardinality")) {
 				if (((Element) child).getFirstChild() != null) {
 					cardinalityStr = ((Element) child).getFirstChild().getNodeValue();
+					try {
+						cardinality = Integer.parseInt(cardinalityStr);
+					}
+					catch(NumberFormatException e) {
+						cardinality = 0;
+					}
 					gotCardinality = true;
 					logger.trace("ArrayDataCardinality: " + cardinalityStr);
 				}
@@ -549,7 +556,7 @@ public class HandleDataTypes {
 					}
 				}
 			} else {
-				HlaDataFixedArrayType hlaDataTypeFixedArray = new HlaDataFixedArrayType(nameStr, dataTypeStr, 4, true, 3);
+				HlaDataFixedArrayType hlaDataTypeFixedArray = new HlaDataFixedArrayType(nameStr, dataTypeStr, tmpHlaDataTypeElement.getDataSize(), true, cardinality);
 				if (tmpHlaDataType == null) {
 					hlaDataTypes.dataTypeMap.put(nameStr, hlaDataTypeFixedArray);
 				} else {

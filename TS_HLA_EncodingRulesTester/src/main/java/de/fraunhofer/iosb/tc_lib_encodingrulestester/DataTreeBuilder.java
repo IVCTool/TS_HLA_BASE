@@ -49,7 +49,7 @@ public class DataTreeBuilder {
 	private Map<AttributeHandle, String> attributeHandleDataTypeMap;
 	private Map<ObjectClassHandle, AttributeHandleSet> objectClassAttributeHandleMap;
 	private Map<ParameterHandle, String> parameterHandleDataTypeMap;
-	private Set<InteractionClassHandle> interactionHandleSet;
+	private Map<InteractionClassHandle, Set<ParameterHandle>> interactionHandleMap;
 	// The cache of attributes of base object classes for internal use
 	private AttributeHandleSet attributeHandleBaseClassSet = null;
 	AttributeHandleSetFactory attributeHandleSetFactory = null;
@@ -59,16 +59,17 @@ public class DataTreeBuilder {
 	 *
 	 * @param ivct_rti the RTI ambassador to use
 	 * @param hlaDataTypes the dataType handler
-	 * @param interactionHandleSet the interactions to subscribe to
+	 * @param interactionClassHandleMap the interactions to subscribe to
 	 * @param parameterHandleDataTypeMap the parameter dataType mapper
 	 * @param objectClassAttributeHandleMap the attribute dataType mapper
+	 * @param attributeHandleDataTypeMap holds attribute data
 	 * @throws TcInconclusive in case of rti error
 	 */
-	public DataTreeBuilder(final IVCT_RTIambassador ivct_rti, final HlaDataTypes hlaDataTypes, final Set<InteractionClassHandle> interactionHandleSet, Map<ParameterHandle, String> parameterHandleDataTypeMap, Map<ObjectClassHandle, AttributeHandleSet> objectClassAttributeHandleMap, Map<AttributeHandle, String> attributeHandleDataTypeMap) throws TcInconclusive {
+	public DataTreeBuilder(final IVCT_RTIambassador ivct_rti, final HlaDataTypes hlaDataTypes, final Map<InteractionClassHandle, Set<ParameterHandle>> interactionClassHandleMap, Map<ParameterHandle, String> parameterHandleDataTypeMap, Map<ObjectClassHandle, AttributeHandleSet> objectClassAttributeHandleMap, Map<AttributeHandle, String> attributeHandleDataTypeMap) throws TcInconclusive {
 		logger.trace("DataTreeBuilder: enter");
 		this.ivct_rti = ivct_rti;
 		this.hlaDataTypes = hlaDataTypes;
-		this.interactionHandleSet = interactionHandleSet;
+		this.interactionHandleMap = interactionClassHandleMap;
 		this.parameterHandleDataTypeMap = parameterHandleDataTypeMap;
 		this.objectClassAttributeHandleMap = objectClassAttributeHandleMap;
 		this.attributeHandleDataTypeMap = attributeHandleDataTypeMap;
@@ -113,7 +114,7 @@ public class DataTreeBuilder {
 					// Only needed during interaction processing
 					String parentInteractionClassName = new String();
 					if (((Element) child).getFirstChild() != null) {
-						handleInteractionClass.decode(child, this.ivct_rti, parentInteractionClassName, interactionHandleSet, parameterHandleDataTypeMap);
+						handleInteractionClass.decode(child, this.ivct_rti, parentInteractionClassName, interactionHandleMap, parameterHandleDataTypeMap);
 					}
 					continue;
 				}

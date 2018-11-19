@@ -207,14 +207,12 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
     private IVCT_RTIambassador                             ivct_rti;
     private IVCT_TcParam ivct_TcParam;
     private Logger                                         logger;
-    private Set<InteractionClassHandle> interactionClassHandleSet = new HashSet<InteractionClassHandle>();
+    private Map<InteractionClassHandle, Set<ParameterHandle>> interactionClassHandleMap = new HashMap<InteractionClassHandle, Set<ParameterHandle>>();
     private Map<ParameterHandle, String> parameterHandleDataTypeMap = new HashMap<ParameterHandle, String>();
     private Map<ObjectClassHandle, AttributeHandleSet> objectClassAttributeHandleMap = new HashMap<ObjectClassHandle, AttributeHandleSet>();
 	private final Map<InteractionClassHandle, Map<ParameterHandle, ResultInfo>> interactionParameterResultsmap = new HashMap<InteractionClassHandle, Map<ParameterHandle, ResultInfo>>();
-    private Map<InteractionClassHandle, Boolean> interactionClassChecked = new HashMap<InteractionClassHandle, Boolean>();
 	private final Map<ObjectInstanceHandle, Map<AttributeHandle, ResultInfoAttribute>> objectAttributeResultsmap = new HashMap<ObjectInstanceHandle, Map<AttributeHandle, ResultInfoAttribute>>();
 	private Map<AttributeHandle, String> attributeHandleDataTypeMap = new HashMap<AttributeHandle, String>();
-	private Map<AttributeHandle, Boolean> attributeHandleChecked = new HashMap<AttributeHandle, Boolean>();
 	// FOM/SOM data types
 	private HlaDataTypes hlaDataTypes = new HlaDataTypes();
 
@@ -234,9 +232,12 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
      * @return returns whether all interactions have been checked
      */
     public boolean getWhetherAllInteractionsChecked() {
-		for (Map.Entry<InteractionClassHandle, Boolean> entry : this.interactionClassChecked.entrySet()) {
-			if (Boolean.FALSE.equals(entry.getValue())) {
-				return false;
+		for (Map.Entry<InteractionClassHandle, Map<ParameterHandle, ResultInfo>> entry : this.interactionParameterResultsmap.entrySet()) {
+			Map<ParameterHandle, ResultInfo> atts = entry.getValue();
+			for(Map.Entry<ParameterHandle, ResultInfo> parRes :  atts.entrySet()) {
+				if (parRes.getValue().getCorrectCount() == 0 && parRes.getValue().getIncorrectCount() == 0) {
+					return false;
+				}
 			}
 		}
     	return true;
@@ -246,9 +247,12 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
      * @return returns whether all attribute have been checked detected
      */
     public boolean getWhetherAllAttibutesChecked() {
-		for (Map.Entry<AttributeHandle, Boolean> entry : this.attributeHandleChecked.entrySet()) {
-			if (Boolean.FALSE.equals(entry.getValue())) {
-				return false;
+		for (Map.Entry<ObjectInstanceHandle, Map<AttributeHandle, ResultInfoAttribute>> entry : this.objectAttributeResultsmap.entrySet()) {
+			Map<AttributeHandle, ResultInfoAttribute> atts = entry.getValue();
+			for(Map.Entry<AttributeHandle, ResultInfoAttribute> attRes :  atts.entrySet()) {
+				if (attRes.getValue().getCorrectCount() == 0 && attRes.getValue().getIncorrectCount() == 0) {
+					return false;
+				}
 			}
 		}
     	return true;
@@ -311,10 +315,24 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
         // Subscribe interactions
     	this.logger.trace("EncodingRulesTesterBaseModel.init: subscribe interactions");
 		try {
-			for (InteractionClassHandle ich : this.interactionClassHandleSet) {
-				this.logger.trace("EncodingRulesTesterBaseModel.init: subscribe " + this.ivct_rti.getInteractionClassName(ich));
-				this.ivct_rti.subscribeInteractionClass(ich);
-				interactionClassChecked.put(ich, b);
+			for (Map.Entry<InteractionClassHandle, Set<ParameterHandle>> entry : this.interactionClassHandleMap.entrySet()) {
+				this.logger.trace("EncodingRulesTesterBaseModel.init: subscribe " + this.ivct_rti.getInteractionClassName(entry.getKey()));
+				this.ivct_rti.subscribeInteractionClass(entry.getKey());
+
+                Map<ParameterHandle, ResultInfo> parameterResultMap = this.interactionParameterResultsmap.get(entry.getKey());
+                if (parameterResultMap == null) {
+                    // Interaction not managed - create all elements
+                    Set<ParameterHandle> phs = interactionClassHandleMap.get(entry.getKey());
+                    if (phs != null) {
+                        Map<ParameterHandle, ResultInfo> tmpParameterResultMap = new HashMap<ParameterHandle, ResultInfo>();
+                        for (ParameterHandle parameterHandle : phs) {
+                            ResultInfo resultInfo = new ResultInfo();
+                            tmpParameterResultMap.put(parameterHandle, resultInfo);
+                        }
+                        this.interactionParameterResultsmap.put(entry.getKey(), tmpParameterResultMap);
+                        this.logger.trace("EncodingRulesTesterBaseModel.addParameterResult: A size " + this.interactionParameterResultsmap.size());
+                    }
+                }
 			}
 		}
 		catch (FederateServiceInvocationsAreBeingReportedViaMOM e) {
@@ -360,14 +378,11 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 					this.logger.debug("EncodingRulesTesterBaseModel.init: attribute " + this.ivct_rti.getAttributeName(entry.getKey(), att));
 				}
 				this.ivct_rti.subscribeObjectClassAttributes(entry.getKey(), entry.getValue());
-				for (AttributeHandle ah: entry.getValue()) {
-		            this.attributeHandleChecked.put(ah, b);
-				}
 			}
 		}
 		catch (AttributeNotDefined e) {
 			this.logger.error("EncodingRulesTesterBaseModel.init: exception: " + e);
-            throw new TcInconclusive("EncodingRulesTesterBaseModel.init: cannot subscribe object attributes: exception: AttributeNotDefinede");
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.init: cannot subscribe object attributes: exception: AttributeNotDefined");
 		}
 		catch (ObjectClassNotDefined e) {
 			this.logger.error("EncodingRulesTesterBaseModel.init: exception: " + e);
@@ -400,7 +415,56 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    }
+
+        // requestAttributeValueUpdate
+		this.logger.trace("EncodingRulesTesterBaseModel.init: requestAttributeValueUpdate");
+		try {
+			for (Map.Entry<ObjectClassHandle, AttributeHandleSet> entry : this.objectClassAttributeHandleMap.entrySet()) {
+				this.logger.debug("EncodingRulesTesterBaseModel.init: subscribe " + this.ivct_rti.getObjectClassName(entry.getKey()));
+				AttributeHandleSet ahs = entry.getValue();
+				for (AttributeHandle att : ahs) {
+					this.logger.debug("EncodingRulesTesterBaseModel.init: attribute " + this.ivct_rti.getAttributeName(entry.getKey(), att));
+				}
+				this.ivct_rti.requestAttributeValueUpdate(entry.getKey(), entry.getValue(), null);
+			}
+		}
+		catch (AttributeNotDefined e) {
+			this.logger.error("EncodingRulesTesterBaseModel.init: exception: " + e);
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.init: init: exception: AttributeNotDefined");
+		}
+		catch (InvalidAttributeHandle e) {
+			this.logger.error("EncodingRulesTesterBaseModel.init: exception: " + e);
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.init: init: exception: InvalidAttributeHandle");
+		}
+		catch (InvalidObjectClassHandle e) {
+			this.logger.error("EncodingRulesTesterBaseModel.init: exception: " + e);
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.init: init: exception InvalidObjectClassHandle");
+		}
+		catch (ObjectClassNotDefined e) {
+			this.logger.error("EncodingRulesTesterBaseModel.init: exception: " + e);
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.init: init: exception ObjectClassNotDefined");
+		}
+		catch (SaveInProgress e) {
+			this.logger.error("EncodingRulesTesterBaseModel.init: exception: " + e);
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.init: init: exception SaveInProgress");
+		}
+		catch (RestoreInProgress e) {
+			this.logger.error("EncodingRulesTesterBaseModel.init: exception: " + e);
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.init: init: exception RestoreInProgress");
+		}
+		catch (FederateNotExecutionMember e) {
+			this.logger.error("EncodingRulesTesterBaseModel.init: exception: " + e);
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.init: init: exception: FederateNotExecutionMember");
+		}
+		catch (NotConnected e) {
+			this.logger.error("EncodingRulesTesterBaseModel.init: exception: " + e);
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.init: init: exception: NotConnected");
+		}
+		catch (RTIinternalError e) {
+			this.logger.error("EncodingRulesTesterBaseModel.init: exception: " + e);
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.init: init: exception: RTIinternalError");
+		}
+	}
 
     /**
      * Read the SOM files and build up an internal data cache to use within this
@@ -412,7 +476,7 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
         URL[] somUrls = this.ivct_TcParam.getUrls();
 
 		try {
-			DataTreeBuilder dataTreeBuilder = new DataTreeBuilder(this.ivct_rti, this.hlaDataTypes, this.interactionClassHandleSet, this.parameterHandleDataTypeMap, this.objectClassAttributeHandleMap, this.attributeHandleDataTypeMap);
+			DataTreeBuilder dataTreeBuilder = new DataTreeBuilder(this.ivct_rti, this.hlaDataTypes, this.interactionClassHandleMap, this.parameterHandleDataTypeMap, this.objectClassAttributeHandleMap, this.attributeHandleDataTypeMap);
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			
@@ -505,14 +569,13 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
     }
 
     /**
+     * @param stringBuilder provided by caller to be logged by one log call
      * Print the result data for all interactions parameters
      */
-    public void printParameterResults() {
-    	final StringBuilder stringBuilder = new StringBuilder();
+    public void printParameterResults(StringBuilder stringBuilder) {
         stringBuilder.append("\n\nInteraction Parameter Summary \n");
         if (this.interactionParameterResultsmap.isEmpty()) {
             stringBuilder.append("- No Results -\n");
-        	this.logger.info(stringBuilder.toString());
             return;
         }
     	String interactionClassName = null;
@@ -523,6 +586,12 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
                 this.logger.error("EncodingRulesTesterBaseModel.printParameterResults: " + e);
 				continue;
 			}
+            Map<ParameterHandle, ResultInfo> val = entryInteraction.getValue();
+            if (val.size() > 0) {
+                stringBuilder.append("INTERACTION: " + interactionClassName + "\n");
+            } else {
+                continue;
+            }
     		String parameterName = null;
     		for (Map.Entry<ParameterHandle, ResultInfo> entryParameter : entryInteraction.getValue().entrySet()) {
     			try {
@@ -531,10 +600,14 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 						| FederateNotExecutionMember | NotConnected | RTIinternalError e) {
                     this.logger.error("EncodingRulesTesterBaseModel.printParameterResults: " + e);
 				}
-    			stringBuilder.append("INTERACTION: " + interactionClassName + " PARAMETER: " + parameterName + " CORRECT: " + entryParameter.getValue().getCorrectCount() + " INCORRECT: " + entryParameter.getValue().getIncorrectCount() + " TEXT: " + entryParameter.getValue().getText() + "\n");
-    		}
+                if (entryParameter.getValue().getIncorrectCount() == 0) {
+                    stringBuilder.append("    PARAMETER: " + parameterName + " CORRECT: " + entryParameter.getValue().getCorrectCount() + " INCORRECT: " + entryParameter.getValue().getIncorrectCount());
+                } else {
+                    stringBuilder.append("    PARAMETER: " + parameterName + " CORRECT: " + entryParameter.getValue().getCorrectCount() + " INCORRECT: " + entryParameter.getValue().getIncorrectCount() + " TEXT: " + entryParameter.getValue().getText());
+                }
+                stringBuilder.append("\n");
+            }
     	}
-    	this.logger.info(stringBuilder.toString());
     }
 
     /**
@@ -557,16 +630,15 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
         String sNames = new String("Interaction: " + interactionName + " Parameter: " + parameterName);
         String sIDs = new String("Interaction class handle: " + interactionClass + " Parameter handle: " + parameterHandle);
         String sBytes = new String("Parameter value bytes: " + bytesToHex(b));
+        String s = new String();
+        s = "\n"
+        + sNames + "\n"
+        + sIDs + "\n"
+        + sBytes;
         if (errorBool) {
-            this.logger.error("");
-            this.logger.error(sNames);
-            this.logger.error(sIDs);
-            this.logger.error(sBytes);
+            this.logger.error(s);
         } else {
-            this.logger.debug("");
-            this.logger.debug(sNames);
-            this.logger.debug(sIDs);
-            this.logger.debug(sBytes);
+            this.logger.debug(s);
         }
     }
 
@@ -578,7 +650,6 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
         this.logger.debug("EncodingRulesTesterBaseModel.doReceiveInteraction: enter");
 
         Boolean bool =true;
-        this.interactionClassChecked.put(interactionClass, bool);
 
         for (Map.Entry<ParameterHandle, byte[]> entry : theParameters.entrySet()) {
             this.logger.debug("EncodingRulesTesterBaseModel.doReceiveInteraction:  GOT parameter " + entry.getKey());
@@ -594,14 +665,14 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
                     displayReceiveParameterValuesMessage(interactionClass, entry.getKey(), b, true);
                     int calculatedLength = hdt.testBuffer(entry.getValue(), 0, this.hlaDataTypes);
                     if (calculatedLength != entry.getValue().length) {
-                        String error = "TEST BUFFER INCORRECT: overall length caculation: " + calculatedLength + " Buffer length: " + entry.getValue().length;
+                        String error = "TEST BUFFER INCORRECT: overall length caculation: " + calculatedLength + " Buffer length: " + entry.getValue().length + "\n";
                         this.logger.error(error);
                         this.errorOccurred = true;
                         addParameterResult(interactionClass, entry.getKey(), false, error);
 //                        displayReceiveParameterValuesMessage(interactionClass, entry.getKey(), b, true);
                         this.incorrect += 1;
                     } else {
-                        String ok = "TEST BUFFER CORRECT";
+                        String ok = "TEST BUFFER CORRECT\n";
                         this.logger.warn(ok);
                         addParameterResult(interactionClass, entry.getKey(), true, ok);
 //                        displayReceiveParameterValuesMessage(interactionClass, entry.getKey(), b, false);
@@ -611,7 +682,7 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
                     this.logger.warn("EncodingRulesTesterBaseModel.doReceiveInteraction: buffer length zero");
                 }
 			} catch (EncodingRulesException e) {
-				String error = "TEST BUFFER INCORRECT: " + e.getMessage();
+				String error = "TEST BUFFER INCORRECT: " + e.getMessage() + "\n";
 				this.logger.error(error);
 	            this.errorOccurred = true;
 				addParameterResult(interactionClass, entry.getKey(), false, error);
@@ -654,7 +725,33 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
      */
     @Override
     public void discoverObjectInstance(final ObjectInstanceHandle theObject, final ObjectClassHandle theObjectClass, final String objectName) throws FederateInternalError {
+        this.logger.debug("EncodingRulesTesterBaseModel.discoverObjectInstance: objectName: " + objectName);
 
+        /*
+         * Check if object already managed
+         */
+        Map<AttributeHandle, ResultInfoAttribute> attributeResultMap = this.objectAttributeResultsmap.get(theObject);
+        if (attributeResultMap == null) {
+            // Object not managed yet - create all elements
+            Map<AttributeHandle, ResultInfoAttribute> tmpAttributeResultMap = new HashMap<AttributeHandle, ResultInfoAttribute>();
+
+            AttributeHandleSet ahs = this.objectClassAttributeHandleMap.get(theObjectClass);
+            for (AttributeHandle att : ahs) {
+                ResultInfoAttribute tmpResultInfo = new ResultInfoAttribute();
+                tmpAttributeResultMap.put(att, tmpResultInfo);
+            }
+            this.objectAttributeResultsmap.put(theObject, tmpAttributeResultMap);
+            } else {
+            // Object rediscovered after localDeleteObjectInstance - add only not-yet-managed attributes
+            AttributeHandleSet ahs = this.objectClassAttributeHandleMap.get(theObjectClass);
+            for (AttributeHandle att : ahs) {
+                ResultInfoAttribute resultInfoAttribute = attributeResultMap.get(att);
+                if (resultInfoAttribute == null) {
+                    ResultInfoAttribute tmpResultInfo = new ResultInfoAttribute();
+                    attributeResultMap.put(att, tmpResultInfo);
+                }
+            }
+        }
     }
 
 
@@ -663,7 +760,7 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
      */
     @Override
     public void removeObjectInstance(final ObjectInstanceHandle theObject, final byte[] userSuppliedTag, final OrderType sentOrdering, final FederateAmbassador.SupplementalRemoveInfo removeInfo) {
-
+        // Do not remove any data collected.
     }
 
     /**
@@ -726,9 +823,28 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
         }
     	this.logger.trace("EncodingRulesTesterBaseModel.addAttributeResult: leave");
     }
-    
-    public void printAttributeResults() {
+
+    public void printResults() throws TcInconclusive {
     	final StringBuilder stringBuilder = new StringBuilder();
+
+        this.printAttributeResults(stringBuilder);
+        if (getWhetherAllAttibutesChecked() == false) {
+            stringBuilder.append("\nHave not seen all required attributes\n");
+        }
+
+        this.printParameterResults(stringBuilder);
+        if (getWhetherAllInteractionsChecked() == false) {
+            stringBuilder.append("\nHave not seen all required parameters\n");
+        }
+
+        int correct = getCorrect();
+        int incorrect = getIncorrect();
+        stringBuilder.append("\n\nVerdict Summary:\nCORRECT: " + correct + " INCORRECT: " + incorrect + "\n");
+
+        this.logger.info(stringBuilder.toString());
+    }
+
+    private void printAttributeResults(StringBuilder stringBuilder) {
         stringBuilder.append("\n\nObject Attribute Summary \n");
         if (this.objectAttributeResultsmap.isEmpty()) {
             stringBuilder.append("- No Results -\n");
@@ -753,14 +869,17 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 						| FederateNotExecutionMember | NotConnected | RTIinternalError e) {
                     this.logger.error("EncodingRulesTesterBaseModel.printAttributeResults: " + e);
 				}
-                stringBuilder.append("OBJECT: " + objectName + " ATTRIBUTE: " + attributeName + " CORRECT: " + entryAttribute.getValue().getCorrectCount() + " INCORRECT: " + entryAttribute.getValue().getIncorrectCount());
+                if (entryAttribute.getValue().getCorrectCount() + entryAttribute.getValue().getIncorrectCount() > 0) {
+                    stringBuilder.append("OBJECT: " + objectName + " ATTRIBUTE: " + attributeName + " CORRECT: " + entryAttribute.getValue().getCorrectCount() + " INCORRECT: " + entryAttribute.getValue().getIncorrectCount());
+                } else {
+                    stringBuilder.append("OBJECT: " + objectName + " ATTRIBUTE: " + attributeName + " NOT UPDATED");
+                }
                 if (entryAttribute.getValue().getIncorrectCount() > 0) {
 					stringBuilder.append(" TEXT: " + entryAttribute.getValue().getText() + " Federate: " + entryAttribute.getValue().getFederateName());
                 }
                 stringBuilder.append("\n");
     		}
     	}
-    	this.logger.info(stringBuilder.toString());
     }
 
     /**
@@ -786,16 +905,15 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
         String sNames = new String("Object name: " + objectName + " Known object class: " + knownObjectClass + " Attribute name: " + attributeName);
         String sIDs = new String("Object handle: " + theObject + " Attribute handle: " + attributeHandle);
         String sBytes = new String("Attribute value bytes: " + bytesToHex(b));
+        String s = new String();
+        s = "\n"
+        + sNames + "\n"
+        + sIDs + "\n"
+        + sBytes;
         if (errorBool) {
-            this.logger.error("");
-            this.logger.error(sNames);
-            this.logger.error(sIDs);
-            this.logger.error(sBytes);
+            this.logger.error(s);
         } else {
-            this.logger.debug("");
-            this.logger.debug(sNames);
-            this.logger.debug(sIDs);
-            this.logger.debug(sBytes);
+            this.logger.debug(s);
         }
     }
 
@@ -811,27 +929,22 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
             this.logger.debug("EncodingRulesTesterBaseModel.doReflectAttributeValues: GOT attribute " + entry.getKey());
             this.logger.debug("EncodingRulesTesterBaseModel.doReflectAttributeValues: GOT reflectAttributeValues " + this.attributeHandleDataTypeMap.get(entry.getKey()));
 
-            this.attributeHandleChecked.put(entry.getKey(), bool);
-
             HlaDataType hdt = this.hlaDataTypes.dataTypeMap.get(this.attributeHandleDataTypeMap.get(entry.getKey()));
             byte b[] = theAttributes.get(entry.getKey());
             this.logger.debug("EncodingRulesTesterBaseModel.doReflectAttributeValues: length " + b.length);
-//            for (int i = 0; i < b.length; i++) {
-//                this.logger.trace("EncodingRulesTesterBaseModel.doReflectAttributeValues: byte " + b[i]);
-//            }
             try {
                 if (b.length != 0) {
 	            displayReflectAttributeValuesMessage(theObject, entry.getKey(), b, true);
             	int calculatedLength = hdt.testBuffer(entry.getValue(), 0, this.hlaDataTypes);
 				if (calculatedLength != entry.getValue().length) {
-					String error = "TEST BUFFER INCORRECT: overall length calculation: " + calculatedLength + " Buffer length: " + entry.getValue().length;
+					String error = "TEST BUFFER INCORRECT: overall length calculation: " + calculatedLength + " Buffer length: " + entry.getValue().length + "\n";
 					this.logger.error(error);
 		            this.errorOccurred = true;
 		            addAttributeResult(theObject, entry.getKey(), false, error);
 //		            displayReflectAttributeValuesMessage(theObject, entry.getKey(), b, true);
 		            this.incorrect += 1;
 				} else {
-					String ok = "TEST BUFFER CORRECT";
+					String ok = "TEST BUFFER CORRECT\n";
 					this.logger.warn(ok);
 		            addAttributeResult(theObject, entry.getKey(), true, ok);
 //		            displayReflectAttributeValuesMessage(theObject, entry.getKey(), b, false);
@@ -841,7 +954,7 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
                     this.logger.error("EncodingRulesTesterBaseModel.doReflectAttributeValues: buffer length ZERO");
                 }
 			} catch (EncodingRulesException e) {
-				String error = "TEST BUFFER INCORRECT: " + e.getMessage();
+				String error = "TEST BUFFER INCORRECT: " + e.getMessage() + "\n";
 				this.logger.error(error);
 	            this.errorOccurred = true;
 	            addAttributeResult(theObject, entry.getKey(), false, error);
