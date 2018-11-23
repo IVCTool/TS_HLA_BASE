@@ -209,7 +209,7 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
     private Logger                                         logger;
     private Map<InteractionClassHandle, Set<ParameterHandle>> interactionClassHandleMap = new HashMap<InteractionClassHandle, Set<ParameterHandle>>();
     private Map<ParameterHandle, String> parameterHandleDataTypeMap = new HashMap<ParameterHandle, String>();
-    private Map<ObjectClassHandle, AttributeHandleSet> objectClassAttributeHandleMap = new HashMap<ObjectClassHandle, AttributeHandleSet>();
+    private Map<ObjectClassHandle, ObjectClassData> objectClassAttributeHandleMap = new HashMap<ObjectClassHandle, ObjectClassData>();
 	private final Map<InteractionClassHandle, Map<ParameterHandle, ResultInfo>> interactionParameterResultsmap = new HashMap<InteractionClassHandle, Map<ParameterHandle, ResultInfo>>();
 	private final Map<ObjectInstanceHandle, Map<AttributeHandle, ResultInfoAttribute>> objectAttributeResultsmap = new HashMap<ObjectInstanceHandle, Map<AttributeHandle, ResultInfoAttribute>>();
 	private Map<AttributeHandle, String> attributeHandleDataTypeMap = new HashMap<AttributeHandle, String>();
@@ -369,15 +369,27 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 		}
 
         // Subscribe object attributes
+		int maxClassLevelDepth = 0;
+		for (Map.Entry<ObjectClassHandle, ObjectClassData> entry : this.objectClassAttributeHandleMap.entrySet()) {
+			ObjectClassData objectClassData = entry.getValue();
+			if (objectClassData.classLevelDepth > maxClassLevelDepth) {
+				maxClassLevelDepth = objectClassData.classLevelDepth;
+			}
+		}
 		this.logger.trace("EncodingRulesTesterBaseModel.init: subscribe object attributes");
 		try {
-			for (Map.Entry<ObjectClassHandle, AttributeHandleSet> entry : this.objectClassAttributeHandleMap.entrySet()) {
-				this.logger.debug("EncodingRulesTesterBaseModel.init: subscribe " + this.ivct_rti.getObjectClassName(entry.getKey()));
-				AttributeHandleSet ahs = entry.getValue();
-				for (AttributeHandle att : ahs) {
-					this.logger.debug("EncodingRulesTesterBaseModel.init: attribute " + this.ivct_rti.getAttributeName(entry.getKey(), att));
+			for (int ind = maxClassLevelDepth; ind > 0; ind--) {
+				for (Map.Entry<ObjectClassHandle, ObjectClassData> entry : this.objectClassAttributeHandleMap.entrySet()) {
+					if (entry.getValue().classLevelDepth != ind) {
+						continue;
+					}
+					this.logger.debug("EncodingRulesTesterBaseModel.init: subscribe " + this.ivct_rti.getObjectClassName(entry.getKey()));
+					AttributeHandleSet ahs = entry.getValue().attributeHandleSet;
+					for (AttributeHandle att : ahs) {
+						this.logger.debug("EncodingRulesTesterBaseModel.init: attribute " + this.ivct_rti.getAttributeName(entry.getKey(), att));
+					}
+					this.ivct_rti.subscribeObjectClassAttributes(entry.getKey(), entry.getValue().attributeHandleSet);
 				}
-				this.ivct_rti.subscribeObjectClassAttributes(entry.getKey(), entry.getValue());
 			}
 		}
 		catch (AttributeNotDefined e) {
@@ -419,13 +431,13 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
         // requestAttributeValueUpdate
 		this.logger.trace("EncodingRulesTesterBaseModel.init: requestAttributeValueUpdate");
 		try {
-			for (Map.Entry<ObjectClassHandle, AttributeHandleSet> entry : this.objectClassAttributeHandleMap.entrySet()) {
+			for (Map.Entry<ObjectClassHandle, ObjectClassData> entry : this.objectClassAttributeHandleMap.entrySet()) {
 				this.logger.debug("EncodingRulesTesterBaseModel.init: subscribe " + this.ivct_rti.getObjectClassName(entry.getKey()));
-				AttributeHandleSet ahs = entry.getValue();
+				AttributeHandleSet ahs = entry.getValue().attributeHandleSet;
 				for (AttributeHandle att : ahs) {
 					this.logger.debug("EncodingRulesTesterBaseModel.init: attribute " + this.ivct_rti.getAttributeName(entry.getKey(), att));
 				}
-				this.ivct_rti.requestAttributeValueUpdate(entry.getKey(), entry.getValue(), null);
+				this.ivct_rti.requestAttributeValueUpdate(entry.getKey(), entry.getValue().attributeHandleSet, null);
 			}
 		}
 		catch (AttributeNotDefined e) {
@@ -735,20 +747,26 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
             // Object not managed yet - create all elements
             Map<AttributeHandle, ResultInfoAttribute> tmpAttributeResultMap = new HashMap<AttributeHandle, ResultInfoAttribute>();
 
-            AttributeHandleSet ahs = this.objectClassAttributeHandleMap.get(theObjectClass);
-            for (AttributeHandle att : ahs) {
-                ResultInfoAttribute tmpResultInfo = new ResultInfoAttribute();
-                tmpAttributeResultMap.put(att, tmpResultInfo);
-            }
-            this.objectAttributeResultsmap.put(theObject, tmpAttributeResultMap);
-            } else {
-            // Object rediscovered after localDeleteObjectInstance - add only not-yet-managed attributes
-            AttributeHandleSet ahs = this.objectClassAttributeHandleMap.get(theObjectClass);
-            for (AttributeHandle att : ahs) {
-                ResultInfoAttribute resultInfoAttribute = attributeResultMap.get(att);
-                if (resultInfoAttribute == null) {
+            ObjectClassData tmpObjectClassData = this.objectClassAttributeHandleMap.get(theObjectClass);
+            if (tmpObjectClassData != null) {
+                AttributeHandleSet ahs = tmpObjectClassData.attributeHandleSet;
+                for (AttributeHandle att : ahs) {
                     ResultInfoAttribute tmpResultInfo = new ResultInfoAttribute();
-                    attributeResultMap.put(att, tmpResultInfo);
+                    tmpAttributeResultMap.put(att, tmpResultInfo);
+                }
+                this.objectAttributeResultsmap.put(theObject, tmpAttributeResultMap);
+                } else {
+                // Object rediscovered after localDeleteObjectInstance - add only not-yet-managed attributes
+                ObjectClassData objectClassData = this.objectClassAttributeHandleMap.get(theObjectClass);
+                AttributeHandleSet ahs = objectClassData.attributeHandleSet;
+                if (ahs != null) {
+                    for (AttributeHandle att : ahs) {
+                    ResultInfoAttribute resultInfoAttribute = attributeResultMap.get(att);
+                        if (resultInfoAttribute == null) {
+                            ResultInfoAttribute tmpResultInfo = new ResultInfoAttribute();
+                            attributeResultMap.put(att, tmpResultInfo);
+                        }
+                    }
                 }
             }
         }

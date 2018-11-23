@@ -47,7 +47,7 @@ public class DataTreeBuilder {
 	private IVCT_RTIambassador ivct_rti;
 	// The private references to the data structures to be filled
 	private Map<AttributeHandle, String> attributeHandleDataTypeMap;
-	private Map<ObjectClassHandle, AttributeHandleSet> objectClassAttributeHandleMap;
+	private Map<ObjectClassHandle, ObjectClassData> objectClassAttributeHandleMap;
 	private Map<ParameterHandle, String> parameterHandleDataTypeMap;
 	private Map<InteractionClassHandle, Set<ParameterHandle>> interactionHandleMap;
 	// The cache of attributes of base object classes for internal use
@@ -65,7 +65,7 @@ public class DataTreeBuilder {
 	 * @param attributeHandleDataTypeMap holds attribute data
 	 * @throws TcInconclusive in case of rti error
 	 */
-	public DataTreeBuilder(final IVCT_RTIambassador ivct_rti, final HlaDataTypes hlaDataTypes, final Map<InteractionClassHandle, Set<ParameterHandle>> interactionClassHandleMap, Map<ParameterHandle, String> parameterHandleDataTypeMap, Map<ObjectClassHandle, AttributeHandleSet> objectClassAttributeHandleMap, Map<AttributeHandle, String> attributeHandleDataTypeMap) throws TcInconclusive {
+	public DataTreeBuilder(final IVCT_RTIambassador ivct_rti, final HlaDataTypes hlaDataTypes, final Map<InteractionClassHandle, Set<ParameterHandle>> interactionClassHandleMap, Map<ParameterHandle, String> parameterHandleDataTypeMap, Map<ObjectClassHandle, ObjectClassData> objectClassAttributeHandleMap, Map<AttributeHandle, String> attributeHandleDataTypeMap) throws TcInconclusive {
 		logger.trace("DataTreeBuilder: enter");
 		this.ivct_rti = ivct_rti;
 		this.hlaDataTypes = hlaDataTypes;
