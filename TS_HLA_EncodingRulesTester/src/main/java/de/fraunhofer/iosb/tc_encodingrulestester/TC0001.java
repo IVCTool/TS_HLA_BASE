@@ -46,15 +46,6 @@ public class TC0001 extends AbstractTestCase {
 
     static IVCT_LoggingFederateAmbassador ivct_LoggingFederateAmbassador;
 
-    /**
-     * @param args the parameter line arguments
-     */
-    public static void main(final String[] args) {
-        Logger                       logger                         = LoggerFactory.getLogger(TC0001.class);
-    	String paramJson = "{\"federationName\" : \"HelloWorld\", \"rtiHostName\" : \"localhost\",  \"rtiPort\" : \"8989\",  \"sutFederateName\" : \"A\"}";
-        new TC0001().execute(paramJson, logger);
-    }
-
     @Override
     public IVCT_BaseModel getIVCT_BaseModel(final String tcParamJson, final Logger logger) throws TcInconclusive {
     	encodingRulesTesterTcParam              = new EncodingRulesTesterTcParam(tcParamJson);
@@ -66,21 +57,19 @@ public class TC0001 extends AbstractTestCase {
 
     @Override
     protected void logTestPurpose(final Logger logger) {
-        final StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("\n");
-        stringBuilder.append("---------------------------------------------------------------------\n");
-        stringBuilder.append("TEST PURPOSE\n");
-        stringBuilder.append("Test if a federate correctly encodes the attribute and parameter data\n");
-        stringBuilder.append("fields\n");
-        stringBuilder.append("Use the SOM files to discover which classes the federate publishes and\n");
-        stringBuilder.append("subscribe to these. For each attribute or parameter data received, use\n");
-        stringBuilder.append("the OMT encoding rules to test if the buffer is consistent to the OMT\n");
-        stringBuilder.append("encoding rules: length, padding and enumerator values.\n");
-        stringBuilder.append("This does not imply correctness of the data item values\n");
-        stringBuilder.append("---------------------------------------------------------------------\n");
-        final String testPurpose = stringBuilder.toString();
+        String s = new String();
+        s = "\n"
+        +   "---------------------------------------------------------------------\n"
+        +   "TEST PURPOSE: Test if a federate correctly encodes the attribute and parameter data\n"
+        +   "TEST PURPOSE: fields\n"
+        +   "TEST PURPOSE: Use the SOM files to discover which classes the federate publishes and\n"
+        +   "TEST PURPOSE: subscribe to these. For each attribute or parameter data received, use\n"
+        +   "TEST PURPOSE: the OMT encoding rules to test if the buffer is consistent to the OMT\n"
+        +   "TEST PURPOSE: encoding rules: length, padding and enumerator values.\n"
+        +   "TEST PURPOSE: This does not imply correctness of the data item values\n"
+        +   "---------------------------------------------------------------------\n";
 
-        logger.info(testPurpose);
+        logger.info(s);
     }
 
     public void displayOperatorInstructions(final Logger logger) {
@@ -121,12 +110,13 @@ public class TC0001 extends AbstractTestCase {
     		}
             sendTcStatus ("running", i*10);
     	}
-        
-        int correct = encodingRulesTesterBaseModel.getCorrect();
-        int incorrect = encodingRulesTesterBaseModel.getIncorrect();
-        logger.info("\n\nVerdict Summary:\nCORRECT: " + correct + " INCORRECT: " + incorrect + "\n");
-        encodingRulesTesterBaseModel.printAttributeResults();
-        encodingRulesTesterBaseModel.printParameterResults();
+
+        encodingRulesTesterBaseModel.printResults();
+
+        // If not all attributes and parameters were checked, will not be passed.
+        if ((encodingRulesTesterBaseModel.getWhetherAllAttibutesChecked() == false) && (encodingRulesTesterBaseModel.getWhetherAllInteractionsChecked() == false)) {
+            throw new TcInconclusive("Have not seen all required attributes and parameters");
+        }
 
         // If not all attributes were checked, will not be passed.
         if (encodingRulesTesterBaseModel.getWhetherAllAttibutesChecked() == false) {
@@ -135,7 +125,7 @@ public class TC0001 extends AbstractTestCase {
 
         // If not all interactions were checked, will not be passed.
         if (encodingRulesTesterBaseModel.getWhetherAllInteractionsChecked() == false) {
-            throw new TcInconclusive("Have not seen all required interactions");
+            throw new TcInconclusive("Have not seen all required parameters");
         }
 
         // Errors are found asynchronously.

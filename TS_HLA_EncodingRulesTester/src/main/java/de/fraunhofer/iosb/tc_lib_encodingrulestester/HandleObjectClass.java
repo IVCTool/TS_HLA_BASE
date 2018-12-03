@@ -39,11 +39,12 @@ public class HandleObjectClass {
 	 * @param theSelectedNode the Xerces node at this level
 	 * @return true means error
 	 */
-	private boolean decodeObjectClass(Node theSelectedNode, final IVCT_RTIambassador ivct_rti, String parentClassName, AttributeHandleSet attributeHandleBaseClassSet, Map<ObjectClassHandle, AttributeHandleSet> objectClassAttributeHandleMap, Map<AttributeHandle, String> attributeHandleDataTypeMap) {
+	private boolean decodeObjectClass(Node theSelectedNode, final IVCT_RTIambassador ivct_rti, String parentClassName, AttributeHandleSet attributeHandleBaseClassSet, Map<ObjectClassHandle, ObjectClassData> objectClassAttributeHandleMap, Map<AttributeHandle, String> attributeHandleDataTypeMap) {
 		ObjectClassHandle och = null;
 		String myClassName = null;
 		String textPointer = null;
 		AttributeHandleSet attributeHandleWorkingSet = attributeHandleSetFactory.create();
+		ObjectClassData objectClassData = new ObjectClassData();
 
 		logger.trace("HandleObjectClass.decodeObjectClass: enter");
 		/*
@@ -107,15 +108,29 @@ public class HandleObjectClass {
 				return true;
 			}
 		}
-		if (attributeHandleWorkingSet.isEmpty() == false) {
-			objectClassAttributeHandleMap.put(och, attributeHandleWorkingSet);
+
+		// Calculate class level depth based on the number of '.' occurances.
+		int count = 0;
+		for (int pos = 0; ; pos++) {
+			pos = myClassName.indexOf('.', pos);
+			if (pos == -1) {
+				break;
+			} else {
+				count += 1;
+			}
 		}
+		if (attributeHandleWorkingSet.isEmpty() == false) {
+			objectClassData.classLevelDepth = count;
+			objectClassData.attributeHandleSet = attributeHandleWorkingSet;
+			objectClassAttributeHandleMap.put(och, objectClassData);
+		}
+
 		logger.trace("HandleObjectClass.decodeObjectClass: leave");
 		return false;
 	}
 
 	/**
-	 * 
+	 *
 	 * @param theSelectedNode the Xerces node at this level
 	 * @return true means error
 	 */
@@ -204,7 +219,7 @@ public class HandleObjectClass {
 	 * @param objectClassAttributeHandleMap the map of attributes to subscribe to
 	 * @return true means error
 	 */
-	boolean decode(Node theSelectedNode, final IVCT_RTIambassador ivct_rti, String parentClassName, AttributeHandleSet attributeHandleBaseClassSet, Map<ObjectClassHandle, AttributeHandleSet> objectClassAttributeHandleMap, Map<AttributeHandle, String> attributeHandleDataTypeMap) {
+	boolean decode(Node theSelectedNode, final IVCT_RTIambassador ivct_rti, String parentClassName, AttributeHandleSet attributeHandleBaseClassSet, Map<ObjectClassHandle, ObjectClassData> objectClassAttributeHandleMap, Map<AttributeHandle, String> attributeHandleDataTypeMap) {
 		logger.trace("HandleObjectClass.decode: enter");
 		String textPointer = null;
 
