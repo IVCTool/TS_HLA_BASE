@@ -18,6 +18,8 @@ package de.fraunhofer.iosb.tc_lib_encodingrulestester;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -477,6 +479,7 @@ public class HandleDataTypes {
 		boolean gotName = false;
 		boolean gotDataType = false;
 		boolean gotCardinality = false;
+		int cardinality = 0;
 		String nameStr = null;
 		String dataTypeStr = null;
 		String cardinalityStr = null;
@@ -504,6 +507,12 @@ public class HandleDataTypes {
 			if (child.getNodeName().equals("cardinality")) {
 				if (((Element) child).getFirstChild() != null) {
 					cardinalityStr = ((Element) child).getFirstChild().getNodeValue();
+					try {
+						cardinality = Integer.parseInt(cardinalityStr);
+					}
+					catch(NumberFormatException e) {
+						cardinality = 0;
+					}
 					gotCardinality = true;
 					logger.trace("ArrayDataCardinality: " + cardinalityStr);
 				}
@@ -547,7 +556,7 @@ public class HandleDataTypes {
 					}
 				}
 			} else {
-				HlaDataFixedArrayType hlaDataTypeFixedArray = new HlaDataFixedArrayType(nameStr, dataTypeStr, 4, true, 3);
+				HlaDataFixedArrayType hlaDataTypeFixedArray = new HlaDataFixedArrayType(nameStr, dataTypeStr, tmpHlaDataTypeElement.getDataSize(), true, cardinality);
 				if (tmpHlaDataType == null) {
 					hlaDataTypes.dataTypeMap.put(nameStr, hlaDataTypeFixedArray);
 				} else {
@@ -606,7 +615,7 @@ public class HandleDataTypes {
 	 * @param fields the name / data type map
 	 * @throws EncodingRulesException
 	 */
-	private void decodeField(final Node theSelectedNode, final Map<String, String> fields) throws EncodingRulesException {
+	private void decodeField(final Node theSelectedNode, List<String> fieldNames,  Map<String, String> fields) throws EncodingRulesException {
 		boolean gotName = false;
 		boolean gotDataType = false;
 		String nameStr = null;
@@ -619,6 +628,7 @@ public class HandleDataTypes {
 			if (child.getNodeName().equals("name")) {
 				if (((Element) child).getFirstChild() != null) {
 					nameStr = ((Element) child).getFirstChild().getNodeValue();
+					fieldNames.add(nameStr);
 					gotName = true;
 					logger.trace("FieldName: " + nameStr);
 				}
@@ -666,6 +676,7 @@ public class HandleDataTypes {
 		boolean gotField = false;
 		String nameStr = null;
 		String textPointer = null;
+		List<String> fieldNames = new LinkedList<String>();
 		Map<String, String> fields = new HashMap<String, String>();
 
 		for (Node child = theSelectedNode.getFirstChild(); child != null; child = child.getNextSibling()) {
@@ -689,14 +700,14 @@ public class HandleDataTypes {
 				continue;
 			}
 			if (child.getNodeName().equals("field")) {
-				decodeField(child, fields);
+				decodeField(child, fieldNames, fields);
 				gotField = true;
 				continue;
 			}
 		}
 
 		if (gotName && gotEncoding && gotField) {
-			HlaDataFixedRecordType hlaDataTypeFixedRecord = new HlaDataFixedRecordType(nameStr, fields, false);
+			HlaDataFixedRecordType hlaDataTypeFixedRecord = new HlaDataFixedRecordType(nameStr, fieldNames, fields, false);
 
 			HlaDataFixedRecordType tmpHlaDataType = (HlaDataFixedRecordType) hlaDataTypes.dataTypeMap.get(nameStr);
 			if (tmpHlaDataType == null) {
