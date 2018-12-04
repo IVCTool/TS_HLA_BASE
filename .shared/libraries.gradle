@@ -23,7 +23,7 @@ ext {
 
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~  now create libraries with the versions from above
 		libraries = [
-				tc_lib:							"io.github.msg134:TC-lib:1.0.2-SNAPSHOT",
+				tc_lib:							"io.github.msg134:TC-lib:${ivctVersion}",
 
 
                 // ~~~~~~~~~~~~~~~~~~~~~~~~~~ thirdparty
