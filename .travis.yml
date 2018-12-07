@@ -1,33 +1,34 @@
 language: java
 jdk:
 - oraclejdk8
+
 services:
 - docker
+
 branches:
   only:
   - master
   - development
+  
 install: gradle install
 script:
-- export VERSION=$(grep "TS_HLA_EncodingRulesTester" ./.shared/libraries.gradle |
-  awk '{print $3}' | tr -d \')
+- export VERSION=$(grep "TS_HLA_EncodingRulesTester" ./.shared/libraries.gradle | awk '{print $3}' | tr -d \')
 - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
-- echo "$TNO_DOCKER_PASSWORD" | docker login app-docker136.hex.tno.nl --username "$TNO_DOCKER_USERNAME"
-  --password-stdin
+- echo "$TNO_DOCKER_PASSWORD" | docker login app-docker136.hex.tno.nl --username "$TNO_DOCKER_USERNAME" --password-stdin
 - cd TS_HLA_EncodingRulesTester
-- docker build --build-arg version=$VERSION -t ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-latest
-  -t ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-$VERSION -t .
-- if [ $TRAVIS_BRANCH == "master" ]; then docker tag ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-$VERSION
-  ivct/ts-hla-encoding-rules:$VERSION && docker tag ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-$VERSION
-  ivct/ts-hla-encoding-rules:latest; fi
+- docker build --build-arg version=$VERSION -t ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-latest -t ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-$VERSION -t .
+- if [ $TRAVIS_BRANCH == "master" ]; then docker tag ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-$VERSION ivct/ts-hla-encoding-rules:$VERSION && docker tag ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-$VERSION ivct/ts-hla-encoding-rules:latest; fi
 - docker push ivct/ts-hla-encoding-rules
+
 before_cache:
 - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
 - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
 cache:
   directories:
   - "$HOME/.gradle/caches/"
   - "$HOME/.gradle/wrapper/"
+  
 env:
   global:
   - secure: aF15WT7qLyGTNWcpCvz1URwH+jbs53qPlTEaygNhukPjErJ6W4KMai5pVPdGmdJ9+yDYiSUILd9T6WOTOnsEBVRLNDbk52k1zx42WKPFUaZgXRLLRsXKbO/VAbM6UQ6E3F9YVWB7SGdLyDYJYSbhMj3n/5ZlFIxpHRrBASktLiBQaTn/n8wlPn3kNAI5yFZ/GGCnrbIHTOW5rdCFxVyo3z63cYM/E7fvBiinaxr4e2+VrbsRHQeSxwVG96JpznkZkNiUfdE29R4wouSahz7vZI+PDRNR0I9Od0P+aYBTdwbfEGuVcysOUJKkrTFPrqYyNUrxKHkvsFrOlaH34P5D6feCnrPy702QA46n9M58nmPw882gv/cPsMK9ugxTV6qk7FIHqHMyZF43LHTRccFOW10Jxucbr2gUzTg4XBQg8yASCZFRGOQRdvp4Da6+U1+HqiYYwXk8B9qhwTtV/vj9duRPxnlC+m9MRAgTBZmZcdDdGUoKepn6Z1W/ilIGsIHFoietOV8m402Dl1BMxB4FBTI/5RruMD2y2TglPKSsjqrEBMBb7HROjb00wdiZ0w8Hf9iqA6B4nHnBzv/Oq32BxpRILO/S3TXHpOvexGqtJc5YRaL05G3T95Yeq8SwPxbDGZ/WAHQvclnrwwIrYoRR1ot9jV0lBCVH88WdxyYDZdQ=
