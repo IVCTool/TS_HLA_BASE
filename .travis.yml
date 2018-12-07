@@ -1,0 +1,35 @@
+language: java
+jdk:
+- oraclejdk8
+branches:
+  only:
+  - master
+  - development
+install: gradle install
+script:
+- export VERSION=$(grep "helloWorldVersion" ./.shared/libraries.gradle | awk '{print
+  $3}' | tr -d \')
+- echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+- echo "$TNO_DOCKER_PASSWORD" | docker login app-docker136.hex.tno.nl -u "$TNO_DOCKER_USERNAME"
+  --password-stdin
+- cd TS_HelloWorld
+- docker build --build-arg version=$VERSION -t ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-latest
+  -t ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-$VERSION -t ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-$TRAVIS_COMMIT
+  .
+- if [ $TRAVIS_BRANCH == "master" ]; then docker tag ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-$VERSION
+  ivct/ts-hla-encoding-rules:$VERSION && docker tag ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-$VERSION
+  ivct/ts-hla-encoding-rules:latest; fi
+- docker push ivct/ts-hla-encoding-rules
+before_cache:
+- rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+- rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+cache:
+  directories:
+  - "$HOME/.gradle/caches/"
+  - "$HOME/.gradle/wrapper/"
+env:
+  global:
+  - secure: YS1R3T2Rgo8L8jz0gI0/6X1z7uq0benT0AX8KJvAGIwRxbzKF8gq0JGr6XMUJX8o/r8YAocWM7QlJqar8TCfUpjDDT+gXzCPNjlpJbUGnM0Am7qPNSqOJklgVRyCOGG7MhfUvMvXoodSe5Yvepx8jxMQ4AXmuMASvZUhflb5TL+E/wV3cWV1Nk6Lgw0w98BYPrnIGHHVRuiikW9tbNhNqTnUrxyX4PhWi6AA0BL9g4WhtNHsaqFfbHjIais/pEIHqGYK2xWExD7MQrOKG+w5WRi/3tR4qJvXgxcsYb7sYAkoRLJcTfgg8GRxNl6lZWkYCobO73Tn85dpWBUCfs10sNGleLgs7aHcbbB+s04irXS0l6uC0ah18PQm0qE2/cXnLg1DotEPusB6TNpQfpz1dOoOXtda0VABWrwUod1KPfpf775N9706gTOQF0rAC6RGr1/Sm45lrJNAI1oAovc8qAwR+3KBQhLaKvgxG+H4xyrx0F1O+2d4jbwxHPzh2OL86oKwD6880oZ1KY4MCkda3Ixdi3Qx7TFTFnIJTQjeClDGuiCEJapk4V+h9rxteFMXXcZ7wgBMeGA0nYDCNuU7j6+cCvVgJXRdakbFjKnfhxw4o0XUxqiJK005/1iuF0MbdBEr97DUTvZaCZUABYYrOR/hq0tCRRfiYFIVKpJFack=
+  - secure: DcCu9Uv6+zG/8hZUtLkpo8OJR52k7d2JUVdIig+7P6A3+829/lhNHflOnHeLuUZEBbWlwB749qehmQrAzPAcRFGpdlAmPgOYLMAZGVZrx7AtGx0pnle2Gnsdz/v71dutelpQV9R0O92QiImTB6IoNDuXSvKqBiSYjeQrKyxFttdUJfOhzWh/i0wO+f7iPRk+/fTCnQSUfpkkeSdYGQVP1ZiST3bwKVGdgZOd8012AkhMa11Vo+PsB5CJppY8AozQ14YjaeudEwfFYQ3/DyroDFlgi9E4tp+ObP4u0nHAMlc7thkCIiGx7eFCfjUx9pCUma36bhbNYsg3SI7VO2naZr2kUfU/BWb1PsHTSEJLvQKKP6IUV+PMw8TUIUy2YV8wRbBY9aJrOg88Cfqr3MEOS5+cKLFXsXZhjCmGFEbKheHddGXlXl1xoK5jEPog4CA0AWbsanWiFheqVW1FoJ+QcrSaGZk3a+sdfayeWIzXLIZYTrtRLswF6Id1ck3L1OTkjzEwNZXs4o2TabqNFKCxg8q4vTwTa4WEJjsIAViyc3YMBqrSK96RS9plyPCjFhdTwRsEOA8Qz8D8wRFXSn1iMtcDXtERufylfcCIXEPALkw/xxXOSYBg1u6CKPYeRHGF/Sjclng2vWn9HFfO/vIG3h/zmQy3wG+QrpCJdRocuEc=
+  - secure: oHUm3+aq4C4fWd+fqdBZJPQ6U4j4kh0DwFrx60sNNgACuFkE+5zpa7zoy0EhgrEy93OPrJLWUn0eeJqHbt7buFfiNXQ88zYotnTH4jiFsMscByUo62+Ny2C21uzoPjXSjY0nWouskZw+n6zY+PTUUBK2XsXDtblgOLsrp2fAnlFBdSqrkrN/1msymBqMBynu16F3PGYSFEr9xBOzTio9uO8cUJ4Wv0ivni/oyoNCH7yPmtm/iAVdFvY0l65aHg8vZsuZjMYE640c5SOpB1HnJlrANoZWTR0i7J44QbUa4fVP9uefeuqImZR/xflfhFLqGByksV3Zn3N2FSUE1xMJqozyATqGSeSI5odSosncJGTTmtFl2Poo1RgjnB9ls/b8N4uQeA5o/gm+dg20ER6VWZ+ZdRCsDT8RsJC4Ktgim+gidz6SuYjJgwWox578FZ0ySsEidbLFtCAv5C/Tp/lR6kbk20RjcHfQDo3EGaOFE8brZqoNMbNt5b7O9r3XN2y9b6HVTDq9gVVkemIBle1682b97Yp3yFM+qvE+eAjuZHg2b2d4acOY3Md8loBEjhLLzadETX3PdLXy0l52OucwZntkZ5d4AbHI7nrsmWpgN+QT2pR9enNh2X6SJtNP3L/thORsOX/NO40fZjTuLas+aK4Q1Sjwk8sR4IyMb03uKZY=
+  - secure: Ntv09/55nPpvB+UldftmPBJNhdEpePDUGymZOTpmn0OkJUhYsyBp8bAO89eTp18OqPwIFaw+BAVkpp4/0/AUzgpxOcB9VGBqCjEFumLS0Wqn13kryw/bZU17Ovmko/ijYd+yoMdUnKr4PYsTIcZ1Pm6GJhY/Twf3BpzSPkrixk7k7dmUpnMNESm7QojSxls2Y9etL6hWyR37Ke+JRsd/oz/ZHhI3wvg2M0LzF4GJMdUrMysbRxPQfn5vZ0NoBZRcHq0BAIFkJWZVk1HPGvLjRxklDwDHamBrVMLyour6STNrRTwB8+eI7UvcsvTPBLo2q3izY3BzadfI6TlqZlVOxQ4oqizsEsKOHpYOTq1suXWf2Uoyh8hOW4yzpMLc6l9d53dErEeO07RCSVqz/gLltVqulev5dSjtToPmRaEmWLTZ7ETtTJKkPMN+QzjJBtSdgdYo41XZ/n1OafVMgvK3U8iVK4YLXMGfrMbppE1FY6YYoGApKKyK4RZbvz+3ySG26APcvwek7CkI5Bc2wXBPzd6Js+eZKSyaC2gtA9/DCRAqj0474CYsHtMnfK6e16OQ4Vd6G2c0cZbyxwA9immET1VXVf7ZziS0x+oNTDBHnY0iNNDjWw1294dytPC8bVLUCV64+egHRw1Qys+MEQbTRZ3QIPYM/9fpgQwXObAKT8Q=
