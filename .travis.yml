@@ -16,8 +16,7 @@ script:
 - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
 - echo "$TNO_DOCKER_PASSWORD" | docker login app-docker136.hex.tno.nl --username "$TNO_DOCKER_USERNAME" --password-stdin
 - cd TS_HLA_EncodingRulesTester
-- docker build .
-#- docker build --build-arg version=$VERSION -t ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-latest -t ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-$VERSION .
+- docker build --build-arg version=$VERSION -t ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-latest -t ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-$VERSION .
 - if [ $TRAVIS_BRANCH == "master" ]; then docker tag ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-$VERSION ivct/ts-hla-encoding-rules:$VERSION && docker tag ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-$VERSION ivct/ts-hla-encoding-rules:latest; fi
 - docker push ivct/ts-hla-encoding-rules
 
