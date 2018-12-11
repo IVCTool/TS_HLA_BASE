@@ -16,6 +16,10 @@ limitations under the License.
 
 package de.fraunhofer.iosb.tc_encodingrulestester;
 
+import java.util.Properties;
+
+import org.slf4j.Logger;
+
 import de.fraunhofer.iosb.tc_lib.AbstractTestCase;
 import de.fraunhofer.iosb.tc_lib.IVCT_BaseModel;
 import de.fraunhofer.iosb.tc_lib.IVCT_LoggingFederateAmbassador;
@@ -26,8 +30,7 @@ import de.fraunhofer.iosb.tc_lib.TcInconclusive;
 import de.fraunhofer.iosb.tc_lib_encodingrulestester.EncodingRulesTesterBaseModel;
 import de.fraunhofer.iosb.tc_lib_encodingrulestester.EncodingRulesTesterTcParam;
 import hla.rti1516e.FederateHandle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import nato.ivct.commander.Factory;
 
 
 /**
@@ -36,6 +39,7 @@ import org.slf4j.LoggerFactory;
 public class TC0001 extends AbstractTestCase {
     private String                              federateName                   = "IVCT";
     FederateHandle                              federateHandle;
+	public Properties props = Factory.props;
 
     // Build test case parameters to use
     static EncodingRulesTesterTcParam              encodingRulesTesterTcParam;
@@ -48,7 +52,7 @@ public class TC0001 extends AbstractTestCase {
 
     @Override
     public IVCT_BaseModel getIVCT_BaseModel(final String tcParamJson, final Logger logger) throws TcInconclusive {
-    	encodingRulesTesterTcParam              = new EncodingRulesTesterTcParam(tcParamJson);
+        encodingRulesTesterTcParam              = new EncodingRulesTesterTcParam(tcParamJson, props);
     	ivct_rti             = IVCT_RTI_Factory.getIVCT_RTI(logger);
     	encodingRulesTesterBaseModel          = new EncodingRulesTesterBaseModel(logger, ivct_rti, encodingRulesTesterTcParam);
     	ivct_LoggingFederateAmbassador = new IVCT_LoggingFederateAmbassador(encodingRulesTesterBaseModel, logger);
