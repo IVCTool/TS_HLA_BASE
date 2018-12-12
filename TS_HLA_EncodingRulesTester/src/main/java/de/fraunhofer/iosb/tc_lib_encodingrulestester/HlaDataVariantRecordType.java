@@ -179,6 +179,11 @@ public class HlaDataVariantRecordType extends HlaDataType {
 		 */
 		String s = hlaDataEnumType.getEnumString(discriminantValue);
 		AlternativeStringPair alt = alternativeMap.get(s);
+		if (alt == null) {
+			String errorMessageString = "HlaDataVariantRecordType: testBuffer: current position: " + currentPosition + " discriminantValue leads to null pointer in alternativeMap";
+			logger.error(errorMessageString);
+			throw new EncodingRulesException(errorMessageString);
+		}
 		HlaDataType hlaDataTypeTmp;
 		hlaDataTypeTmp = dataTypes.dataTypeMap.get(alt.classType);
 

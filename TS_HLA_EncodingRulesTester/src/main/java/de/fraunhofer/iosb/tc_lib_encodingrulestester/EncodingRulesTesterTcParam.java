@@ -17,12 +17,13 @@ limitations under the License.
 package de.fraunhofer.iosb.tc_lib_encodingrulestester;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -31,7 +32,6 @@ import org.json.simple.parser.ParseException;
 
 import de.fraunhofer.iosb.tc_lib.IVCT_TcParam;
 import de.fraunhofer.iosb.tc_lib.TcInconclusive;
-
 
 /**
  * Store test case parameters
@@ -44,8 +44,6 @@ public class EncodingRulesTesterTcParam implements IVCT_TcParam {
     private List<String> fomFiles = new ArrayList<String>();
     private List<String> somFiles = new ArrayList<String>();
     private String federation_name;
-    private String rtiHost;
-    private String rtiPort;
     private String settingsDesignator;
     private URL[]        fomUrls;
     private URL[]        somUrls;
@@ -55,7 +53,7 @@ public class EncodingRulesTesterTcParam implements IVCT_TcParam {
     private String sutFederate;
 
 
-    public EncodingRulesTesterTcParam(final String paramJson) throws TcInconclusive {
+    public EncodingRulesTesterTcParam(final String paramJson, final Properties props) throws TcInconclusive {
 		JSONParser jsonParser = new JSONParser();
 		JSONObject jsonObject;
 		try {
@@ -65,16 +63,7 @@ public class EncodingRulesTesterTcParam implements IVCT_TcParam {
 			if (federation_name == null) {
                 throw new TcInconclusive("EncodingRulesTesterTcParam: the key  federationName  was not found");
 			}
-			// get a String from the JSON object
-			rtiHost =  (String) jsonObject.get("rtiHostName");
-			if (rtiHost == null) {
-                throw new TcInconclusive("EncodingRulesTesterTcParam: the key  rtiHostName  was not found");
-			}
-			rtiPort = (String) jsonObject.get("rtiPort");
-			if (rtiPort == null) {
-				throw new TcInconclusive("EncodingRulesTesterTcParam: the rti port id was not found");
-			}
-			settingsDesignator = "crcAddress=" + this.rtiHost + ":" + this.rtiPort;
+			settingsDesignator = props.getProperty("SETTINGS_DESIGNATOR");
 			
 			// get a String from the JSON object
 			sutFederate =  (String) jsonObject.get("sutFederateName");
@@ -153,14 +142,6 @@ public class EncodingRulesTesterTcParam implements IVCT_TcParam {
      */
     public float getPopulationGrowthValue() {
         return 1.03f;
-    }
-
-
-    /**
-     * @return the RTI host value
-     */
-    public String getRtiHost() {
-        return this.rtiHost;
     }
 
 
