@@ -16,7 +16,11 @@ limitations under the License.
 
 package de.fraunhofer.iosb.tc_lib_encodingrulestester;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public abstract class HlaDataType {
+    private static Logger logger = LoggerFactory.getLogger(HlaDataType.class);
 	/**
 	 *  Always needed
 	 */
@@ -53,9 +57,15 @@ public abstract class HlaDataType {
 	 * @param dataTypeName the name of the data type
 	 * @param dataTypes a map of data types
 	 * @return the number of padding bytes
+	 * @throws EncodingRulesException
 	 */
-	protected static int calcPaddingBytes(final int currentPosition, final String dataTypeName, final HlaDataTypes dataTypes) {
+	protected static int calcPaddingBytes(final int currentPosition, final String dataTypeName, final HlaDataTypes dataTypes) throws EncodingRulesException {
 		HlaDataType dataType = dataTypes.dataTypeMap.get(dataTypeName);
+		if (dataType == null) {
+			String errorMessageString = "HlaDataType: cannot find data type: " + dataTypeName;
+			logger.error(errorMessageString);
+			throw new EncodingRulesException(errorMessageString);
+		}
 		return calcPaddingBytes(currentPosition, dataType.alignment);
 	}
 
@@ -277,7 +287,7 @@ public abstract class HlaDataType {
 	 * @param dataTypes map of data types
 	 * @return the alignment of the dataype
 	 */
-	public abstract int getAlignment(final HlaDataTypes dataTypes);
+	public abstract int getAlignment(final HlaDataTypes dataTypes) throws EncodingRulesException;
 
 	/**
 	 * 

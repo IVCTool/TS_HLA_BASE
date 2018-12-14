@@ -54,8 +54,13 @@ public class HlaDataVariableArrayType extends HlaDataType {
 	/**
 	 * {@inheritDoc}
 	 */
-	public int getAlignment(final HlaDataTypes dataTypes) {
+	public int getAlignment(final HlaDataTypes dataTypes) throws EncodingRulesException {
 		HlaDataType hlaDataType = dataTypes.dataTypeMap.get(elementType);
+		if (hlaDataType == null) {
+			String errorMessageString = "HlaDataVariableArrayType: getAlignment: cannot find data element type: " + elementType;
+			logger.error(errorMessageString);
+			throw new EncodingRulesException(errorMessageString);
+		}
 		return hlaDataType.getAlignment(dataTypes);
 	}
 
@@ -94,6 +99,11 @@ public class HlaDataVariableArrayType extends HlaDataType {
 		lengthValue <<= 8;
 		lengthValue += buffer[myCurrentPosition + 3];
 		HlaDataType elementDataType = dataTypes.dataTypeMap.get(elementType);
+		if (elementDataType == null) {
+			String errorMessageString = "HlaDataVariableArrayType: testBuffer: current position: " + currentPosition + " cannot find data element type: " + elementType;
+			logger.error(errorMessageString);
+			throw new EncodingRulesException(errorMessageString);
+		}
 		myCurrentPosition += 4;
 		if (myCurrentPosition + lengthValue > buffer.length) {
 			String errorMessageString = "HlaDataVariableArrayType: testBuffer: current position: " + currentPosition + " field value length: " + myCurrentPosition + lengthValue + " exceeds buffer length: " + buffer.length;

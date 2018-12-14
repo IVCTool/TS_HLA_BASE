@@ -662,32 +662,44 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
     private void doReceiveInteraction(final InteractionClassHandle interactionClass, final ParameterHandleValueMap theParameters) {
         this.logger.debug("EncodingRulesTesterBaseModel.doReceiveInteraction: enter");
 
-        Boolean bool =true;
-
         for (Map.Entry<ParameterHandle, byte[]> entry : theParameters.entrySet()) {
-            this.logger.debug("EncodingRulesTesterBaseModel.doReceiveInteraction:  GOT parameter " + entry.getKey());
-            this.logger.debug("EncodingRulesTesterBaseModel.doReceiveInteraction: GOT receiveInteraction " + this.parameterHandleDataTypeMap.get(entry.getKey()));
-            HlaDataType hdt = this.hlaDataTypes.dataTypeMap.get(this.parameterHandleDataTypeMap.get(entry.getKey()));
-            byte b[] = theParameters.get(entry.getKey());
+            ParameterHandle ph = entry.getKey();
+            this.logger.debug("EncodingRulesTesterBaseModel.doReceiveInteraction:  GOT parameter " + ph);
+            String dataTypeName = this.parameterHandleDataTypeMap.get(ph);
+            if (dataTypeName == null) {
+                this.logger.error("EncodingRulesTesterBaseModel.doReceiveInteraction cannot get data type for: " + ph);
+                continue;
+            }
+            this.logger.debug("EncodingRulesTesterBaseModel.doReceiveInteraction: GOT receiveInteraction " + dataTypeName);
+            HlaDataType hdt = this.hlaDataTypes.dataTypeMap.get(dataTypeName);
+            if (hdt == null) {
+                this.logger.error("EncodingRulesTesterBaseModel.doReceiveInteraction cannot get data type: " + dataTypeName);
+                continue;
+            }
+            byte b[] = theParameters.get(ph);
+            if (b == null) {
+                // Empty buffer allowed for interactions.
+                continue;
+            }
             this.logger.debug("EncodingRulesTesterBaseModel.doReceiveInteraction: length " + b.length);
 //            for (int i = 0; i < b.length; i++) {
 //                this.logger.trace("EncodingRulesTesterBaseModel.doReceiveInteraction: byte " + b[i]);
 //            }
             try {
                 if (b.length != 0) {
-                    displayReceiveParameterValuesMessage(interactionClass, entry.getKey(), b, true);
+                    displayReceiveParameterValuesMessage(interactionClass, ph, b, true);
                     int calculatedLength = hdt.testBuffer(entry.getValue(), 0, this.hlaDataTypes);
                     if (calculatedLength != entry.getValue().length) {
                         String error = "TEST BUFFER INCORRECT: overall length caculation: " + calculatedLength + " Buffer length: " + entry.getValue().length + "\n";
                         this.logger.error(error);
                         this.errorOccurred = true;
-                        addParameterResult(interactionClass, entry.getKey(), false, error);
+                        addParameterResult(interactionClass, ph, false, error);
 //                        displayReceiveParameterValuesMessage(interactionClass, entry.getKey(), b, true);
                         this.incorrect += 1;
                     } else {
                         String ok = "TEST BUFFER CORRECT\n";
                         this.logger.warn(ok);
-                        addParameterResult(interactionClass, entry.getKey(), true, ok);
+                        addParameterResult(interactionClass, ph, true, ok);
 //                        displayReceiveParameterValuesMessage(interactionClass, entry.getKey(), b, false);
                         this.correct += 1;
                     }
@@ -698,7 +710,7 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 				String error = "TEST BUFFER INCORRECT: " + e.getMessage() + "\n";
 				this.logger.error(error);
 	            this.errorOccurred = true;
-				addParameterResult(interactionClass, entry.getKey(), false, error);
+				addParameterResult(interactionClass, ph, false, error);
 //	            displayReceiveParameterValuesMessage(interactionClass, entry.getKey(), b, true);
 				this.incorrect += 1;
 			}
@@ -759,6 +771,10 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
                 } else {
                 // Object rediscovered after localDeleteObjectInstance - add only not-yet-managed attributes
                 ObjectClassData objectClassData = this.objectClassAttributeHandleMap.get(theObjectClass);
+                if (objectClassData == null) {
+                    this.logger.trace("EncodingRulesTesterBaseModel.discoverObjectInstance: cannot get object class data: " + theObjectClass);
+                    return;
+                }
                 AttributeHandleSet ahs = objectClassData.attributeHandleSet;
                 if (ahs != null) {
                     for (AttributeHandle att : ahs) {
@@ -943,30 +959,41 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
     private void doReflectAttributeValues(final ObjectInstanceHandle theObject, final AttributeHandleValueMap theAttributes) {
         this.logger.debug("EncodingRulesTesterBaseModel.doReflectAttributeValues: enter");
 
-        Boolean bool = new Boolean(true);
         for (Map.Entry<AttributeHandle, byte[]> entry : theAttributes.entrySet()) {
-            this.logger.debug("EncodingRulesTesterBaseModel.doReflectAttributeValues: GOT attribute " + entry.getKey());
-            this.logger.debug("EncodingRulesTesterBaseModel.doReflectAttributeValues: GOT reflectAttributeValues " + this.attributeHandleDataTypeMap.get(entry.getKey()));
+            AttributeHandle ah = entry.getKey();
+            this.logger.debug("EncodingRulesTesterBaseModel.doReflectAttributeValues: GOT attribute " + ah);
+            String dataTypeName = this.attributeHandleDataTypeMap.get(ah);
+            if (dataTypeName == null) {
+                this.logger.error("EncodingRulesTesterBaseModel.doReflectAttributeValues cannot get data type for name: " + ah);
+                continue;
+            }
+            this.logger.debug("EncodingRulesTesterBaseModel.doReflectAttributeValues: GOT reflectAttributeValues " + dataTypeName);
 
-            HlaDataType hdt = this.hlaDataTypes.dataTypeMap.get(this.attributeHandleDataTypeMap.get(entry.getKey()));
-            byte b[] = theAttributes.get(entry.getKey());
+            HlaDataType hdt = this.hlaDataTypes.dataTypeMap.get(dataTypeName);
+            if (hdt == null) {
+                this.logger.error("EncodingRulesTesterBaseModel.doReflectAttributeValues cannot get data type: " + dataTypeName);
+                continue;
+            }
+            byte b[] = theAttributes.get(ah);
+            if (b == null) {
+                this.logger.error("EncodingRulesTesterBaseModel.doReflectAttributeValues: no data reflected");
+                continue;
+            }
             this.logger.debug("EncodingRulesTesterBaseModel.doReflectAttributeValues: length " + b.length);
             try {
                 if (b.length != 0) {
-	            displayReflectAttributeValuesMessage(theObject, entry.getKey(), b, true);
+	            displayReflectAttributeValuesMessage(theObject, ah, b, true);
             	int calculatedLength = hdt.testBuffer(entry.getValue(), 0, this.hlaDataTypes);
 				if (calculatedLength != entry.getValue().length) {
 					String error = "TEST BUFFER INCORRECT: overall length calculation: " + calculatedLength + " Buffer length: " + entry.getValue().length + "\n";
 					this.logger.error(error);
 		            this.errorOccurred = true;
-		            addAttributeResult(theObject, entry.getKey(), false, error);
-//		            displayReflectAttributeValuesMessage(theObject, entry.getKey(), b, true);
+		            addAttributeResult(theObject, ah, false, error);
 		            this.incorrect += 1;
 				} else {
 					String ok = "TEST BUFFER CORRECT\n";
 					this.logger.warn(ok);
-		            addAttributeResult(theObject, entry.getKey(), true, ok);
-//		            displayReflectAttributeValuesMessage(theObject, entry.getKey(), b, false);
+		            addAttributeResult(theObject, ah, true, ok);
 		            this.correct += 1;
 				}
                 }  else {
@@ -976,8 +1003,7 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 				String error = "TEST BUFFER INCORRECT: " + e.getMessage() + "\n";
 				this.logger.error(error);
 	            this.errorOccurred = true;
-	            addAttributeResult(theObject, entry.getKey(), false, error);
-//	            displayReflectAttributeValuesMessage(theObject, entry.getKey(), b, true);
+	            addAttributeResult(theObject, ah, false, error);
 	            this.incorrect += 1;
 			}
         }

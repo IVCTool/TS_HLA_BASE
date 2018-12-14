@@ -67,9 +67,15 @@ public class HlaDataFixedArrayType extends HlaDataType {
 
 	/**
 	 * {@inheritDoc}
+	 * @throws EncodingRulesException
 	 */
-	public int getAlignment(final HlaDataTypes dataTypes) {
+	public int getAlignment(final HlaDataTypes dataTypes) throws EncodingRulesException {
 		HlaDataType hlaDataType = dataTypes.dataTypeMap.get(elementType);
+		if (hlaDataType == null) {
+			String errorMessageString = "HlaDataFixedArrayType: getAlignment: cannot find data element type: " + elementType;
+			logger.error(errorMessageString);
+			throw new EncodingRulesException(errorMessageString);
+		}
 		return hlaDataType.getAlignment(dataTypes);
 	}
 
@@ -103,6 +109,11 @@ public class HlaDataFixedArrayType extends HlaDataType {
 			myCurrentPosition += cardinality * dataSize;
 		} else {
 			HlaDataType hlaDataType = dataTypes.dataTypeMap.get(elementType);
+			if (hlaDataType == null) {
+				String errorMessageString = "HlaDataFixedArrayType: testBuffer: current position: " + currentPosition + " cannot find data element type " + elementType;
+				logger.error(errorMessageString);
+				throw new EncodingRulesException(errorMessageString);
+			}
 			myCurrentPosition = hlaDataType.testBuffer(buffer, myCurrentPosition, dataTypes);
 		}
 		if (myCurrentPosition > buffer.length) {

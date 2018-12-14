@@ -85,7 +85,12 @@ public class HlaDataVariantRecordType extends HlaDataType {
 		// alternativeMap equality
 		for (Map.Entry<String, AlternativeStringPair> entry : alternativeMap.entrySet()) {
 			AlternativeStringPair alternativeStringPair = entry.getValue();
-			AlternativeStringPair tmpAlternativeStringPair = other.alternativeMap.get(entry.getKey());
+			String k = entry.getKey();
+			AlternativeStringPair tmpAlternativeStringPair = other.alternativeMap.get(k);
+			if (tmpAlternativeStringPair == null) {
+				logger.error("HlaDataVariantRecordType.equalTo: cannot find alternative string pair for: " + k);
+				continue;
+			}
 			if (alternativeStringPair.equalTo(tmpAlternativeStringPair) == false) {
 				logger.info("HlaDataVariantRecordType alternativeMap inconsistency: " + entry.getKey() + " IGNORED");
 				return false;
@@ -97,7 +102,7 @@ public class HlaDataVariantRecordType extends HlaDataType {
 	/**
 	 * {@inheritDoc}
 	 */
-	public int getAlignment(final HlaDataTypes dataTypes) {
+	public int getAlignment(final HlaDataTypes dataTypes) throws EncodingRulesException {
 		int ret = 0;
 		HlaDataType myHlaDataType = dataTypes.dataTypeMap.get(discriminantType);
 		if (myHlaDataType != null) {
@@ -111,7 +116,7 @@ public class HlaDataVariantRecordType extends HlaDataType {
 	 * @param dataTypes the map of data types
 	 * @return the alignment value
 	 */
-	public int getAlternativeAlignment(final HlaDataTypes dataTypes) {
+	public int getAlternativeAlignment(final HlaDataTypes dataTypes) throws EncodingRulesException {
 		int ret = 0;
 		int testVal = 0;
 		HlaDataType myHlaDataType = null;
@@ -121,6 +126,11 @@ public class HlaDataVariantRecordType extends HlaDataType {
 				continue;
 			}
 			myHlaDataType = dataTypes.dataTypeMap.get(asp.classType);
+			if (myHlaDataType == null) {
+				String errorMessageString = "HlaDataVariantRecordType: getAlternativeAlignment: cannot find alternative string pair data element type: " + asp.classType;
+				logger.error(errorMessageString);
+				throw new EncodingRulesException(errorMessageString);
+			}
 			testVal = myHlaDataType.getAlignment(dataTypes);
 			if (testVal > ret) {
 				ret = testVal;
@@ -160,10 +170,15 @@ public class HlaDataVariantRecordType extends HlaDataType {
 		int myCurrentPosition = currentPosition;
 		HlaDataEnumType hlaDataEnumType;
 		HlaDataType hlaDataType = dataTypes.dataTypeMap.get(discriminantType);
+		if (hlaDataType == null) {
+			String errorMessageString = "HlaDataVariantRecordType: testBuffer: current position: " + currentPosition + " cannot find discriminantType: " + discriminantType;
+			logger.error(errorMessageString);
+			throw new EncodingRulesException(errorMessageString);
+		}
 		if (hlaDataType instanceof HlaDataEnumType) {
 			hlaDataEnumType = (HlaDataEnumType) hlaDataType;
 		} else {
-			throw new EncodingRulesException("HlaDataVariantRecordType: unknown discriminant enum " + hlaDataType.dataTypeName);
+			throw new EncodingRulesException("HlaDataVariantRecordType: testBuffer: current position: " + currentPosition + " unknown discriminant enum " + hlaDataType.dataTypeName);
 		}
 		String basicType = hlaDataEnumType.getElementTypeName();
 		long discriminantValue = decodeInteger(buffer, currentPosition, basicType);
@@ -186,6 +201,11 @@ public class HlaDataVariantRecordType extends HlaDataType {
 		}
 		HlaDataType hlaDataTypeTmp;
 		hlaDataTypeTmp = dataTypes.dataTypeMap.get(alt.classType);
+		if (hlaDataTypeTmp == null) {
+			String errorMessageString = "HlaDataVariantRecordType: testBuffer: current position: " + currentPosition + " cannot get alternative class type " + alt.classType;
+			logger.error(errorMessageString);
+			throw new EncodingRulesException(errorMessageString);
+		}
 
 		/*
 		 * Get alignment of the alternatives
