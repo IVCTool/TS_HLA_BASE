@@ -62,7 +62,8 @@ public class HlaDataFixedRecordType extends HlaDataType {
 			return false;
 		}
 		for (Map.Entry<String, String> entry : fields.entrySet()) {
-			if (entry.getValue().equals(other.fields.get(entry.getKey()))) {
+			String k = entry.getKey();
+			if (entry.getValue().equals(other.fields.get(k))) {
 				continue;
 			}
 			return true;
@@ -82,12 +83,17 @@ public class HlaDataFixedRecordType extends HlaDataType {
 	/**
 	 * {@inheritDoc}
 	 */
-	public int getAlignment(final HlaDataTypes dataTypes) {
+	public int getAlignment(final HlaDataTypes dataTypes) throws EncodingRulesException {
 		int ret = 0;
 		int testVal = 0;
 		HlaDataType myHlaDataType = null;
 		for (Map.Entry<String, String> entry : fields.entrySet()) {
 			myHlaDataType = dataTypes.dataTypeMap.get(entry.getValue());
+			if (myHlaDataType == null) {
+				String errorMessageString = "HlaDataFixedRecordType: getAlignment: cannot find data element type: " + entry.getValue();
+				logger.error(errorMessageString);
+				throw new EncodingRulesException(errorMessageString);
+			}
 			testVal = myHlaDataType.getAlignment(dataTypes);
 			if (testVal > ret) {
 				ret = testVal;
@@ -125,9 +131,17 @@ public class HlaDataFixedRecordType extends HlaDataType {
 		int myCurrentPosition = currentPosition;
 		for (String fieldName : fieldNamesOrdered) {
 			String fieldType = fields.get(fieldName);
+			if (fieldType == null) {
+				String errorMessageString = "HlaDataFixedRecordType: testBuffer: current position: " + currentPosition + " calculated total buffer length : " + myCurrentPosition + " cannot get fieldName: " + fieldName;
+				logger.error(errorMessageString);
+			}
 			HlaDataType hlaDataType = dataTypes.dataTypeMap.get(fieldType);
+			if (hlaDataType == null) {
+				String errorMessageString = "HlaDataFixedRecordType: testBuffer: current position: " + currentPosition + " calculated total buffer length : " + myCurrentPosition + " cannot get data type: " + fieldType;
+				logger.error(errorMessageString);
+			}
 			int alignment = hlaDataType.getAlignment(dataTypes);
-			myCurrentPosition += hlaDataType.calcPaddingBytes(myCurrentPosition, alignment);
+			myCurrentPosition += HlaDataType.calcPaddingBytes(myCurrentPosition, alignment);
 			myCurrentPosition = hlaDataType.testBuffer(buffer, myCurrentPosition, dataTypes);
 		}
 		if (myCurrentPosition > buffer.length) {
