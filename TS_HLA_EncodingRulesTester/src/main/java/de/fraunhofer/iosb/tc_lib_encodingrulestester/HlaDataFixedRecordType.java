@@ -56,19 +56,22 @@ public class HlaDataFixedRecordType extends HlaDataType {
 		this.fieldNamesOrdered = fieldNamesOrdered;
 		this.fields = fields;
 	}
-	
+
 	public boolean equalTo(HlaDataFixedRecordType other) {
 		if (fields.size() != other.fields.size()) {
 			return false;
 		}
 		for (Map.Entry<String, String> entry : fields.entrySet()) {
-			String k = entry.getKey();
-			if (entry.getValue().equals(other.fields.get(k))) {
+			String othersValue = other.fields.get(entry.getKey());
+			if (othersValue == null) {
+				return false;
+			}
+			if (entry.getValue().equals(othersValue)) {
 				continue;
 			}
-			return true;
+			return false;
 		}
-		return false;
+		return true;
 	}
 
 	/**
@@ -134,11 +137,13 @@ public class HlaDataFixedRecordType extends HlaDataType {
 			if (fieldType == null) {
 				String errorMessageString = "HlaDataFixedRecordType: testBuffer: current position: " + currentPosition + " calculated total buffer length : " + myCurrentPosition + " cannot get fieldName: " + fieldName;
 				logger.error(errorMessageString);
+				throw new EncodingRulesException(errorMessageString);
 			}
 			HlaDataType hlaDataType = dataTypes.dataTypeMap.get(fieldType);
 			if (hlaDataType == null) {
 				String errorMessageString = "HlaDataFixedRecordType: testBuffer: current position: " + currentPosition + " calculated total buffer length : " + myCurrentPosition + " cannot get data type: " + fieldType;
 				logger.error(errorMessageString);
+				throw new EncodingRulesException(errorMessageString);
 			}
 			int alignment = hlaDataType.getAlignment(dataTypes);
 			myCurrentPosition += HlaDataType.calcPaddingBytes(myCurrentPosition, alignment);

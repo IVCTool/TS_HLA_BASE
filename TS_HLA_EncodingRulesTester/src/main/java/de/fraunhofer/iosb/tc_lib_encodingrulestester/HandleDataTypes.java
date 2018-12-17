@@ -40,6 +40,7 @@ import de.fraunhofer.iosb.tc_lib_encodingrulestester.HlaDataSimpleType;
 
 public class HandleDataTypes {
     private static Logger logger = LoggerFactory.getLogger(HandleDataTypes.class);
+    private Map <String, String> missingTypes = new HashMap<String, String>();
 	HlaDataTypes hlaDataTypes;
 
 	/**
@@ -529,16 +530,12 @@ public class HandleDataTypes {
 
 			
 			
-			// TODO
+			// To update later
 			if (tmpHlaDataTypeElement == null) {
+				missingTypes.put(nameStr, dataTypeStr);
 				return;
 			}
 
-			
-			
-			
-			
-			
 			if (cardinalityStr.equals("Dynamic")) {
 				HlaDataVariableArrayType hlaDataTypeVariableArray = new HlaDataVariableArrayType(nameStr, tmpHlaDataTypeElement);
 				if (tmpHlaDataType == null) {
@@ -1005,6 +1002,21 @@ public class HandleDataTypes {
 		} catch (EncodingRulesException e) {
 			logger.error("HandleDataTypes.decode: error: " + e);
 			return true;
+		}
+
+		HlaDataType hlaDataTypeHLAASCIIchar = this.hlaDataTypes.dataTypeMap.get("HLAASCIIchar");
+		if (hlaDataTypeHLAASCIIchar == null) {
+			HlaDataType basicType = new HlaDataBasicType("HLAASCIIchar", 8, true);
+			this.hlaDataTypes.dataTypeMap.put("HLAASCIIchar", basicType);
+		}
+
+		for (Map.Entry<String, String> entry : this.missingTypes.entrySet()) {
+			HlaDataType hlaDataType = this.hlaDataTypes.dataTypeMap.get(entry.getValue());
+			if (hlaDataType == null) {
+				System.out.println("HandleDataTypes.decode missing data type: " + entry.getValue());
+			} else {
+				this.hlaDataTypes.dataTypeMap.put(entry.getKey() , hlaDataType);
+			}
 		}
 		return false;
 	}
