@@ -1004,10 +1004,28 @@ public class HandleDataTypes {
 			return true;
 		}
 
+		// Add any missing basic types
+		HlaDataType hlaDataTypeHLAoctet = this.hlaDataTypes.dataTypeMap.get("HLAoctet");
+		HlaDataBasicType hlaDataBasicTypeHLAoctet = null;
+		if (hlaDataTypeHLAoctet == null) {
+			hlaDataBasicTypeHLAoctet = new HlaDataBasicType("HLAoctet", HlaDataType.getBasicDataSizeBits("HLAoctet"), HlaDataType.getBigEndian("HLAoctet"));
+			this.hlaDataTypes.dataTypeMap.put("HLAoctet", hlaDataBasicTypeHLAoctet);
+		}
+		else {
+			hlaDataBasicTypeHLAoctet = (HlaDataBasicType) hlaDataTypeHLAoctet;
+		}
+
+		// Add any missing simple types
 		HlaDataType hlaDataTypeHLAASCIIchar = this.hlaDataTypes.dataTypeMap.get("HLAASCIIchar");
 		if (hlaDataTypeHLAASCIIchar == null) {
-			HlaDataType basicType = new HlaDataBasicType("HLAASCIIchar", 8, true);
-			this.hlaDataTypes.dataTypeMap.put("HLAASCIIchar", basicType);
+			HlaDataSimpleType hlaDataSimpleTypeHLAASCIIchar = new HlaDataSimpleType("HLAASCIIchar", hlaDataBasicTypeHLAoctet);
+			this.hlaDataTypes.dataTypeMap.put("HLAASCIIchar", hlaDataSimpleTypeHLAASCIIchar);
+		}
+
+		HlaDataType hlaDataTypeHLAbyte = this.hlaDataTypes.dataTypeMap.get("HLAbyte");
+		if (hlaDataTypeHLAbyte == null) {
+			HlaDataSimpleType hlaDataSimpleTypeHLAbyte = new HlaDataSimpleType("HLAbyte", hlaDataBasicTypeHLAoctet);
+			this.hlaDataTypes.dataTypeMap.put("HLAbyte", hlaDataSimpleTypeHLAbyte);
 		}
 
 		for (Map.Entry<String, String> entry : this.missingTypes.entrySet()) {
