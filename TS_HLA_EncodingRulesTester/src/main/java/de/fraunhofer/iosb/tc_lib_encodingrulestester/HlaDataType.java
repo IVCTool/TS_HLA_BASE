@@ -40,7 +40,7 @@ public abstract class HlaDataType {
 	 * Calculate the number of padding bytes required
 	 * 
 	 * @param currentPosition the current position in the buffer
-	 * @param alignment the aligment value of the current type
+	 * @param alignment the alignment value of the current type
 	 * @return the number of padding bytes
 	 */
 	protected static int calcPaddingBytes(final int currentPosition, final int alignment) {

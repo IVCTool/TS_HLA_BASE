@@ -40,6 +40,7 @@ import de.fraunhofer.iosb.tc_lib_encodingrulestester.HlaDataSimpleType;
 
 public class HandleDataTypes {
     private static Logger logger = LoggerFactory.getLogger(HandleDataTypes.class);
+    private Map <String, String> missingTypes = new HashMap<String, String>();
 	HlaDataTypes hlaDataTypes;
 
 	/**
@@ -529,16 +530,12 @@ public class HandleDataTypes {
 
 			
 			
-			// TODO
+			// To update later
 			if (tmpHlaDataTypeElement == null) {
+				missingTypes.put(nameStr, dataTypeStr);
 				return;
 			}
 
-			
-			
-			
-			
-			
 			if (cardinalityStr.equals("Dynamic")) {
 				HlaDataVariableArrayType hlaDataTypeVariableArray = new HlaDataVariableArrayType(nameStr, tmpHlaDataTypeElement);
 				if (tmpHlaDataType == null) {
@@ -943,7 +940,7 @@ public class HandleDataTypes {
 	 * @param hlaDataTypes
 	 * @return
 	 */
-	boolean decode(final Node theSelectedNode, final HlaDataTypes hlaDataTypes) {
+	boolean decode(final Node theSelectedNode, final HlaDataTypes hlaDataTypes) throws EncodingRulesException {
 		String textPointer = null;
 
 		this.hlaDataTypes = hlaDataTypes;
@@ -1006,6 +1003,61 @@ public class HandleDataTypes {
 			logger.error("HandleDataTypes.decode: error: " + e);
 			return true;
 		}
+
+		// Add any missing basic types
+		addBasicType("HLAinteger64BE");
+		addBasicType("HLAfloat64BE");
+		addBasicType("HLAoctetPairBE");
+		addBasicType("HLAoctet");
+
+		// Add any missing simple types
+		addSimpleType("HLAASCIIchar", "HLAoctet");
+		addSimpleType("HLAunicodeChar", "HLAoctetPairBE");
+		addSimpleType("HLAbyte", "HLAoctet");
+		addSimpleType("HLAinteger64Time", "HLAinteger64BE");
+		addSimpleType("HLAfloat64Time", "HLAfloat64BE");
+
+		// Add any FOM/SOM missing types
+		for (Map.Entry<String, String> entry : this.missingTypes.entrySet()) {
+			HlaDataType hlaDataType = this.hlaDataTypes.dataTypeMap.get(entry.getValue());
+			if (hlaDataType == null) {
+				System.out.println("HandleDataTypes.decode missing data type: " + entry.getValue());
+			} else {
+				this.hlaDataTypes.dataTypeMap.put(entry.getKey() , hlaDataType);
+			}
+		}
 		return false;
+	}
+
+	/**
+	 * A method to add basic types not found in the FOM/SOM
+	 *
+	 * @param basicTypeName the name of the basic type to be created
+	 */
+	private void addBasicType(final String basicTypeName) {
+		HlaDataType hlaDataType = this.hlaDataTypes.dataTypeMap.get(basicTypeName);
+		if (hlaDataType == null) {
+			HlaDataBasicType hlaDataBasicType = new HlaDataBasicType(basicTypeName, HlaDataType.getBasicDataSizeBits(basicTypeName), HlaDataType.getBigEndian(basicTypeName));
+			this.hlaDataTypes.dataTypeMap.put(basicTypeName, hlaDataBasicType);
+		}
+	}
+
+	/**
+	 * A method to add simple types not found in the FOM/SOM
+	 *
+	 * @param simpleTypeName the name of the simple type
+	 * @param basicTypeName the name of the underlying basic type
+	 * @throws EncodingRulesException when an error is detected
+	 */
+	private void addSimpleType(final String simpleTypeName, final String basicTypeName) throws EncodingRulesException {
+		HlaDataType hlaDataTypeHLAASCIIchar = this.hlaDataTypes.dataTypeMap.get(simpleTypeName);
+		if (hlaDataTypeHLAASCIIchar == null) {
+			HlaDataType hlaDataTypeHLAoctet = this.hlaDataTypes.dataTypeMap.get(basicTypeName);
+			if (hlaDataTypeHLAoctet == null) {
+				throw new EncodingRulesException("HandleDataTypes.addSimpleType: basicTypeName not found: " + basicTypeName);
+			}
+			HlaDataSimpleType hlaDataSimpleTypeHLAASCIIchar = new HlaDataSimpleType(simpleTypeName, (HlaDataBasicType) hlaDataTypeHLAoctet);
+			this.hlaDataTypes.dataTypeMap.put(simpleTypeName, hlaDataSimpleTypeHLAASCIIchar);
+		}
 	}
 }

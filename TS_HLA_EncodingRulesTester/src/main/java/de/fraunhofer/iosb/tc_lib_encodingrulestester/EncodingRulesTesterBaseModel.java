@@ -226,7 +226,7 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
         this.logger = logger;
         this.ivct_rti = ivct_rti;
         this.ivct_TcParam = ivct_TcParam;
-        logger.warn("DISPLAY SOME HELPER VERSION NUMBER TO CONFIRM VERSION USED: 2018-12-12");
+        logger.warn("DISPLAY SOME HELPER VERSION NUMBER TO CONFIRM VERSION USED: 2018-12-19T10:10");
     }
 
     /**
