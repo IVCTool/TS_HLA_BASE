@@ -36,7 +36,7 @@ import nato.ivct.commander.Factory;
 /**
  * @author mul (Fraunhofer IOSB)
  */
-public class TC0001 extends AbstractTestCase {
+public class TC0002 extends AbstractTestCase {
     private String                              federateName                   = "IVCT";
     FederateHandle                              federateHandle;
 	public Properties props = Factory.props;
@@ -55,6 +55,7 @@ public class TC0001 extends AbstractTestCase {
         encodingRulesTesterTcParam              = new EncodingRulesTesterTcParam(tcParamJson, props);
     	ivct_rti             = IVCT_RTI_Factory.getIVCT_RTI(logger);
     	encodingRulesTesterBaseModel          = new EncodingRulesTesterBaseModel(logger, ivct_rti, encodingRulesTesterTcParam);
+		encodingRulesTesterBaseModel.setRPRv2_0();
     	ivct_LoggingFederateAmbassador = new IVCT_LoggingFederateAmbassador(encodingRulesTesterBaseModel, logger);
     	return encodingRulesTesterBaseModel;
     }

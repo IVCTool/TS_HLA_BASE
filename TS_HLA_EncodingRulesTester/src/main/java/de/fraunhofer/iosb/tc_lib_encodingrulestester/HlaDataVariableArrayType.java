@@ -21,10 +21,17 @@ import org.slf4j.LoggerFactory;
 
 public class HlaDataVariableArrayType extends HlaDataType {
     private static Logger logger = LoggerFactory.getLogger(HlaDataVariableArrayType.class);
+    /**
+     *
+     */
+    private static boolean useRPRv2_0 = false;
 	/**
 	 * The number of octets in the datatype
 	 */
 	int dataSize;
+
+	// The encoding value from the SOM/FOM file.
+	String encoding;
 
 	/**
 	 * 
@@ -35,13 +42,21 @@ public class HlaDataVariableArrayType extends HlaDataType {
 	 * 
 	 * @param dataTypeName the data type name
 	 * @param hlaDataTypeElement the data type element
+	 * @param encoding the encoding value from FOM / SOM
 	 */
-	public HlaDataVariableArrayType(final String dataTypeName, final HlaDataType hlaDataTypeElement) {
+	public HlaDataVariableArrayType(final String dataTypeName, final HlaDataType hlaDataTypeElement, final String encoding) {
 		this.dataTypeName = dataTypeName;
-		this.elementType = hlaDataTypeElement.dataTypeName;
+		if (hlaDataTypeElement != null) {
+			this.elementType = hlaDataTypeElement.dataTypeName;
+			this.dataSize = hlaDataTypeElement.getDataSize();
+		}
 		this.dataSizeFixed = false;
-		this.dataSize = hlaDataTypeElement.getDataSize();
 		this.alignment = calcAlignment(dataSize);
+		this.encoding = encoding;
+	}
+
+	public static void setRPRv2_0() {
+		useRPRv2_0 = true;
 	}
 
 	public boolean equalTo(HlaDataVariableArrayType other) {
@@ -84,11 +99,34 @@ public class HlaDataVariableArrayType extends HlaDataType {
 	public String getElementTypeName() {
 		return elementType;
 	}
+
+	/**
+	 *
+	 * @param hlaDataTypeElement the data type
+	 */
+	public void setDataType(final HlaDataType hlaDataTypeElement) {
+		this.elementType = hlaDataTypeElement.dataTypeName;
+		this.dataSize = hlaDataTypeElement.getDataSize();
+	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	public int testBuffer(final byte[] buffer, final int currentPosition, final HlaDataTypes dataTypes) throws EncodingRulesException {
+		if (encoding.equals("HLAvariableArray") == false) {
+			if (useRPRv2_0) {
+				int len = buffer.length;
+				for (int i = 0; i < len; i++) {
+					if (buffer[currentPosition + i] == 0) {
+						return currentPosition + i + 1;
+					}
+				}
+			}
+			else {
+				String errorMessageString = "HlaDataVariableArrayType: testBuffer: user defined encoding not supported: " + encoding;
+				throw new EncodingRulesException(errorMessageString);
+			}
+		}
 		int myCurrentPosition = currentPosition;
 		int lengthValue = 0;
 		lengthValue += buffer[myCurrentPosition];

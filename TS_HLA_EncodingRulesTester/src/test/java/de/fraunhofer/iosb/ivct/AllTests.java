@@ -151,16 +151,16 @@ public class AllTests {
 		HlaDataFixedArrayType hlaDataTypeFixedArrayHLAASCIIstring3 = new HlaDataFixedArrayType("HLAASCIIstring3", "HLAASCIIchar", 1, true, 3);
 		hlaDataTypes.dataTypeMap.put("HLAASCIIstring3", hlaDataTypeFixedArrayHLAASCIIstring3);
 		// Variable Array
-		HlaDataVariableArrayType hlaDataTypeVariableArrayMyVariableArray = new HlaDataVariableArrayType("MyVariableArray", hlaDataTypeBasicHLAinteger64BE);
+		HlaDataVariableArrayType hlaDataTypeVariableArrayMyVariableArray = new HlaDataVariableArrayType("MyVariableArray", hlaDataTypeBasicHLAinteger64BE, "HLAinteger64BE");
 		hlaDataTypes.dataTypeMap.put("MyVariableArray", hlaDataTypeVariableArrayMyVariableArray);
 		// Variable Array
-		HlaDataVariableArrayType hlaDataTypeVariableArrayHLAASCIIstring = new HlaDataVariableArrayType("HLAASCIIstring", hlaDataTypeSimpleHLAASCIIchar);
+		HlaDataVariableArrayType hlaDataTypeVariableArrayHLAASCIIstring = new HlaDataVariableArrayType("HLAASCIIstring", hlaDataTypeSimpleHLAASCIIchar, "HLAASCIIstring");
 		hlaDataTypes.dataTypeMap.put("HLAASCIIstring", hlaDataTypeVariableArrayHLAASCIIstring);
 		// Variable Array
-		HlaDataVariableArrayType hlaDataTypeVariableArrayInnerArray = new HlaDataVariableArrayType("InnerArray", hlaDataTypeFixedArrayHLAASCIIstring3);
+		HlaDataVariableArrayType hlaDataTypeVariableArrayInnerArray = new HlaDataVariableArrayType("InnerArray", hlaDataTypeFixedArrayHLAASCIIstring3, "HLAASCIIstring");
 		hlaDataTypes.dataTypeMap.put("InnerArray", hlaDataTypeVariableArrayInnerArray);
 		// Variable Array
-		HlaDataVariableArrayType hlaDataTypeVariableArrayOuterArray = new HlaDataVariableArrayType("OuterArray", hlaDataTypeVariableArrayInnerArray);
+		HlaDataVariableArrayType hlaDataTypeVariableArrayOuterArray = new HlaDataVariableArrayType("OuterArray", hlaDataTypeVariableArrayInnerArray, "InnerArray");
 		hlaDataTypes.dataTypeMap.put("OuterArray", hlaDataTypeVariableArrayOuterArray);
 		// Fixed Record
 		HlaDataFixedRecordType hlaDataTypeFixedRecord = new HlaDataFixedRecordType("HLAASCIIstring", false);

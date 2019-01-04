@@ -38,15 +38,16 @@ public class HlaDataFixedArrayType extends HlaDataType {
 
 	/**
 	 * @param dataTypeName data type name
-	 * @param elementType the element type
-	 * @param dataSize the data size
+	 * @param hlaDataTypeElement the element type
 	 * @param dataSizeFixed if the data size is fixed
 	 * @param cardinality the cardinality
 	 */
-	public HlaDataFixedArrayType(final String dataTypeName, final String elementType, final int dataSize, final boolean dataSizeFixed, final int cardinality) {
+	public HlaDataFixedArrayType(final String dataTypeName, final HlaDataType hlaDataTypeElement, final boolean dataSizeFixed, final int cardinality) {
 		this.dataTypeName = dataTypeName;
-		this.elementType = elementType;
-		this.dataSize = dataSize;
+		if (hlaDataTypeElement != null) {
+			this.elementType = hlaDataTypeElement.dataTypeName;
+			this.dataSize = hlaDataTypeElement.getDataSize();
+		}
 		this.dataSizeFixed = dataSizeFixed;
 		this.alignment = calcAlignment(dataSize);
 		this.cardinality = cardinality;
@@ -67,7 +68,7 @@ public class HlaDataFixedArrayType extends HlaDataType {
 
 	/**
 	 * {@inheritDoc}
-	 * @throws EncodingRulesException
+	 * @throws EncodingRulesException upon error
 	 */
 	public int getAlignment(final HlaDataTypes dataTypes) throws EncodingRulesException {
 		HlaDataType hlaDataType = dataTypes.dataTypeMap.get(elementType);
@@ -100,6 +101,15 @@ public class HlaDataFixedArrayType extends HlaDataType {
 		return elementType;
 	}
 	
+	/**
+	 *
+	 * @param hlaDataTypeElement the data type
+	 */
+	public void setDataType(final HlaDataType hlaDataTypeElement) {
+		this.elementType = hlaDataTypeElement.dataTypeName;
+		this.dataSize = hlaDataTypeElement.getDataSize();
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */

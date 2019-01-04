@@ -54,11 +54,11 @@ public class HlaDataEnumType extends HlaDataType {
 	 * @param buffer the HLA reflectAttributeValue or receiveInteraction parameter value
 	 * @param currentPosition the starting position for the current evaluation
 	 */
-	private void testEnumValue(final byte[] buffer, final int currentPosition) throws EncodingRulesException {
-		long testVal = decodeInteger(buffer, currentPosition, elementType);
+	private void testEnumValue(final byte[] buffer, final int currentPosition, final String fundamentalType) throws EncodingRulesException {
+		long testVal = decodeInteger(buffer, currentPosition, fundamentalType);
 		String s = enumValueMap.get(testVal);
 		if (s == null) {
-			throw new EncodingRulesException("Enum value unknown: " + testVal);
+			throw new EncodingRulesException("Enum value unknown: " + currentPosition + " " + fundamentalType + " " + testVal);
 		}
 	}
 
@@ -142,7 +142,16 @@ public class HlaDataEnumType extends HlaDataType {
 			logger.error(errorMessageString);
 			throw new EncodingRulesException(errorMessageString);
 		}
-		testEnumValue(buffer, myCurrentPosition);
+		HlaDataBasicType hlaDataType = (HlaDataBasicType) dataTypes.dataTypeMap.get(elementType);
+		if (hlaDataType == null) {
+			throw new EncodingRulesException("HlaDataEnumType.testBuffer: Type not found: " + elementType);
+		}
+		else {
+			int elementTypeSize = hlaDataType.getDataSize();
+			boolean b = hlaDataType.bigEndian;
+			String s = getFundamentalType(elementTypeSize, b);
+			testEnumValue(buffer, myCurrentPosition, s);
+		}
 		myCurrentPosition += dataSize;
 		return myCurrentPosition;
 	}
