@@ -16,6 +16,7 @@ limitations under the License.
 
 package de.fraunhofer.iosb.tc_lib_encodingrulestester;
 
+import java.security.KeyStore.Entry;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -40,7 +41,8 @@ import de.fraunhofer.iosb.tc_lib_encodingrulestester.HlaDataSimpleType;
 
 public class HandleDataTypes {
     private static Logger logger = LoggerFactory.getLogger(HandleDataTypes.class);
-    private Map <String, String> missingTypes = new HashMap<String, String>();
+    private Map <String, HlaDataType> incompleteTypes = new HashMap<String, HlaDataType>();
+    private Map <String, String> helperTypes = new HashMap<String, String>();
 	HlaDataTypes hlaDataTypes;
 
 	/**
@@ -477,13 +479,16 @@ public class HandleDataTypes {
 	 * @throws EncodingRulesException
 	 */
 	private void decodeArrayData(Node theSelectedNode) throws EncodingRulesException {
+		boolean cardinalityBoolean = false;
 		boolean gotName = false;
 		boolean gotDataType = false;
 		boolean gotCardinality = false;
 		int cardinality = 0;
+		boolean gotEncoding = false;
 		String nameStr = null;
 		String dataTypeStr = null;
 		String cardinalityStr = null;
+		String encodingStr = null;
 
 		for (Node child = theSelectedNode.getFirstChild(); child != null; child = child.getNextSibling()) {
 			if (child.getNodeType() != Node.ELEMENT_NODE) {
@@ -508,6 +513,9 @@ public class HandleDataTypes {
 			if (child.getNodeName().equals("cardinality")) {
 				if (((Element) child).getFirstChild() != null) {
 					cardinalityStr = ((Element) child).getFirstChild().getNodeValue();
+					if (cardinalityStr.equals("Dynamic")) {
+						cardinalityBoolean = true;
+					}
 					try {
 						cardinality = Integer.parseInt(cardinalityStr);
 					}
@@ -519,56 +527,78 @@ public class HandleDataTypes {
 				}
 				continue;
 			}
+			if (child.getNodeName().equals("encoding")) {
+				if (((Element) child).getFirstChild() != null) {
+					encodingStr = ((Element) child).getFirstChild().getNodeValue();
+					gotEncoding = true;
+					logger.trace("Encoding: " + encodingStr);
+				}
+				continue;
+			}
 		}
-		
+
 		/*
 		 * Process the dataType
 		 */
-		if (gotName && gotDataType && gotCardinality) {
+		if (gotName && gotDataType && gotCardinality && gotEncoding) {
 			HlaDataType tmpHlaDataType = hlaDataTypes.dataTypeMap.get(nameStr);
 			HlaDataType tmpHlaDataTypeElement = hlaDataTypes.dataTypeMap.get(dataTypeStr);
 
-			
-			
-			// To update later
-			if (tmpHlaDataTypeElement == null) {
-				missingTypes.put(nameStr, dataTypeStr);
-				return;
-			}
-
-			if (cardinalityStr.equals("Dynamic")) {
-				HlaDataVariableArrayType hlaDataTypeVariableArray = new HlaDataVariableArrayType(nameStr, tmpHlaDataTypeElement);
+			// The HlaDataVariableArrayType will hold all types that are not fixed
+			// Internally, if the encodingStr is not equal to HLAvariableArray will not perform the test
+			if (encodingStr.equals("HLAfixedArray") == false) {
+				HlaDataVariableArrayType hlaDataTypeVariableArray = new HlaDataVariableArrayType(nameStr, tmpHlaDataTypeElement, encodingStr);
 				if (tmpHlaDataType == null) {
 					hlaDataTypes.dataTypeMap.put(nameStr, hlaDataTypeVariableArray);
 				} else {
 					if (tmpHlaDataType instanceof HlaDataVariableArrayType) {
 						HlaDataVariableArrayType hlaDataVariableArrayType = (HlaDataVariableArrayType) tmpHlaDataType;
 						if (hlaDataVariableArrayType.equalTo(hlaDataTypeVariableArray)) {
-							logger.trace("HandleDataTypes.decodeFixedRecordData: EQUAL DATA TYPE: " + nameStr + " IGNORED");
+							logger.trace("HandleDataTypes.decodeArrayData: VariableArrayType: EQUAL DATA TYPE: " + nameStr + " IGNORED");
 						} else {
-							logger.trace("HandleDataTypes.decodeFixedRecordData: UNEQUAL DATA TYPE: " + nameStr + " NOT MERGED");
+							logger.trace("HandleDataTypes.decodeArrayData: VariableArrayType: UNEQUAL DATA TYPE: " + nameStr + " NOT MERGED");
 						}
 					} else {
-						logger.trace("HandleDataTypes.decodeFixedRecordData: UNEQUAL DATA TYPES: " + nameStr + " NOT MERGED");
+						logger.trace("HandleDataTypes.decodeArrayData: VariableArrayType: UNEQUAL DATA TYPES: " + nameStr + " NOT MERGED");
 					}
 				}
-			} else {
-				HlaDataFixedArrayType hlaDataTypeFixedArray = new HlaDataFixedArrayType(nameStr, dataTypeStr, tmpHlaDataTypeElement.getDataSize(), true, cardinality);
+
+				// To update later
+				if (tmpHlaDataTypeElement == null) {
+					incompleteTypes.put(nameStr, hlaDataTypeVariableArray);
+					helperTypes.put(nameStr, dataTypeStr);
+					return;
+				}
+			}
+			if (encodingStr.equals("HLAfixedArray")) {
+				int size = 0;
+				if (tmpHlaDataTypeElement != null) {
+					size = tmpHlaDataTypeElement.getDataSize();
+				}
+				HlaDataFixedArrayType hlaDataTypeFixedArray = new HlaDataFixedArrayType(nameStr, tmpHlaDataTypeElement, true, cardinality);
 				if (tmpHlaDataType == null) {
 					hlaDataTypes.dataTypeMap.put(nameStr, hlaDataTypeFixedArray);
 				} else {
 					if (tmpHlaDataType instanceof HlaDataFixedArrayType) {
-						HlaDataFixedArrayType hlaDataVariableArrayType = (HlaDataFixedArrayType) tmpHlaDataType;
-						if (hlaDataVariableArrayType.equalTo(hlaDataVariableArrayType)) {
-							logger.trace("HandleDataTypes.decodeFixedRecordData: EQUAL DATA TYPE: " + nameStr + " IGNORED");
+						HlaDataFixedArrayType hlaDataFixedArrayType = (HlaDataFixedArrayType) tmpHlaDataType;
+						if (hlaDataFixedArrayType.equalTo(hlaDataTypeFixedArray)) {
+							logger.trace("HandleDataTypes.decodeArrayData: FixedArrayType: EQUAL DATA TYPE: " + nameStr + " IGNORED");
 						} else {
-							logger.trace("HandleDataTypes.decodeFixedRecordData: UNEQUAL DATA TYPE: " + nameStr + " NOT MERGED");
+							logger.trace("HandleDataTypes.decodeArrayData: FixedArrayType: UNEQUAL DATA TYPE: " + nameStr + " NOT MERGED");
 						}
 					} else {
-						logger.trace("HandleDataTypes.decodeFixedRecordData: UNEQUAL DATA TYPES: " + nameStr + " NOT MERGED");
+						logger.trace("HandleDataTypes.decodeArrayData: FixedArrayType: UNEQUAL DATA TYPES: " + nameStr + " NOT MERGED");
 					}
 				}
+
+				// To update later
+				if (tmpHlaDataTypeElement == null) {
+					incompleteTypes.put(nameStr, hlaDataTypeFixedArray);
+					helperTypes.put(nameStr, dataTypeStr);
+					return;
+				}
 			}
+
 			return;
 		}
 
@@ -1017,15 +1047,38 @@ public class HandleDataTypes {
 		addSimpleType("HLAinteger64Time", "HLAinteger64BE");
 		addSimpleType("HLAfloat64Time", "HLAfloat64BE");
 
+		Map <String, HlaDataType> tmpTypes = new HashMap<String, HlaDataType>();
+		int maxTries = this.incompleteTypes.size();
+		int tries = 0;
 		// Add any FOM/SOM missing types
-		for (Map.Entry<String, String> entry : this.missingTypes.entrySet()) {
-			HlaDataType hlaDataType = this.hlaDataTypes.dataTypeMap.get(entry.getValue());
-			if (hlaDataType == null) {
-				System.out.println("HandleDataTypes.decode missing data type: " + entry.getValue());
-			} else {
-				this.hlaDataTypes.dataTypeMap.put(entry.getKey() , hlaDataType);
+//		for (; this.incompleteTypes.size() == 0;) {
+//			if (tries++ > maxTries) {
+//				break;
+//			}
+			for (Map.Entry<String, HlaDataType> entry : this.incompleteTypes.entrySet()) {
+				HlaDataType hlaDataType = this.hlaDataTypes.dataTypeMap.get(entry.getKey());
+				if (hlaDataType == null) {
+					tmpTypes.put(entry.getKey(), entry.getValue());
+				} else {
+					String hlaDataHelperTypeStr = this.helperTypes.get(entry.getKey());
+					HlaDataType hlaDataHelperType = this.hlaDataTypes.dataTypeMap.get(hlaDataHelperTypeStr);
+					if (hlaDataHelperType == null) {
+						continue;
+					}
+					if (hlaDataType instanceof HlaDataVariableArrayType) {
+						((HlaDataVariableArrayType) hlaDataType).setDataType(hlaDataHelperType);
+					}
+					if (hlaDataType instanceof HlaDataFixedArrayType) {
+						((HlaDataFixedArrayType) hlaDataType).setDataType(hlaDataHelperType);
+					}
+					this.hlaDataTypes.dataTypeMap.put(entry.getKey() , hlaDataType);
+				}
 			}
-		}
+			this.incompleteTypes.clear();
+			this.incompleteTypes = tmpTypes;
+			tmpTypes = new HashMap<String, HlaDataType>();
+//		}
+
 		return false;
 	}
 

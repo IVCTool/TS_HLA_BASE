@@ -57,7 +57,7 @@ public abstract class HlaDataType {
 	 * @param dataTypeName the name of the data type
 	 * @param dataTypes a map of data types
 	 * @return the number of padding bytes
-	 * @throws EncodingRulesException
+	 * @throws EncodingRulesException upon error
 	 */
 	protected static int calcPaddingBytes(final int currentPosition, final String dataTypeName, final HlaDataTypes dataTypes) throws EncodingRulesException {
 		HlaDataType dataType = dataTypes.dataTypeMap.get(dataTypeName);
@@ -90,6 +90,83 @@ public abstract class HlaDataType {
 		return alignment;
 	}
 
+	protected String getFundamentalType(final int elementSize, final boolean bigEndianBool) {
+		String result = null;
+
+		if (bigEndianBool) {
+			switch (elementSize) {
+			case 1:
+				result = "HLAoctet";
+				break;
+			case 2:
+				result = "HLAinteger16BE";
+				break;
+			case 4:
+				result = "HLAinteger32BE";
+				break;
+			case 8:
+				result = "HLAinteger64BE";
+				break;
+			}
+		}
+		else {
+			switch (elementSize) {
+			case 1:
+				result = "HLAoctet";
+				break;
+			case 2:
+				result = "HLAinteger16LE";
+				break;
+			case 4:
+				result = "HLAinteger32LE";
+				break;
+			case 8:
+				result = "HLAinteger64LE";
+				break;
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 *
+	 * @param buffer the byte array containing the integer
+	 * @param currentPosition the position of the integer value
+	 * @param size number of bytes to use
+	 * @return
+	 */
+	private long extractLongFromBuffBE(final byte[] buffer, final int currentPosition, final int size) {
+		long testVal = 0;
+
+		for (int i = 0; i < size; i++) {
+			long l16BE = buffer[currentPosition + i] & 0xFF;
+			l16BE <<= (size - 1 - i) * 8;
+			testVal += l16BE;
+		}
+
+		return testVal;
+	}
+
+	/**
+	 *
+	 * @param buffer the byte array containing the integer
+	 * @param currentPosition the position of the integer value
+	 * @param size number of bytes to use
+	 * @return
+	 */
+	private long extractLongFromBuffLE(final byte[] buffer, final int currentPosition, final int size) {
+		long testVal = 0;
+
+		for (int i = 0; i < size; i++) {
+			long l16BE = buffer[currentPosition + size - 1 - i] & 0xFF;
+			l16BE <<= (size - 1 - i) * 8;
+			testVal += l16BE;
+		}
+
+		return testVal;
+	}
+
 	/**
 	 * @param buffer the byte array containing the integer
 	 * @param currentPosition the position of the integer value
@@ -101,74 +178,28 @@ public abstract class HlaDataType {
 
 		switch(elementType) {
 		case "HLAinteger16BE":
-			testVal =+ buffer[currentPosition + 0];
-			testVal <<= 8;
-			testVal =+ buffer[currentPosition + 1];
+			testVal = extractLongFromBuffBE(buffer, currentPosition, 2);
 			break;
 		case "HLAinteger32BE":
-			testVal =+ buffer[currentPosition + 0];
-			testVal <<= 8;
-			testVal =+ buffer[currentPosition + 1];
-			testVal <<= 8;
-			testVal =+ buffer[currentPosition + 2];
-			testVal <<= 8;
-			testVal =+ buffer[currentPosition + 3];
+			testVal = extractLongFromBuffBE(buffer, currentPosition, 4);
 			break;
 		case "HLAinteger64BE":
-			testVal =+ buffer[currentPosition + 0];
-			testVal <<= 8;
-			testVal =+ buffer[currentPosition + 1];
-			testVal <<= 8;
-			testVal =+ buffer[currentPosition + 2];
-			testVal <<= 8;
-			testVal =+ buffer[currentPosition + 3];
-			testVal <<= 8;
-			testVal =+ buffer[currentPosition + 4];
-			testVal <<= 8;
-			testVal =+ buffer[currentPosition + 5];
-			testVal <<= 8;
-			testVal =+ buffer[currentPosition + 6];
-			testVal <<= 8;
-			testVal =+ buffer[currentPosition + 7];
+			testVal = extractLongFromBuffBE(buffer, currentPosition, 8);
 			break;
 		case "HLAinteger16LE":
-			testVal =+ buffer[currentPosition + 1];
-			testVal <<= 8;
-			testVal =+ buffer[currentPosition + 0];
+			testVal = extractLongFromBuffLE(buffer, currentPosition, 2);
 			break;
 		case "HLAinteger32LE":
-			testVal =+ buffer[currentPosition + 3];
-			testVal <<= 8;
-			testVal =+ buffer[currentPosition + 2];
-			testVal <<= 8;
-			testVal =+ buffer[currentPosition + 1];
-			testVal <<= 8;
-			testVal =+ buffer[currentPosition + 0];
+			testVal = extractLongFromBuffLE(buffer, currentPosition, 4);
 			break;
 		case "HLAinteger64LE":
-			testVal =+ buffer[currentPosition + 7];
-			testVal <<= 8;
-			testVal =+ buffer[currentPosition + 6];
-			testVal <<= 8;
-			testVal =+ buffer[currentPosition + 5];
-			testVal <<= 8;
-			testVal =+ buffer[currentPosition + 4];
-			testVal <<= 8;
-			testVal =+ buffer[currentPosition + 3];
-			testVal <<= 8;
-			testVal =+ buffer[currentPosition + 2];
-			testVal <<= 8;
-			testVal =+ buffer[currentPosition + 1];
-			testVal <<= 8;
-			testVal =+ buffer[currentPosition + 0];
+			testVal = extractLongFromBuffLE(buffer, currentPosition, 8);
 			break;
 		case "HLAoctet":
 			testVal =+ buffer[currentPosition + 0];
 			break;
 		case "UnsignedShort":
-			testVal =+ buffer[currentPosition + 0];
-			testVal <<= 8;
-			testVal =+ buffer[currentPosition + 1];
+			testVal = extractLongFromBuffBE(buffer, currentPosition, 2);
 			break;
 		}
 		
@@ -286,6 +317,7 @@ public abstract class HlaDataType {
 	/**
 	 * @param dataTypes map of data types
 	 * @return the alignment of the dataype
+	 * @throws EncodingRulesException upon error
 	 */
 	public abstract int getAlignment(final HlaDataTypes dataTypes) throws EncodingRulesException;
 

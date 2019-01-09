@@ -226,7 +226,14 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
         this.logger = logger;
         this.ivct_rti = ivct_rti;
         this.ivct_TcParam = ivct_TcParam;
-        logger.warn("DISPLAY SOME HELPER VERSION NUMBER TO CONFIRM VERSION USED: 2018-12-19T10:10");
+        logger.warn("DISPLAY SOME HELPER VERSION NUMBER TO CONFIRM VERSION USED: 2019-01-04T15:00");
+    }
+
+    /*
+     * Adds logic for RPR v2.0 RPRnullTerminatedArray
+     */
+    public void setRPRv2_0() {
+        HlaDataVariableArrayType.setRPRv2_0();
     }
 
     /**
