@@ -115,6 +115,7 @@ public class HlaDataVariantRecordType extends HlaDataType {
 	 * Get the maximum alignment of the alternative types
 	 * @param dataTypes the map of data types
 	 * @return the alignment value
+	 * @throws EncodingRulesException exception with text
 	 */
 	public int getAlternativeAlignment(final HlaDataTypes dataTypes) throws EncodingRulesException {
 		int ret = 0;

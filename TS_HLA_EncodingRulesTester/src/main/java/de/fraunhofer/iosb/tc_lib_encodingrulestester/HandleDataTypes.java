@@ -1047,6 +1047,9 @@ public class HandleDataTypes {
 		addSimpleType("HLAinteger64Time", "HLAinteger64BE");
 		addSimpleType("HLAfloat64Time", "HLAfloat64BE");
 
+		// Add any missing variable array types
+		addVariableType("HLAunicodeString", "HLAunicodeChar", "HLAvariableArray");
+
 		Map <String, HlaDataType> tmpTypes = new HashMap<String, HlaDataType>();
 		int maxTries = this.incompleteTypes.size();
 		int tries = 0;
@@ -1103,14 +1106,34 @@ public class HandleDataTypes {
 	 * @throws EncodingRulesException when an error is detected
 	 */
 	private void addSimpleType(final String simpleTypeName, final String basicTypeName) throws EncodingRulesException {
-		HlaDataType hlaDataTypeHLAASCIIchar = this.hlaDataTypes.dataTypeMap.get(simpleTypeName);
-		if (hlaDataTypeHLAASCIIchar == null) {
+		HlaDataType hlaDataSimpleType = this.hlaDataTypes.dataTypeMap.get(simpleTypeName);
+		if (hlaDataSimpleType == null) {
 			HlaDataType hlaDataTypeHLAoctet = this.hlaDataTypes.dataTypeMap.get(basicTypeName);
 			if (hlaDataTypeHLAoctet == null) {
 				throw new EncodingRulesException("HandleDataTypes.addSimpleType: basicTypeName not found: " + basicTypeName);
 			}
-			HlaDataSimpleType hlaDataSimpleTypeHLAASCIIchar = new HlaDataSimpleType(simpleTypeName, (HlaDataBasicType) hlaDataTypeHLAoctet);
-			this.hlaDataTypes.dataTypeMap.put(simpleTypeName, hlaDataSimpleTypeHLAASCIIchar);
+			HlaDataSimpleType hlaDataNewSimpleType = new HlaDataSimpleType(simpleTypeName, (HlaDataBasicType) hlaDataTypeHLAoctet);
+			this.hlaDataTypes.dataTypeMap.put(simpleTypeName, hlaDataNewSimpleType);
+		}
+	}
+
+	/**
+	 * A method to add variable array types not found in the FOM/SOM
+	 *
+	 * @param variableArrayTypeName the name of the simple type
+	 * @param basicTypeName the name of the underlying basic type
+	 * @param encoding the name of the encoding rule
+	 * @throws EncodingRulesException when an error is detected
+	 */
+	private void addVariableType(final String variableArrayTypeName, final String basicTypeName, final String encoding) throws EncodingRulesException {
+		HlaDataType hlaDataVariableArrayType = this.hlaDataTypes.dataTypeMap.get(variableArrayTypeName);
+		if (hlaDataVariableArrayType == null) {
+			HlaDataType hlaDataTypeHLAoctet = this.hlaDataTypes.dataTypeMap.get(basicTypeName);
+			if (hlaDataTypeHLAoctet == null) {
+				throw new EncodingRulesException("HandleDataTypes.addSimpleType: basicTypeName not found: " + basicTypeName);
+			}
+			HlaDataVariableArrayType hlaDataSimpleTypeHLAASCIIchar = new HlaDataVariableArrayType(variableArrayTypeName, hlaDataTypeHLAoctet, encoding);
+			this.hlaDataTypes.dataTypeMap.put(variableArrayTypeName, hlaDataSimpleTypeHLAASCIIchar);
 		}
 	}
 }
