@@ -14,6 +14,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -42,16 +43,17 @@ import hla.rti1516e.exceptions.RTIinternalError;
  * @author mul, @date 07.04.17 10:59
  */
 public class AllTests {
-	@Test
-	public void dummy() {
-		RtiJunitImpl dummyRtiImpl = new RtiJunitImpl();
+	static HlaDataTypes hlaDataTypes = new HlaDataTypes();
+	static Map<ParameterHandle, String> parameterHandleDataTypeMap = new HashMap<ParameterHandle, String>();
+	static RtiJunitImpl dummyRtiImpl = new RtiJunitImpl();
+
+	@BeforeClass
+	public static void initDataTypeTree() {
 //		The following calls are not needed, since there is no real RTI involved
 //		dummyRtiImpl.connect(federateReference, callbackModel);
 //		dummyRtiImpl.createFederationExecution(federationExecutionName, fomModule);
 //		dummyRtiImpl.joinFederationExecution(federateType, federationExecutionName);
-		HlaDataTypes hlaDataTypes = new HlaDataTypes();
 		Map<InteractionClassHandle, Set<ParameterHandle>> interactionClassHandleMap = new HashMap<InteractionClassHandle, Set<ParameterHandle>>();
-		Map<ParameterHandle, String> parameterHandleDataTypeMap = new HashMap<ParameterHandle, String>();
 		Map<ObjectClassHandle, ObjectClassData> objectClassAttributeHandleMap = new HashMap<ObjectClassHandle, ObjectClassData>();
 		Map<AttributeHandle, String> attributeHandleDataTypeMap = new HashMap<AttributeHandle, String>();
 		File f = new File("H:/Projects/Hla/MSG-134/IVCT/TS_HelloWorld/HelloWorld/src/main/resources/HelloWorld.xml");
@@ -87,6 +89,9 @@ public class AllTests {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	@Test
+	public void test0() {
 		try {
 			InteractionClassHandle ich = dummyRtiImpl.getInteractionClassHandle("HLAinteractionRoot.Communication");
 			ParameterHandle messageParameterHandle = dummyRtiImpl.getParameterHandle(ich, "Message");
