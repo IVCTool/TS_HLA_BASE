@@ -75,6 +75,7 @@ public class HandleObjectClass {
 							myClassName = parentClassName + "." + textPointer;
 						}
 						logger.trace("RTI GET_OBJECT_CLASS_HANDLE: " + myClassName);
+
 						och = ivct_rti.getObjectClassHandle(myClassName);
 					}
 					continue;
@@ -135,7 +136,7 @@ public class HandleObjectClass {
 	 * @param theSelectedNode the Xerces node at this level
 	 * @return true means error
 	 */
-	private boolean decodeAttribute(final Node theSelectedNode, final RTIambassador ivct_rti, final ObjectClassHandle och, final AttributeHandleSet attributeHandleWorkingSet, final Map<AttributeHandle, String> attributeHandleDataTypeMap) {
+	private boolean decodeAttribute(final Node theSelectedNode, final RTIambassador ivct_rti, final ObjectClassHandle och, AttributeHandleSet attributeHandleWorkingSet, final Map<AttributeHandle, String> attributeHandleDataTypeMap) {
 		AttributeHandle aHandle = null;
 		String nameStr = null;
 		String dataTypeStr = null;

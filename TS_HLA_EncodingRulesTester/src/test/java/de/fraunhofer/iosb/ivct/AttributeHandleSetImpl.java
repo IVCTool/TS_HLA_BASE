@@ -13,6 +13,10 @@ public class AttributeHandleSetImpl implements AttributeHandleSet {
 	 *
 	 */
 	private static final long serialVersionUID = -8753751797072403032L;
+
+	public AttributeHandleSetImpl() {
+
+	}
 	Set<AttributeHandle> s = new HashSet<AttributeHandle>();
 
 	public boolean isEmpty() {
@@ -53,15 +57,15 @@ public class AttributeHandleSetImpl implements AttributeHandleSet {
 	}
 
 	public int size() {
-		return size();
+		return s.size();
 	}
 
 	public boolean add(AttributeHandle ah) {
-		return add(ah);
+		return s.add(ah);
 	}
 
 	public boolean remove(Object o) {
-		return remove(o);
+		return s.remove(o);
 	}
 
 	public boolean addAll(Collection<? extends  AttributeHandle> a) {

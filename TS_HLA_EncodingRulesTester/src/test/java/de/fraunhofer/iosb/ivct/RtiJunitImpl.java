@@ -23,12 +23,18 @@ import hla.rti1516e.exceptions.RTIinternalError;
 
 public class RtiJunitImpl extends IVCT_NullRTIambassador {
 	private Logger logger = LoggerFactory.getLogger(RtiJunitImpl.class);
+	private boolean generateNewHandles = true;
+
+	public void setGenerateNewHandles(boolean generateNewHandles) {
+		this.generateNewHandles = generateNewHandles;
+	}
 
 	/*
 	 * Interaction maps
 	 */
 	private InteractionClassHandleFactory interactionClassHandleFactory = new InteractionClassHandleFactoryImpl();
-	private Map<String, InteractionClassHandle> interactionNameHandlemap = new HashMap<String, InteractionClassHandle>();
+	private Map<InteractionClassHandle, String> interactionClassHandleNameMap = new HashMap<InteractionClassHandle, String>();
+	private Map<String, InteractionClassHandle> interactionClassNameHandleMap = new HashMap<String, InteractionClassHandle>();
 	private Map<InteractionClassHandle, Map<String, ParameterHandle>> interactionParameterNameMap = new HashMap<InteractionClassHandle, Map<String, ParameterHandle>>();
 
 	/*
@@ -36,7 +42,8 @@ public class RtiJunitImpl extends IVCT_NullRTIambassador {
 	 */
 	private AttributeHandleSetFactoryImpl attributeHandleSetFactoryImpl = new AttributeHandleSetFactoryImpl();
 	private Map<ObjectClassHandle, Map<String, AttributeHandle>> objectAttributeNameMap = new HashMap<ObjectClassHandle, Map<String, AttributeHandle>>();
-    private Map<String, ObjectClassHandle> objectClassHandleMap = new HashMap<String, ObjectClassHandle>();
+    private Map<ObjectClassHandle, String> objectClassHandleNameMap = new HashMap<ObjectClassHandle, String>();
+    private Map<String, ObjectClassHandle> objectClassNameHandleMap = new HashMap<String, ObjectClassHandle>();
     private ObjectClassHandleFactory objectClassHandleFactory = new ObjectClassHandleFactoryImpl();
 
 	public AttributeHandleSetFactory getAttributeHandleSetFactory()
@@ -61,11 +68,24 @@ public class RtiJunitImpl extends IVCT_NullRTIambassador {
 	FederateNotExecutionMember,
 	NotConnected,
 	RTIinternalError {
-		ObjectClassHandle och = objectClassHandleMap.get(theName);
+		ObjectClassHandle och = objectClassNameHandleMap.get(theName);
 		if (och == null) {
 			try {
 				och = objectClassHandleFactory.decode(null, 0);
-				objectClassHandleMap.put(theName, och);
+				objectClassNameHandleMap.put(theName, och);
+				objectClassHandleNameMap.put(och, theName);
+				Map<String, AttributeHandle> attributeNameHandleMap = new HashMap<String, AttributeHandle>();
+				int ind = theName.lastIndexOf(".");
+				if (ind != -1) {
+					String parentClassName = theName.substring(0, ind);
+					ObjectClassHandle poch = objectClassNameHandleMap.get(parentClassName);
+					Map<String, AttributeHandle> atts = objectAttributeNameMap.get(poch);
+					if (atts != null) {
+						attributeNameHandleMap.putAll(atts);
+					}
+				}
+				objectAttributeNameMap.put(och, attributeNameHandleMap);
+
 			} catch (CouldNotDecode e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -84,19 +104,18 @@ public class RtiJunitImpl extends IVCT_NullRTIambassador {
 					RTIinternalError {
 		AttributeHandle ah = null;
 		Map<String, AttributeHandle> attributeNameHandleMap = objectAttributeNameMap.get(whichClass);
+
 		if (attributeNameHandleMap == null) {
-			ah = new AttributeHandleImpl();
-			ah.encode(null, 0);
-			attributeNameHandleMap = new HashMap<String, AttributeHandle>();
-			attributeNameHandleMap.put(theName, ah);
-			objectAttributeNameMap.put(whichClass, attributeNameHandleMap);
+			throw new InvalidObjectClassHandle("getAttributeHandle: unknown object class: " + whichClass + " " + theName);
 		}
 		else {
 			ah = attributeNameHandleMap.get(theName);
 			if (ah == null) {
+				if (generateNewHandles == false) {
+					throw new NameNotFound("getAttributeHandle: unknown attribute: " + whichClass + " " + theName);
+				}
 				ah = new AttributeHandleImpl();
 				ah.encode(null, 0);
-				attributeNameHandleMap = new HashMap<String, AttributeHandle>();
 				attributeNameHandleMap.put(theName, ah);
 			}
 		}
@@ -110,11 +129,23 @@ public class RtiJunitImpl extends IVCT_NullRTIambassador {
 	FederateNotExecutionMember,
 	NotConnected,
 	RTIinternalError {
-		InteractionClassHandle ich = interactionNameHandlemap.get(theName);
+		InteractionClassHandle ich = interactionClassNameHandleMap.get(theName);
 		if (ich == null) {
 			try {
 				ich = interactionClassHandleFactory.decode(null, 0);
-				interactionNameHandlemap.put(theName, ich);
+				interactionClassHandleNameMap.put(ich, theName);
+				interactionClassNameHandleMap.put(theName, ich);
+				Map<String, ParameterHandle> parameterNameHandleMap = new HashMap<String, ParameterHandle>();
+				int ind = theName.lastIndexOf(".");
+				if (ind != -1) {
+					String parentClassName = theName.substring(0, ind);
+					InteractionClassHandle poch = interactionClassNameHandleMap.get(parentClassName);
+					Map<String, ParameterHandle> paramData = interactionParameterNameMap.get(poch);
+					if (paramData != null) {
+						parameterNameHandleMap.putAll(paramData);
+					}
+				}
+				interactionParameterNameMap.put(ich, parameterNameHandleMap);
 			} catch (CouldNotDecode e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -134,18 +165,16 @@ public class RtiJunitImpl extends IVCT_NullRTIambassador {
 		ParameterHandle ph = null;
 		Map<String, ParameterHandle> parameterNameHandleMap = interactionParameterNameMap.get(whichClass);
 		if (parameterNameHandleMap == null) {
-			ph = new ParameterHandleImpl();
-			ph.encode(null, 0);
-			parameterNameHandleMap = new HashMap<String, ParameterHandle>();
-			parameterNameHandleMap.put(theName, ph);
-			interactionParameterNameMap.put(whichClass, parameterNameHandleMap);
+				throw new InvalidInteractionClassHandle("getParameterHandle: unknown interaction class: " + whichClass + " " + theName);
 		}
 		else {
 			ph = parameterNameHandleMap.get(theName);
 			if (ph == null) {
+				if (generateNewHandles == false) {
+					throw new NameNotFound("getParameterHandle: unknown parameter: " + whichClass + " " + theName);
+				}
 				ph = new ParameterHandleImpl();
 				ph.encode(null, 0);
-				parameterNameHandleMap = new HashMap<String, ParameterHandle>();
 				parameterNameHandleMap.put(theName, ph);
 			}
 		}
