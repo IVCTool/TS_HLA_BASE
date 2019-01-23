@@ -4,16 +4,39 @@ mainClassName = 'de.fraunhofer.iosb.testrunner.JMSTestRunner'
 
 dependencies {
 	compileOnly     group: 'io.github.msg134', name: 'IEEE1516e', version: ivctVersion
+	testImplementation     group: 'io.github.msg134', name: 'IEEE1516e', version: ivctVersion
 
 	compileOnly     libraries.tc_lib
+	testImplementation     libraries.tc_lib
 	compileOnly     group: 'io.github.msg134', name: 'MessagingHelpers', version: ivctVersion
+	testImplementation     group: 'io.github.msg134', name: 'MessagingHelpers', version: ivctVersion
 
 	compileOnly     libraries.slf4j_api
+	testCompileOnly     libraries.slf4j_api
 
 	compileOnly		libraries.logback_classic
+	testCompileOnly		libraries.logback_classic
 	compileOnly		libraries.logback_core
+	testCompileOnly		libraries.logback_core
 
 	compileOnly     libraries.slf4j_jcl_over_slf4j
+	testCompileOnly     libraries.slf4j_jcl_over_slf4j
 	compileOnly     libraries.slf4j_jul_to_slf4j
+	testCompileOnly     libraries.slf4j_jul_to_slf4j
 	compileOnly     libraries.slf4j_log4j_over_slf4j
+	testCompileOnly     libraries.slf4j_log4j_over_slf4j
+    testCompileOnly(
+            'junit:junit:4.12'
+    )
+    testImplementation(
+            'org.junit.jupiter:junit-jupiter-api:5.1.0'
+    )
+    testRuntimeOnly(
+            'org.junit.jupiter:junit-jupiter-engine:5.1.0',
+            'org.junit.vintage:junit-vintage-engine:5.1.0'
+    )
+}
+
+test {
+    useJUnitPlatform()
 }

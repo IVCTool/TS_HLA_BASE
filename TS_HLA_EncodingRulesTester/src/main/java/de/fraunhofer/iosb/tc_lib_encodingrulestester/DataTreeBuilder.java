@@ -32,6 +32,7 @@ import hla.rti1516e.AttributeHandleSetFactory;
 import hla.rti1516e.InteractionClassHandle;
 import hla.rti1516e.ObjectClassHandle;
 import hla.rti1516e.ParameterHandle;
+import hla.rti1516e.RTIambassador;
 import hla.rti1516e.exceptions.FederateNotExecutionMember;
 import hla.rti1516e.exceptions.NotConnected;
 
@@ -44,7 +45,7 @@ public class DataTreeBuilder {
 	// The dataTypes
 	private HlaDataTypes hlaDataTypes;
 	// The RTI ambassador
-	private IVCT_RTIambassador ivct_rti;
+	private RTIambassador ivct_rti;
 	// The private references to the data structures to be filled
 	private Map<AttributeHandle, String> attributeHandleDataTypeMap;
 	private Map<ObjectClassHandle, ObjectClassData> objectClassAttributeHandleMap;
@@ -65,7 +66,7 @@ public class DataTreeBuilder {
 	 * @param attributeHandleDataTypeMap holds attribute data
 	 * @throws TcInconclusive in case of rti error
 	 */
-	public DataTreeBuilder(final IVCT_RTIambassador ivct_rti, final HlaDataTypes hlaDataTypes, final Map<InteractionClassHandle, Set<ParameterHandle>> interactionClassHandleMap, Map<ParameterHandle, String> parameterHandleDataTypeMap, Map<ObjectClassHandle, ObjectClassData> objectClassAttributeHandleMap, Map<AttributeHandle, String> attributeHandleDataTypeMap) throws TcInconclusive {
+	public DataTreeBuilder(final RTIambassador ivct_rti, final HlaDataTypes hlaDataTypes, final Map<InteractionClassHandle, Set<ParameterHandle>> interactionClassHandleMap, Map<ParameterHandle, String> parameterHandleDataTypeMap, Map<ObjectClassHandle, ObjectClassData> objectClassAttributeHandleMap, Map<AttributeHandle, String> attributeHandleDataTypeMap) throws TcInconclusive {
 		logger.trace("DataTreeBuilder: enter");
 		this.ivct_rti = ivct_rti;
 		this.hlaDataTypes = hlaDataTypes;

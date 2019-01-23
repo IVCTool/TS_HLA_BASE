@@ -29,6 +29,7 @@ import de.fraunhofer.iosb.tc_lib.IVCT_RTIambassador;
 import hla.rti1516e.InteractionClassHandle;
 import hla.rti1516e.ParameterHandle;
 import hla.rti1516e.ParameterHandleFactory;
+import hla.rti1516e.RTIambassador;
 import hla.rti1516e.exceptions.FederateNotExecutionMember;
 import hla.rti1516e.exceptions.NameNotFound;
 import hla.rti1516e.exceptions.NotConnected;
@@ -41,7 +42,7 @@ public class HandleInteractionClass {
 	 * @param theSelectedNode the Xerces node at this level
 	 * @return true means error
 	 */
-	private boolean decodeInteractionClass(Node theSelectedNode, final IVCT_RTIambassador ivct_rti, String parentClassName, Map<InteractionClassHandle, Set<ParameterHandle>> interactionHandleMap, Map<ParameterHandle, String> parameterHandleDataTypeMap) {
+	private boolean decodeInteractionClass(Node theSelectedNode, final RTIambassador ivct_rti, String parentClassName, Map<InteractionClassHandle, Set<ParameterHandle>> interactionHandleMap, Map<ParameterHandle, String> parameterHandleDataTypeMap) {
 		logger.trace("HandleInteractionClass.decodeInteractionClass: enter");
 		InteractionClassHandle ich = null;
 		String myClassName = null;
@@ -151,7 +152,7 @@ public class HandleInteractionClass {
 	 * @param parameterHandleDataTypeMap the parameterHandle dataType map
 	 * @return true means error
 	 */
-	private boolean decodeParameter(final Node theSelectedNode, final IVCT_RTIambassador ivct_rti, final InteractionClassHandle ich, final Map<ParameterHandle, String> parameterHandleDataTypeMap, Set<ParameterHandle> parameterHandleSet) {
+	private boolean decodeParameter(final Node theSelectedNode, final RTIambassador ivct_rti, final InteractionClassHandle ich, final Map<ParameterHandle, String> parameterHandleDataTypeMap, Set<ParameterHandle> parameterHandleSet) {
 		logger.trace("HandleInteractionClass.decodeParameter: enter");
 		ParameterHandle pHandle = null;
 		String nameStr = null;
@@ -216,7 +217,7 @@ public class HandleInteractionClass {
 	 * @param theSelectedNode the Xerces node at this level
 	 * @return true means error
 	 */
-	boolean decode(Node theSelectedNode, final IVCT_RTIambassador ivct_rti, String parentClass, Map<InteractionClassHandle, Set<ParameterHandle>> interactionHandleMap, Map<ParameterHandle, String> parameterHandleDataTypeMap) {
+	boolean decode(Node theSelectedNode, final RTIambassador ivct_rti, String parentClass, Map<InteractionClassHandle, Set<ParameterHandle>> interactionHandleMap, Map<ParameterHandle, String> parameterHandleDataTypeMap) {
 		logger.trace("HandleInteractionClass.decode: enter");
 		String textPointer = null;
 

@@ -28,6 +28,7 @@ import hla.rti1516e.AttributeHandle;
 import hla.rti1516e.AttributeHandleSet;
 import hla.rti1516e.AttributeHandleSetFactory;
 import hla.rti1516e.ObjectClassHandle;
+import hla.rti1516e.RTIambassador;
 import hla.rti1516e.exceptions.FederateNotExecutionMember;
 import hla.rti1516e.exceptions.NotConnected;
 
@@ -39,7 +40,7 @@ public class HandleObjectClass {
 	 * @param theSelectedNode the Xerces node at this level
 	 * @return true means error
 	 */
-	private boolean decodeObjectClass(Node theSelectedNode, final IVCT_RTIambassador ivct_rti, String parentClassName, AttributeHandleSet attributeHandleBaseClassSet, Map<ObjectClassHandle, ObjectClassData> objectClassAttributeHandleMap, Map<AttributeHandle, String> attributeHandleDataTypeMap) {
+	private boolean decodeObjectClass(Node theSelectedNode, final RTIambassador ivct_rti, String parentClassName, AttributeHandleSet attributeHandleBaseClassSet, Map<ObjectClassHandle, ObjectClassData> objectClassAttributeHandleMap, Map<AttributeHandle, String> attributeHandleDataTypeMap) {
 		ObjectClassHandle och = null;
 		String myClassName = null;
 		String textPointer = null;
@@ -74,6 +75,7 @@ public class HandleObjectClass {
 							myClassName = parentClassName + "." + textPointer;
 						}
 						logger.trace("RTI GET_OBJECT_CLASS_HANDLE: " + myClassName);
+
 						och = ivct_rti.getObjectClassHandle(myClassName);
 					}
 					continue;
@@ -134,7 +136,7 @@ public class HandleObjectClass {
 	 * @param theSelectedNode the Xerces node at this level
 	 * @return true means error
 	 */
-	private boolean decodeAttribute(final Node theSelectedNode, final IVCT_RTIambassador ivct_rti, final ObjectClassHandle och, final AttributeHandleSet attributeHandleWorkingSet, final Map<AttributeHandle, String> attributeHandleDataTypeMap) {
+	private boolean decodeAttribute(final Node theSelectedNode, final RTIambassador ivct_rti, final ObjectClassHandle och, AttributeHandleSet attributeHandleWorkingSet, final Map<AttributeHandle, String> attributeHandleDataTypeMap) {
 		AttributeHandle aHandle = null;
 		String nameStr = null;
 		String dataTypeStr = null;
@@ -206,9 +208,6 @@ public class HandleObjectClass {
 		if (gotDataType == false) {
 			logger.error("HandleObjectClass.decodeAttribute: missing dataType");
 		}
-		if (gotPublish == false) {
-			logger.error("HandleObjectClass.decodeAttribute: missing publish");
-		}
 
 		return true;
 	}
@@ -219,7 +218,7 @@ public class HandleObjectClass {
 	 * @param objectClassAttributeHandleMap the map of attributes to subscribe to
 	 * @return true means error
 	 */
-	boolean decode(Node theSelectedNode, final IVCT_RTIambassador ivct_rti, String parentClassName, AttributeHandleSet attributeHandleBaseClassSet, Map<ObjectClassHandle, ObjectClassData> objectClassAttributeHandleMap, Map<AttributeHandle, String> attributeHandleDataTypeMap) {
+	boolean decode(Node theSelectedNode, final RTIambassador ivct_rti, String parentClassName, AttributeHandleSet attributeHandleBaseClassSet, Map<ObjectClassHandle, ObjectClassData> objectClassAttributeHandleMap, Map<AttributeHandle, String> attributeHandleDataTypeMap) {
 		logger.trace("HandleObjectClass.decode: enter");
 		String textPointer = null;
 
@@ -233,7 +232,7 @@ public class HandleObjectClass {
 
 		if (theSelectedNode.getNodeType() == Node.ELEMENT_NODE) {
 			textPointer = theSelectedNode.getNodeName();
-			logger.error("HandleObjectClass.decode: " + textPointer);
+			logger.trace("HandleObjectClass.decode: " + textPointer);
 		}
 		for (Node child = theSelectedNode.getFirstChild(); child != null; child = child.getNextSibling()) {
 			if (child.getNodeType() != Node.ELEMENT_NODE) {
