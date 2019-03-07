@@ -1,3 +1,8 @@
+| Branch | Build status |
+| ------ | ------------ |
+| Master | [![Build Status master branch](https://travis-ci.org/MSG134/IVCT_Framework.svg?branch=master)](https://travis-ci.org/MSG134/IVCT_Framework) |
+| Development | [![Build Status development branch](https://travis-ci.org/MSG134/IVCT_Framework.svg?branch=development)](https://travis-ci.org/MSG134/IVCT_Framework) |
+
 # TS_HLA_EncodingRulesTester
 
 This test system will test whether a System Under Test (SUT) correctly encodes the data types used in interaction parameters or object attributes.
