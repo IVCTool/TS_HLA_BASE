@@ -114,17 +114,19 @@ public class HlaDataVariableArrayType extends HlaDataType {
 	 */
 	public int testBuffer(final byte[] buffer, final int currentPosition, final HlaDataTypes dataTypes) throws EncodingRulesException {
 		if (encoding.equals("HLAvariableArray") == false) {
-			if (useRPRv2_0) {
+			if (encoding.equals("RPRnullTerminatedArray")) {
+				// This is the first non-standard coding supported by IVCT.
+				// The logic has to be refined when more non-standard coding is supported
+				if (useRPRv2_0 == false) {
+					String warnMessageString = "HlaDataVariableArrayType: testBuffer: user defined encoding is an extension to HLA basic encoding: " + encoding;
+					logger.warn(warnMessageString);
+				}
 				int len = buffer.length;
 				for (int i = 0; i < len; i++) {
 					if (buffer[currentPosition + i] == 0) {
 						return currentPosition + i + 1;
 					}
 				}
-			}
-			else {
-				String errorMessageString = "HlaDataVariableArrayType: testBuffer: user defined encoding not supported: " + encoding;
-				throw new EncodingRulesException(errorMessageString);
 			}
 		}
 		int myCurrentPosition = currentPosition;
