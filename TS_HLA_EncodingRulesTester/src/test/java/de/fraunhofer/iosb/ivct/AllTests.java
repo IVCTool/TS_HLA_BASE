@@ -401,6 +401,91 @@ public class AllTests {
 		}
 	}
 
+	/*
+	@Test
+	public void testRadarBeam() {
+		try {
+			ObjectClassHandle och = dummyRtiImpl.getObjectClassHandle("HLAobjectRoot.EmitterBeam.RadarBeam");
+			AttributeHandle ah = dummyRtiImpl.getAttributeHandle(och, "TrackObjectIdentifiers");
+			String dataType = attributeHandleDataTypeMap.get(ah);
+			String dataTypeNotNullStr = "attributeHandleDataTypeMap.get() delivers null for TrackObjectIdentifiers";
+			assertNotNull(dataTypeNotNullStr, dataType);
+			HlaDataType hlaDataType = hlaDataTypes.dataTypeMap.get(dataType);
+			String notNullStr = "hlaDataTypes.dataTypeMap.get() delivers null for " + hlaDataType;
+			assertNotNull(notNullStr);
+
+			//------------------------------------------------------------------------------------------------------------------------
+			// Attribute test data
+			byte[] buffer = new byte[3];
+			buffer[0] = hexToByte("00");
+			buffer[1] = hexToByte("01");
+			buffer[2] = hexToByte("00");
+			try {
+				assertTrue (hlaDataType.testBuffer(buffer, 0, hlaDataTypes) == buffer.length);
+			} catch (EncodingRulesException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} catch (NameNotFound e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (FederateNotExecutionMember e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NotConnected e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (RTIinternalError e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidObjectClassHandle e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	}
+	*/
+
+	@Test
+	public void testEmitterType5570() {
+		try {
+			ObjectClassHandle och = dummyRtiImpl.getObjectClassHandle("HLAobjectRoot.EmbeddedSystem.EmitterSystem");
+			AttributeHandle ah = dummyRtiImpl.getAttributeHandle(och, "EmitterType");
+			String dataType = attributeHandleDataTypeMap.get(ah);
+			String dataTypeNotNullStr = "attributeHandleDataTypeMap.get() delivers null for EmitterType";
+			assertNotNull(dataTypeNotNullStr, dataType);
+			HlaDataType hlaDataType = hlaDataTypes.dataTypeMap.get(dataType);
+			String notNullStr = "hlaDataTypes.dataTypeMap.get() delivers null for " + hlaDataType;
+			assertNotNull(notNullStr);
+
+			//------------------------------------------------------------------------------------------------------------------------
+			// Attribute test data
+			byte[] buffer = new byte[2];
+			buffer[0] = hexToByte("15");
+			buffer[1] = hexToByte("c2");
+			try {
+				assertTrue (hlaDataType.testBuffer(buffer, 0, hlaDataTypes) == buffer.length);
+			} catch (EncodingRulesException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} catch (NameNotFound e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (FederateNotExecutionMember e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NotConnected e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (RTIinternalError e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidObjectClassHandle e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	}
+
 	@Test
 	public void testSpatial() {
 		try {

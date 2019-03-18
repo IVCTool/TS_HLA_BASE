@@ -256,6 +256,19 @@ public abstract class HlaDataType {
 		case "UnsignedShort":
 			basicDataSize = 16;
 			break;
+		// RPR extensions
+		case "RPRunsignedInteger16BE":
+			basicDataSize = 16;
+			break;
+		case "RPRunsignedInteger32BE":
+			basicDataSize = 32;
+			break;
+		case "RPRunsignedInteger64BE":
+			basicDataSize = 64;
+			break;
+		case "RPRunsignedInteger8BE":
+			basicDataSize = 8;
+			break;
 		}
 		return basicDataSize;
 	}
@@ -308,6 +321,19 @@ public abstract class HlaDataType {
 			bigEndian = true;
 			break;
 		case "UnsignedShort":
+			bigEndian = true;
+			break;
+		// RPR extensions
+		case "RPRunsignedInteger16BE":
+			bigEndian = true;
+			break;
+		case "RPRunsignedInteger32BE":
+			bigEndian = true;
+			break;
+		case "RPRunsignedInteger64BE":
+			bigEndian = true;
+			break;
+		case "RPRunsignedInteger8BE":
 			bigEndian = true;
 			break;
 		}

@@ -1035,10 +1035,24 @@ public class HandleDataTypes {
 		}
 
 		// Add any missing basic types
+		addBasicType("HLAinteger16BE");
+		addBasicType("HLAinteger32BE");
 		addBasicType("HLAinteger64BE");
+		addBasicType("HLAfloat32BE");
 		addBasicType("HLAfloat64BE");
 		addBasicType("HLAoctetPairBE");
+		addBasicType("HLAinteger16LE");
+		addBasicType("HLAinteger32LE");
+		addBasicType("HLAinteger64LE");
+		addBasicType("HLAfloat32LE");
+		addBasicType("HLAfloat64LE");
+		addBasicType("HLAoctetPairLE");
 		addBasicType("HLAoctet");
+		addBasicType("UnsignedShort");
+		addBasicType("RPRunsignedInteger16BE");
+		addBasicType("RPRunsignedInteger32BE");
+		addBasicType("RPRunsignedInteger64BE");
+		addBasicType("RPRunsignedInteger8BE");
 
 		// Add any missing simple types
 		addSimpleType("HLAASCIIchar", "HLAoctet");
