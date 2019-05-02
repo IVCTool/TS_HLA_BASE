@@ -2,7 +2,6 @@
 // Allows centralized definition of the version of artifacts to use.
 ext {
 
-
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~ Gradle Build Environment
 		//artifactCache = "${artifactory_contextUrl}/gradle"
         gradleVersion = '4.9'
@@ -12,8 +11,8 @@ ext {
 		ivctVersion = '1.0.2-SNAPSHOT'
 
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~ HLA Encoding Rules Tester settings
-		TS_HLA_EncodingRulesTester = '1.0.1'
-		
+		TS_HLA_BaseVersion = '1.0.2-SNAPSHOT'
+
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~ testing
         junitVersion = '4.+'
 
@@ -24,7 +23,7 @@ ext {
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~  now create libraries with the versions from above
 		libraries = [
 				tc_lib:							"io.github.msg134:TC-lib:${ivctVersion}",
-
+                ieee:                           "io.github.msg134:IEEE1516e:${ivctVersion}",
 
                 // ~~~~~~~~~~~~~~~~~~~~~~~~~~ thirdparty
                 logback_classic:                "ch.qos.logback:logback-classic:${logbackVersion}",

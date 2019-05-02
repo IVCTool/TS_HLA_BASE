@@ -1,4 +1,9 @@
 include 'TS_HLA_EncodingRulesTester'
+include 'ETC_FRA_Common'
+include 'TS_CS_Verification'
+include 'TS_HLA_Declaration'
+include 'TS_HLA_Object'
+include 'TS_HLA_Services'
 
 rootProject.children.each { project ->
     project.buildFileName = "${project.name}.gradle"
