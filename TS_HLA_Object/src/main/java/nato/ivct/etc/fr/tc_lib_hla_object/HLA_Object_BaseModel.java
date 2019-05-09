@@ -87,6 +87,9 @@ import org.slf4j.Logger;
  */
 public class HLA_Object_BaseModel extends IVCT_BaseModel {
 
+    // Default notification period
+    public static long              defaultNotificationPeriod = 5;
+
     private Logger                  logger;
     private HLA_Object_TcParam		tcParams;
     private FCTTFilesCheck 			filesLoader;
@@ -120,7 +123,7 @@ public class HLA_Object_BaseModel extends IVCT_BaseModel {
 
 	private DataElementFactory<HLAunicodeString> unicodeStringFactory = null;
 	 
-	/**
+    /**
 	 * Map containing the class of the object instance
 	 */
 	private HashMap<String, String>	mapObjectInstanceClass;

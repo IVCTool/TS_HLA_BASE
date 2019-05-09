@@ -109,8 +109,14 @@ public class TC_001_Services_Check extends AbstractTestCase {
             throw new TcInconclusive(String.format(TextInternationalization.getString("etc_fra.resultDirError"),resultFileName));
     	
         // Allow time to work and get some reflect values.
-        if (HlaServicesBaseModel.sleepFor(logger,HlaServicesTcParam.getTestDuration())) {
-            throw new TcInconclusive(TextInternationalization.getString("etc_fra.sleepError"));
+        long remainingTestDuration = HlaServicesTcParam.getTestDuration();
+        long notificationPeriod = HLA_Services_BaseModel.defaultNotificationPeriod;
+        while (remainingTestDuration > 0) {
+            if (HlaServicesBaseModel.sleepFor(logger,notificationPeriod)) {
+                throw new TcInconclusive(TextInternationalization.getString("etc_fra.sleepError"));
+            }
+            remainingTestDuration -= notificationPeriod;
+            sendTcStatus ("wait to get reflect values", (int) ((100 * (HlaServicesTcParam.getTestDuration() - remainingTestDuration) / HlaServicesTcParam.getTestDuration())));
         }
         
     	logger.info(TextInternationalization.getString("etc_fra.wakeup"));

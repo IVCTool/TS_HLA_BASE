@@ -78,6 +78,9 @@ import org.slf4j.Logger;
  */
 public class HLA_Services_BaseModel extends IVCT_BaseModel {
 
+    // Default notification period
+    public static long              defaultNotificationPeriod = 5;
+
     private Logger                  logger;
     private HLA_Services_TcParam	tcParams;
     private FCTTFilesCheck 			filesLoader;
@@ -105,7 +108,7 @@ public class HLA_Services_BaseModel extends IVCT_BaseModel {
     private ParameterHandle 		serviceId;
     private ParameterHandle 		successIndicatorId;
     
-	/**
+    /**
      * @param logger reference to a logger
      * @param ivct_rti reference to the RTI ambassador
      * @param HlaServicesTcParam linked parameters

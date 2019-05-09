@@ -113,8 +113,14 @@ public class TC_001_Publish_Subscribe_Check extends AbstractTestCase {
             throw new TcInconclusive(String.format(TextInternationalization.getString("etc_fra.resultDirError"),resultFileName));
     	
         // Allow time to work and get some reflect values.
-        if (HlaDeclarationBaseModel.sleepFor(logger,HlaDeclarationTcParam.getTestDuration())) {
-            throw new TcInconclusive(TextInternationalization.getString("etc_fra.sleepError"));
+        long remainingTestDuration = HlaDeclarationTcParam.getTestDuration();
+        long notificationPeriod = HLA_Declaration_BaseModel.defaultNotificationPeriod;
+        while (remainingTestDuration > 0) {
+            if (HlaDeclarationBaseModel.sleepFor(logger,notificationPeriod)) {
+                throw new TcInconclusive(TextInternationalization.getString("etc_fra.sleepError"));
+            }
+            remainingTestDuration -= notificationPeriod;
+            sendTcStatus ("wait to observe declarations", (int) ((100 * (HlaDeclarationTcParam.getTestDuration() - remainingTestDuration) / HlaDeclarationTcParam.getTestDuration())));
         }
         
     	logger.info(TextInternationalization.getString("etc_fra.wakeup"));

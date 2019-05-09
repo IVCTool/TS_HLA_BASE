@@ -109,8 +109,14 @@ public class TC_001_Object_Interaction_Check extends AbstractTestCase {
             throw new TcInconclusive(String.format(TextInternationalization.getString("etc_fra.resultDirError"),resultFileName));
     	
         // Allow time to work and get some reflect values.
-        if (HlaObjectBaseModel.sleepFor(logger,HlaObjectTcParam.getTestDuration())) {
-            throw new TcInconclusive(TextInternationalization.getString("etc_fra.sleepError"));
+        long remainingTestDuration = HlaObjectTcParam.getTestDuration();
+        long notificationPeriod = HLA_Object_BaseModel.defaultNotificationPeriod;
+        while (remainingTestDuration > 0) {
+            if (HlaObjectBaseModel.sleepFor(logger,notificationPeriod)) {
+                throw new TcInconclusive(TextInternationalization.getString("etc_fra.sleepError"));
+            }
+            remainingTestDuration -= notificationPeriod;
+            sendTcStatus ("wait to get reflect values", (int) ((100 * (HlaObjectTcParam.getTestDuration() - remainingTestDuration) / HlaObjectTcParam.getTestDuration())));
         }
         
     	logger.info(TextInternationalization.getString("etc_fra.wakeup"));
