@@ -21,6 +21,12 @@ The program logic is as follows:
 6) When an object attribute is received use the <attributeHandle, dataTypeName> map  to find the dataTypeName in <dataTypeName, dataTypeTester> and check the buffer received using the dataTypeTester
 7) After a given time, stop the test case and report on the values received and checked and a list of parameters or attributes expected but not received
 
+The interoperability requirements associated with this test case are as follows:
+
+* ["IR-SOM-0017"]: "SuT shall encode all updated attribute values according to CS/SOM", associated test case is de.fraunhofer.iosb.tc_encodingrulestester.TC0001"
+* ["IR-SOM-0018"]:	"SuT shall encode all sent interaction class parameters according to CS/SOM", associated test case is 	"de.fraunhofer.iosb.tc_encodingrulestester.TC0001"
+
+
 # TS_HLA_Services
 
 This test case verifies that the federate uses only the services specified in its SOM.
