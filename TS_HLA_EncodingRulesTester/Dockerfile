@@ -10,7 +10,7 @@ ENTRYPOINT [ "sh", "-c", " \
    fi" , \
 "--" ]
 
-ADD ./build/distributions/TS_HLA_EncodingRulesTester-1.0.1.tar /root/conf/TestSuites/
-ENV VOLUMEDIR /root/conf/TestSuites/TS_HLA_EncodingRulesTester-1.0.1
+ADD ./build/distributions/TS_HLA_EncodingRulesTester-1.0.2-SNAPSHOT.tar /root/conf/TestSuites/
+ENV VOLUMEDIR /root/conf/TestSuites/TS_HLA_EncodingRulesTester-1.0.2-SNAPSHOT
 ENV VOLUME ${VOLUMEDIR}/.
 VOLUME ${VOLUMEDIR}
