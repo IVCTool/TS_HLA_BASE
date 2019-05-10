@@ -1,7 +1,7 @@
 | Branch | Build status |
 | ------ | ------------ |
-| Master | [![Build Status master branch](https://travis-ci.org/MSG134/IVCT_HLA_EncodingRulesTester.svg?branch=master)](https://travis-ci.org/MSG134/IVCT_HLA_EncodingRulesTester) |
-| Development | [![Build Status development branch](https://travis-ci.org/MSG134/IVCT_HLA_EncodingRulesTester.svg?branch=development)](https://travis-ci.org/MSG134/IVCT_HLA_EncodingRulesTester) |
+| Master | [![Build Status master branch](https://travis-ci.org/MSG134/TS_HLA_EncodingRulesTester.svg?branch=master)](https://travis-ci.org/MSG134/TS_HLA_EncodingRulesTester) |
+| Development | [![Build Status development branch](https://travis-ci.org/MSG134/TS_HLA_EncodingRulesTester.svg?branch=development)](https://travis-ci.org/MSG134/TS_HLA_EncodingRulesTester) |
 
 # TS_HLA_EncodingRulesTester
 
