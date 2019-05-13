@@ -34,6 +34,7 @@ This test case verifies that the federate uses only the services specified in it
 The interoperability requirements associated with this test case are as follows:
 * [IR-SOM-0019]:	SuT shall implement/use all HLA services as described as implemented/used in CS/SOM
 * [IR-SOM-0020]:	SuT shall not implement/use any HLA service that is not described as implemented/used in CS/SOM
+derrived from https://github.com/MSG134/TS_HLA_Services
 
 # TS_HLA_Object
 
