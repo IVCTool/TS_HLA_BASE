@@ -8,6 +8,7 @@ dependencies {
 	compileOnly     libraries.slf4j_api
 	compileOnly     libraries.ieee
 	compileOnly     libraries.tc_lib
+    compileOnly     libraries.jsonSimple
 
 	compileOnly     files('libs/fr.itcs.sme.architecture.mm_3.0.0.201206041019.jar')
 	compileOnly     files('libs/fr.itcs.sme.base.api_3.0.0.201206041019.jar')

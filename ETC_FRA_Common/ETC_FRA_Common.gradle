@@ -1,9 +1,10 @@
 apply plugin: 'java-library'
 
 dependencies {
-	implementation libraries.ieee
-	implementation libraries.tc_lib
+	implementation     libraries.ieee
+	implementation     libraries.tc_lib
 
+	implementation     libraries.jsonSimple
 	implementation     libraries.slf4j_api
 //	implementation     fileTree(dir: 'libs', include: '*.jar')
 	implementation     files('libs/com.springsource.org.dom4j-1.6.1.jar')
