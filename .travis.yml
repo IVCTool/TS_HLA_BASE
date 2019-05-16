@@ -12,7 +12,7 @@ branches:
 
 install: gradle install
 script:
-- export VERSION=$(grep "TS_HLA_EncodingRulesTester" ./.shared/libraries.gradle | awk '{print $3}' | tr -d \')
+- export VERSION=$(grep "TS_HLA_BaseVersion" ./.shared/libraries.gradle | awk '{print $3}' | tr -d \')
 - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
 - cd TS_HLA_EncodingRulesTester
 - docker build --build-arg version=$VERSION -t ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-latest -t ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-$VERSION .
