@@ -35,6 +35,8 @@ The interoperability requirements associated with this test case are as follows:
 * [IR-SOM-0019]:	SuT shall implement/use all HLA services as described as implemented/used in CS/SOM
 * [IR-SOM-0020]:	SuT shall not implement/use any HLA service that is not described as implemented/used in CS/SOM
 
+derrived from https://github.com/MSG134/TS_HLA_Services
+
 # TS_HLA_Object
 
 This test case verifies that the federate sends and receives only the objects and interactions specified in its SOM.
@@ -46,6 +48,8 @@ The interoperability requirements associated with this test case are as follows:
 * [IR-SOM-0014]:	SuT shall reflect attribute values for each subscribed object class attribute
 * [IR-SOM-0015]:	SuT shall send at least one interaction for each published interaction class
 * [IR-SOM-0016]:	SuT shall receive interactions for each subscribed interaction class
+
+derrived from https://github.com/MSG134/TS_HLA_Object
 
 # TS_HLA_Declaration
 
@@ -61,6 +65,7 @@ The interoperability requirements associated with this test case are as follows:
 * [IR-SOM-0009]:	SuT shall subscribe to all interaction classes defined as subscribed in CS/SOM
 * [IR-SOM-0010]:	SuT shall not subscribe to any interaction class that is not defined as subscribed in CS/SOM
 
+derrived from https://github.com/MSG134/TS_HLA_Declaration
 
 # TS_HLA_Verification
 
@@ -73,3 +78,5 @@ The interoperability requirements associated with this test case are as follows:
 * [IR-DOC-0001]:	SuT interoperability capabilities shall be documented in a Conformance Statement including a SOM and a FOM with a minimum set of supporting FOM modules
 * [IR-SOM-0001]:	SuT CS/SOM shall be valid
 * [IR-SOM-0002]:	SuT CS/SOM shall be consistent
+
+derrived from https://github.com/MSG134/TS_CS_Verification
