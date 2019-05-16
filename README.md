@@ -1,9 +1,13 @@
 | Branch | Build status |
 | ------ | ------------ |
-| Master | [![Build Status master branch](https://travis-ci.org/MSG134/TS_HLA_EncodingRulesTester.svg?branch=master)](https://travis-ci.org/MSG134/TS_HLA_EncodingRulesTester) |
-| Development | [![Build Status development branch](https://travis-ci.org/MSG134/TS_HLA_EncodingRulesTester.svg?branch=development)](https://travis-ci.org/MSG134/TS_HLA_EncodingRulesTester) |
+| Master | [![Build Status master branch](https://travis-ci.org/MSG134/TS_HLA_BASE.svg?branch=master)](https://travis-ci.org/MSG134/TS_HLA_BASE) |
+| Development | [![Build Status development branch](https://travis-ci.org/MSG134/TS_HLA_BASE.svg?branch=development)](https://travis-ci.org/MSG134/TS_HLA_BASE) |
 
-# TS_HLA_EncodingRulesTester
+# TS_HLA_BASE
+
+The Test suite HLA_BASE is a multi-test-suite for all basic HLA test suite described below.
+
+## TS_HLA_EncodingRulesTester
 
 This test system will test whether a System Under Test (SUT) correctly encodes the data types used in interaction parameters or object attributes.
 
@@ -27,7 +31,7 @@ The interoperability requirements associated with this test case are as follows:
 * ["IR-SOM-0018"]:	"SuT shall encode all sent interaction class parameters according to CS/SOM", associated test case is 	"de.fraunhofer.iosb.tc_encodingrulestester.TC0001"
 
 
-# TS_HLA_Services
+## TS_HLA_Services
 
 This test case verifies that the federate uses only the services specified in its SOM.
 
@@ -37,7 +41,7 @@ The interoperability requirements associated with this test case are as follows:
 
 derrived from https://github.com/MSG134/TS_HLA_Services
 
-# TS_HLA_Object
+## TS_HLA_Object
 
 This test case verifies that the federate sends and receives only the objects and interactions specified in its SOM.
 
@@ -51,7 +55,7 @@ The interoperability requirements associated with this test case are as follows:
 
 derrived from https://github.com/MSG134/TS_HLA_Object
 
-# TS_HLA_Declaration
+## TS_HLA_Declaration
 
 This test case verifies that the federate only publishes and subscribes objects, interactions and attributes specified in its SOM.
 
@@ -67,7 +71,7 @@ The interoperability requirements associated with this test case are as follows:
 
 derrived from https://github.com/MSG134/TS_HLA_Declaration
 
-# TS_HLA_Verification
+## TS_HLA_Verification
 
 This test case is equivalent to the "FCTT_NG" configuration verification step. The role of this test case is to check:
 * The existence of SOM and FOM files
