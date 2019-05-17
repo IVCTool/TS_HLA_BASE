@@ -4,7 +4,6 @@ mainClassName = 'de.fraunhofer.iosb.testrunner.JMSTestRunner'
 
 dependencies {
 	compileOnly     group: 'io.github.msg134', name: 'IEEE1516e', version: ivctVersion
-	compileOnly     group: 'io.github.msg134', name: 'MessagingHelpers', version: ivctVersion
 
 	compileOnly     libraries.tc_lib
 	compileOnly     libraries.slf4j_api
@@ -16,7 +15,6 @@ dependencies {
 	compileOnly     libraries.jsonSimple
 
 	testImplementation     group: 'io.github.msg134', name: 'IEEE1516e', version: ivctVersion
-	testImplementation     group: 'io.github.msg134', name: 'MessagingHelpers', version: ivctVersion
 
 	testImplementation     libraries.tc_lib
 
