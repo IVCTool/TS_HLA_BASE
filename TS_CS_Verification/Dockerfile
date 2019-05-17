@@ -10,7 +10,7 @@ ENTRYPOINT [ "sh", "-c", " \
    fi" , \
 "--" ]
 
-ADD ./build/distributions/TS_CS_Verification-1.0.2-SNAPSHOT.tar /root/conf/TestSuites/
-ENV VOLUMEDIR /root/conf/TestSuites/TS_CS_Verification-1.0.2-SNAPSHOT
+ADD ./build/distributions/TS_CS_Verification-2.0.0.tar /root/conf/TestSuites/
+ENV VOLUMEDIR /root/conf/TestSuites/TS_CS_Verification-2.0.0
 ENV VOLUME ${VOLUMEDIR}/.
 VOLUME ${VOLUMEDIR}
