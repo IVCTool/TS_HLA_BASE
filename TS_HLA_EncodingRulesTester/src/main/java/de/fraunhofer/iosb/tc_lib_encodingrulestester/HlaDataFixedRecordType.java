@@ -135,13 +135,13 @@ public class HlaDataFixedRecordType extends HlaDataType {
 		for (String fieldName : fieldNamesOrdered) {
 			String fieldType = fields.get(fieldName);
 			if (fieldType == null) {
-				String errorMessageString = "HlaDataFixedRecordType: testBuffer: current position: " + currentPosition + " calculated total buffer length : " + myCurrentPosition + " cannot get fieldName: " + fieldName;
+				String errorMessageString = "HlaDataFixedRecordType: testBuffer: current position: " + myCurrentPosition + " cannot get fieldName: " + fieldName;
 				logger.error(errorMessageString);
 				throw new EncodingRulesException(errorMessageString);
 			}
 			HlaDataType hlaDataType = dataTypes.dataTypeMap.get(fieldType);
 			if (hlaDataType == null) {
-				String errorMessageString = "HlaDataFixedRecordType: testBuffer: current position: " + currentPosition + " calculated total buffer length : " + myCurrentPosition + " cannot get data type: " + fieldType;
+				String errorMessageString = "HlaDataFixedRecordType: testBuffer: current position: " + myCurrentPosition + " cannot get data type: " + fieldType;
 				logger.error(errorMessageString);
 				throw new EncodingRulesException(errorMessageString);
 			}
@@ -150,7 +150,7 @@ public class HlaDataFixedRecordType extends HlaDataType {
 			myCurrentPosition = hlaDataType.testBuffer(buffer, myCurrentPosition, dataTypes);
 		}
 		if (myCurrentPosition > buffer.length) {
-			String errorMessageString = "HlaDataFixedRecordType: testBuffer: current position: " + currentPosition + " calculated total buffer length : " + myCurrentPosition + " exceeds buffer length: " + buffer.length;
+			String errorMessageString = "HlaDataFixedRecordType: testBuffer: current position: " + myCurrentPosition + " exceeds buffer length: " + buffer.length;
 			logger.error(errorMessageString);
 			throw new EncodingRulesException(errorMessageString);
 		}

@@ -44,6 +44,9 @@ public abstract class HlaDataType {
 	 * @return the number of padding bytes
 	 */
 	protected static int calcPaddingBytes(final int currentPosition, final int alignment) {
+		if (alignment == 0) {
+			return 0;
+		}
 		if (currentPosition % alignment != 0) {
 			return alignment - currentPosition % alignment;
 		}
@@ -201,8 +204,19 @@ public abstract class HlaDataType {
 		case "UnsignedShort":
 			testVal = extractLongFromBuffBE(buffer, currentPosition, 2);
 			break;
+		case "RPRunsignedInteger8BE":
+			testVal = extractLongFromBuffBE(buffer, currentPosition, 1);
+			break;
+		case "RPRunsignedInteger16BE":
+			testVal = extractLongFromBuffBE(buffer, currentPosition, 2);
+			break;
+		case "RPRunsignedInteger32BE":
+			testVal = extractLongFromBuffBE(buffer, currentPosition, 4);
+			break;
+		case "RPRunsignedInteger64BE":
+			testVal = extractLongFromBuffBE(buffer, currentPosition, 8);
+			break;
 		}
-		
 		return testVal;
 	}
 

@@ -82,7 +82,7 @@ public class HlaDataSimpleType extends HlaDataType {
 	 */
 	public int testBuffer(final byte[] buffer, final int currentPosition, final HlaDataTypes dataTypes) throws EncodingRulesException {
 		if (currentPosition + this.dataSize > buffer.length) {
-			String errorMessageString = "HlaDataSimpleType: testBuffer: current position: " + currentPosition + " field value length : " + this.dataSize + " exceeds buffer length: " + buffer.length;
+			String errorMessageString = "HlaDataSimpleType: testBuffer: current position: " + currentPosition + " plus field value length : " + this.dataSize + " exceeds buffer length: " + buffer.length;
 			logger.error(errorMessageString);
 			throw new EncodingRulesException(errorMessageString);
 		}

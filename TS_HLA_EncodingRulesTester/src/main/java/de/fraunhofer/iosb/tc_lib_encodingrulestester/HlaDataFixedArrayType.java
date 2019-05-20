@@ -120,14 +120,14 @@ public class HlaDataFixedArrayType extends HlaDataType {
 		} else {
 			HlaDataType hlaDataType = dataTypes.dataTypeMap.get(elementType);
 			if (hlaDataType == null) {
-				String errorMessageString = "HlaDataFixedArrayType: testBuffer: current position: " + currentPosition + " cannot find data element type " + elementType;
+				String errorMessageString = "HlaDataFixedArrayType: testBuffer: current position: " + myCurrentPosition + " cannot find data element type " + elementType;
 				logger.error(errorMessageString);
 				throw new EncodingRulesException(errorMessageString);
 			}
 			myCurrentPosition = hlaDataType.testBuffer(buffer, myCurrentPosition, dataTypes);
 		}
 		if (myCurrentPosition > buffer.length) {
-			String errorMessageString = "HlaDataFixedArrayType: testBuffer: currentPosition: " + currentPosition + " calculated total buffer length : " + myCurrentPosition + " exceeds buffer length: " + buffer.length;
+			String errorMessageString = "HlaDataFixedArrayType: testBuffer: currentPosition: " + myCurrentPosition + " exceeds buffer length: " + buffer.length;
 			logger.error(errorMessageString);
 			throw new EncodingRulesException(errorMessageString);
 		}
