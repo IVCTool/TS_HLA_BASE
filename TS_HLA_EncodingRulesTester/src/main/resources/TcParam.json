@@ -1,7 +1,7 @@
 {
   "federationName" : "HelloWorld",
-  "rtiHostName" : "10.1.4.29",
-  "rtiPort" : "8989",
+  "rtiHostName"     : "localhost",
+  "rtiPort"         : "8989",
   "sutFederateName" : "A",
   "sleepTestTimeWaitSeconds" : "60",
   "fomFiles"        : [

@@ -137,8 +137,8 @@ public class HlaDataEnumType extends HlaDataType {
 	 */
 	public int testBuffer(final byte[] buffer, final int currentPosition, final HlaDataTypes dataTypes) throws EncodingRulesException {
 		int myCurrentPosition = currentPosition;
-		if (currentPosition + this.dataSize > buffer.length) {
-			String errorMessageString = "HlaDataEnumType: testBuffer: current position " + currentPosition + " plus field value length : " + this.dataSize + " exceeds buffer length: " + buffer.length;
+		if (myCurrentPosition + this.dataSize > buffer.length) {
+			String errorMessageString = "HlaDataEnumType: testBuffer: current position " + myCurrentPosition + " plus field value length : " + this.dataSize + " exceeds buffer length: " + buffer.length;
 			logger.error(errorMessageString);
 			throw new EncodingRulesException(errorMessageString);
 		}

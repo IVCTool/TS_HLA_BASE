@@ -1,0 +1,54 @@
+buildscript {
+    repositories {
+		mavenLocal()
+		mavenCentral()
+	}
+  dependencies {
+	classpath libraries.docker
+  }
+}
+
+// apply plugin: "com.bmuschko.docker-remote-api"
+apply plugin: com.bmuschko.gradle.docker.DockerRemoteApiPlugin
+
+// Import task types
+import com.bmuschko.gradle.docker.tasks.image.*
+
+// Use task types
+task buildMyAppImage(type: DockerBuildImage) {
+    inputDir = file('.')
+    tag="ivct/ts-hla-services:${ivctVersion}"
+}
+
+apply plugin: 'application'
+
+mainClassName = 'de.fraunhofer.iosb.testrunner.JMSTestRunner'
+
+dependencies {
+    compileOnly project(':ETC_FRA_Common')
+
+	compileOnly libraries.ieee
+	compileOnly libraries.tc_lib
+	compileOnly libraries.slf4j_api
+    compileOnly libraries.jsonSimple
+
+	compileOnly files('libs/fr.itcs.sme.architecture.mm_3.0.0.201206041019.jar')
+	compileOnly files('libs/fr.itcs.sme.base.api_3.0.0.201206041019.jar')
+	compileOnly files('libs/fr.itcs.sme.base.core_3.0.0.201206041019.jar')
+	compileOnly files('libs/fr.itcs.sme.base.mm_3.0.0.201206041019.jar')
+	compileOnly files('libs/fr.itcs.sme.conception.mm_3.0.0.201206041019.jar')
+	compileOnly files('libs/fr.itcs.sme.configuration.mm_3.0.0.201206041019.jar')
+	compileOnly files('libs/fr.itcs.sme.deployment.mm_3.0.0.201206041019.jar')
+	compileOnly files('libs/fr.itcs.sme.specification.mm_3.0.0.201206041019.jar')
+
+	runtime     project(':ETC_FRA_Common')
+
+	runtime		libraries.logback_classic
+	runtime		libraries.logback_core
+	runtime     libraries.slf4j_jcl_over_slf4j
+	runtime     libraries.slf4j_jul_to_slf4j
+	runtime     libraries.slf4j_log4j_over_slf4j
+
+    // jfx is needed because docker images is currently using openjdk version 1.8.0_111-internal which has no jfx support
+    implementation     files('libs/jfxrt.jar')
+}

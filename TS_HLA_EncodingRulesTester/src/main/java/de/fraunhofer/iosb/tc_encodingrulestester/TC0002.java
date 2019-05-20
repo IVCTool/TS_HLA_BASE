@@ -30,7 +30,6 @@ import de.fraunhofer.iosb.tc_lib.TcInconclusive;
 import de.fraunhofer.iosb.tc_lib_encodingrulestester.EncodingRulesTesterBaseModel;
 import de.fraunhofer.iosb.tc_lib_encodingrulestester.EncodingRulesTesterTcParam;
 import hla.rti1516e.FederateHandle;
-import nato.ivct.commander.Factory;
 
 
 /**
@@ -39,7 +38,6 @@ import nato.ivct.commander.Factory;
 public class TC0002 extends AbstractTestCase {
     private String                              federateName                   = "IVCT";
     FederateHandle                              federateHandle;
-	public Properties props = Factory.props;
 
     // Build test case parameters to use
     static EncodingRulesTesterTcParam              encodingRulesTesterTcParam;
@@ -52,7 +50,7 @@ public class TC0002 extends AbstractTestCase {
 
     @Override
     public IVCT_BaseModel getIVCT_BaseModel(final String tcParamJson, final Logger logger) throws TcInconclusive {
-        encodingRulesTesterTcParam              = new EncodingRulesTesterTcParam(tcParamJson, props);
+        encodingRulesTesterTcParam              = new EncodingRulesTesterTcParam(tcParamJson);
     	ivct_rti             = IVCT_RTI_Factory.getIVCT_RTI(logger);
     	encodingRulesTesterBaseModel          = new EncodingRulesTesterBaseModel(logger, ivct_rti, encodingRulesTesterTcParam);
 		encodingRulesTesterBaseModel.setRPRv2_0();

@@ -9,15 +9,31 @@ branches:
   only:
   - master
   - development
-  
+
 install: gradle install
 script:
-- export VERSION=$(grep "TS_HLA_EncodingRulesTester" ./.shared/libraries.gradle | awk '{print $3}' | tr -d \')
+- export VERSION=$(grep "TS_HLA_BaseVersion" ./.shared/libraries.gradle | awk '{print $3}' | tr -d \')
 - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
 - cd TS_HLA_EncodingRulesTester
 - docker build --build-arg version=$VERSION -t ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-latest -t ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-$VERSION .
 - if [ $TRAVIS_BRANCH == "master" ]; then docker tag ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-$VERSION ivct/ts-hla-encoding-rules:$VERSION && docker tag ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-$VERSION ivct/ts-hla-encoding-rules:latest; fi
 - docker push ivct/ts-hla-encoding-rules
+- cd ../TS_CS_Verification
+- docker build --build-arg version=$VERSION -t ivctci/ts-hla-cs-verification:$TRAVIS_BRANCH-latest -t ivctci/ts-hla-cs-verification:$TRAVIS_BRANCH-$VERSION .
+- if [ $TRAVIS_BRANCH == "master" ]; then docker tag ivctci/ts-hla-cs-verification:$TRAVIS_BRANCH-$VERSION ivctci/ts-hla-cs-verification:$VERSION && docker tag ivctci/ts-hla-cs-verification:$TRAVIS_BRANCH-$VERSION ivctci/ts-hla-cs-verification:latest; fi
+- docker push ivctci/ts-hla-cs-verification
+- cd ../TS_HLA_Declaration
+- docker build --build-arg version=$VERSION -t ivctci/ts-hla-declaration:$TRAVIS_BRANCH-latest -t ivctci/ts-hla-declaration:$TRAVIS_BRANCH-$VERSION .
+- if [ $TRAVIS_BRANCH == "master" ]; then docker tag ivctci/ts-hla-declaration:$TRAVIS_BRANCH-$VERSION ivctci/ts-hla-declaration:$VERSION && docker tag ivctci/ts-hla-declaration:$TRAVIS_BRANCH-$VERSION ivctci/ts-hla-declaration:latest; fi
+- docker push ivctci/ts-hla-declaration
+- cd ../TS_HLA_Object
+- docker build --build-arg version=$VERSION -t ivctci/ts-hla-object:$TRAVIS_BRANCH-latest -t ivctci/ts-hla-object:$TRAVIS_BRANCH-$VERSION .
+- if [ $TRAVIS_BRANCH == "master" ]; then docker tag ivctci/ts-hla-object:$TRAVIS_BRANCH-$VERSION ivctci/ts-hla-object:$VERSION && docker tag ivctci/ts-hla-object:$TRAVIS_BRANCH-$VERSION ivctci/ts-hla-object:latest; fi
+- docker push ivctci/ts-hla-object
+- cd ../TS_HLA_Services
+- docker build --build-arg version=$VERSION -t ivctci/ts-hla-services:$TRAVIS_BRANCH-latest -t ivctci/ts-hla-services:$TRAVIS_BRANCH-$VERSION .
+- if [ $TRAVIS_BRANCH == "master" ]; then docker tag ivctci/ts-hla-services:$TRAVIS_BRANCH-$VERSION ivctci/ts-hla-services:$VERSION && docker tag ivctci/ts-hla-services:$TRAVIS_BRANCH-$VERSION ivctci/ts-hla-services:latest; fi
+- docker push ivctci/ts-hla-services
 
 before_cache:
 - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock

@@ -1,0 +1,53 @@
+buildscript {
+    repositories {
+		mavenLocal()
+		mavenCentral()
+	}
+  dependencies {
+	classpath libraries.docker
+  }
+}
+
+// apply plugin: "com.bmuschko.docker-remote-api"
+apply plugin: com.bmuschko.gradle.docker.DockerRemoteApiPlugin
+
+// Import task types
+import com.bmuschko.gradle.docker.tasks.image.*
+
+// Use task types
+task buildMyAppImage(type: DockerBuildImage) {
+    inputDir = file('.')
+    tag="ivct/ts-hla-cs-verification:${ivctVersion}"
+}
+
+// apply java application plugin
+apply plugin: 'application'
+
+mainClassName = 'de.fraunhofer.iosb.testrunner.JMSTestRunner'
+
+dependencies {
+    compileOnly     project(':ETC_FRA_Common')
+
+    compileOnly libraries.ieee
+	compileOnly libraries.tc_lib
+    compileOnly libraries.jsonSimple
+    compileOnly group: 'org.openjfx', name: 'javafx', version: '12'
+
+	compileOnly     libraries.slf4j_api
+
+//	compileOnly     fileTree(dir: 'libs', include: '*.jar')
+
+    runtime     project(':ETC_FRA_Common')
+
+	runtime		libraries.logback_classic
+	runtime		libraries.logback_core
+	runtime     libraries.slf4j_jcl_over_slf4j
+	runtime     libraries.slf4j_jul_to_slf4j
+	runtime     libraries.slf4j_log4j_over_slf4j
+
+// https://mvnrepository.com/artifact/org.openjfx/javafx
+//    runtime group: 'org.openjfx', name: 'javafx', version: '11'
+
+     // jfx is needed because docker images is currently using openjdk version 1.8.0_111-internal which has no jfx support
+     implementation     files('libs/jfxrt.jar')
+}

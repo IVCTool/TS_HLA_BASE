@@ -172,20 +172,20 @@ public class HlaDataVariantRecordType extends HlaDataType {
 		HlaDataEnumType hlaDataEnumType;
 		HlaDataType hlaDataType = dataTypes.dataTypeMap.get(discriminantType);
 		if (hlaDataType == null) {
-			String errorMessageString = "HlaDataVariantRecordType: testBuffer: current position: " + currentPosition + " cannot find discriminantType: " + discriminantType;
+			String errorMessageString = "HlaDataVariantRecordType: testBuffer: current position: " + myCurrentPosition + " cannot find discriminantType: " + discriminantType;
 			logger.error(errorMessageString);
 			throw new EncodingRulesException(errorMessageString);
 		}
 		if (hlaDataType instanceof HlaDataEnumType) {
 			hlaDataEnumType = (HlaDataEnumType) hlaDataType;
 		} else {
-			throw new EncodingRulesException("HlaDataVariantRecordType: testBuffer: current position: " + currentPosition + " unknown discriminant enum " + hlaDataType.dataTypeName);
+			throw new EncodingRulesException("HlaDataVariantRecordType: testBuffer: current position: " + myCurrentPosition + " unknown discriminant enum " + hlaDataType.dataTypeName);
 		}
 		String basicType = hlaDataEnumType.getElementTypeName();
-		long discriminantValue = decodeInteger(buffer, currentPosition, basicType);
+		long discriminantValue = decodeInteger(buffer, myCurrentPosition, basicType);
 		myCurrentPosition += hlaDataEnumType.dataSize;
 		if (myCurrentPosition > buffer.length) {
-			String errorMessageString = "HlaDataVariantRecordType: testBuffer: current position: " + currentPosition + " calculated total buffer length : " + myCurrentPosition + " exceeds buffer length: " + buffer.length;
+			String errorMessageString = "HlaDataVariantRecordType: testBuffer: current position: " + myCurrentPosition + " exceeds buffer length: " + buffer.length;
 			logger.error(errorMessageString);
 			throw new EncodingRulesException(errorMessageString);
 		}
@@ -194,16 +194,21 @@ public class HlaDataVariantRecordType extends HlaDataType {
 		 * Get the value based on the enum defined type
 		 */
 		String s = hlaDataEnumType.getEnumString(discriminantValue);
+		if (s == null) {
+			String errorMessageString = "HlaDataVariantRecordType: testBuffer: current position: " + myCurrentPosition + " unknown discriminantValue: " + discriminantValue;
+			logger.error(errorMessageString);
+			throw new EncodingRulesException(errorMessageString);
+		}
 		AlternativeStringPair alt = alternativeMap.get(s);
 		if (alt == null) {
-			String errorMessageString = "HlaDataVariantRecordType: testBuffer: current position: " + currentPosition + " discriminantValue leads to null pointer in alternativeMap";
+			String errorMessageString = "HlaDataVariantRecordType: testBuffer: current position: " + myCurrentPosition + " discriminantValue leads to null pointer in alternativeMap";
 			logger.error(errorMessageString);
 			throw new EncodingRulesException(errorMessageString);
 		}
 		HlaDataType hlaDataTypeTmp;
 		hlaDataTypeTmp = dataTypes.dataTypeMap.get(alt.classType);
 		if (hlaDataTypeTmp == null) {
-			String errorMessageString = "HlaDataVariantRecordType: testBuffer: current position: " + currentPosition + " cannot get alternative class type " + alt.classType;
+			String errorMessageString = "HlaDataVariantRecordType: testBuffer: current position: " + myCurrentPosition + " cannot get alternative class type " + alt.classType;
 			logger.error(errorMessageString);
 			throw new EncodingRulesException(errorMessageString);
 		}
@@ -214,13 +219,13 @@ public class HlaDataVariantRecordType extends HlaDataType {
 		int myAlignment = getAlternativeAlignment(dataTypes);
 		myCurrentPosition += calcPaddingBytes(myCurrentPosition, myAlignment);
 		if (myCurrentPosition > buffer.length) {
-			String errorMessageString = "HlaDataVariantRecordType: testBuffer: current position: " + currentPosition + " calculated alignment position : " + myCurrentPosition + " exceeds buffer length: " + buffer.length;
+			String errorMessageString = "HlaDataVariantRecordType: testBuffer: current position: " + myCurrentPosition + " exceeds buffer length: " + buffer.length;
 			logger.error(errorMessageString);
 			throw new EncodingRulesException(errorMessageString);
 		}
 		myCurrentPosition = hlaDataTypeTmp.testBuffer(buffer, myCurrentPosition, dataTypes);
 		if (myCurrentPosition > buffer.length) {
-			String errorMessageString = "HlaDataVariantRecordType: testBuffer: current position: " + currentPosition + " calculated total value length : " + myCurrentPosition + " exceeds buffer length: " + buffer.length;
+			String errorMessageString = "HlaDataVariantRecordType: testBuffer: current position: " + myCurrentPosition + " exceeds buffer length: " + buffer.length;
 			logger.error(errorMessageString);
 			throw new EncodingRulesException(errorMessageString);
 		}

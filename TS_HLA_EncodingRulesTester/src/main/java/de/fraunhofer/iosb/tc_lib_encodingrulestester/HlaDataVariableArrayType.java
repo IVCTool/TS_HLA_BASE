@@ -113,21 +113,28 @@ public class HlaDataVariableArrayType extends HlaDataType {
 	 * {@inheritDoc}
 	 */
 	public int testBuffer(final byte[] buffer, final int currentPosition, final HlaDataTypes dataTypes) throws EncodingRulesException {
+		int myCurrentPosition = currentPosition;
+		int len = buffer.length;
 		if (encoding.equals("HLAvariableArray") == false) {
-			if (useRPRv2_0) {
-				int len = buffer.length;
+			if (encoding.equals("RPRnullTerminatedArray")) {
+				// This is the first non-standard coding supported by IVCT.
+				// The logic has to be refined when more non-standard coding is supported
+				if (useRPRv2_0 == false) {
+					String warnMessageString = "HlaDataVariableArrayType: testBuffer: user defined encoding is an extension to HLA basic encoding: " + encoding;
+					logger.warn(warnMessageString);
+				}
 				for (int i = 0; i < len; i++) {
-					if (buffer[currentPosition + i] == 0) {
-						return currentPosition + i + 1;
+					if (buffer[myCurrentPosition + i] == 0) {
+						return myCurrentPosition + i + 1;
 					}
 				}
 			}
-			else {
-				String errorMessageString = "HlaDataVariableArrayType: testBuffer: user defined encoding not supported: " + encoding;
-				throw new EncodingRulesException(errorMessageString);
-			}
 		}
-		int myCurrentPosition = currentPosition;
+		if (myCurrentPosition + 4 > len) {
+			String errorMessageString = "HlaDataVariableArrayType: testBuffer: current position: " + myCurrentPosition + " insufficient buffer for length field: " + elementType;
+			logger.error(errorMessageString);
+			throw new EncodingRulesException(errorMessageString);
+		}
 		int lengthValue = 0;
 		lengthValue += buffer[myCurrentPosition];
 		lengthValue <<= 8;
@@ -138,13 +145,13 @@ public class HlaDataVariableArrayType extends HlaDataType {
 		lengthValue += buffer[myCurrentPosition + 3];
 		HlaDataType elementDataType = dataTypes.dataTypeMap.get(elementType);
 		if (elementDataType == null) {
-			String errorMessageString = "HlaDataVariableArrayType: testBuffer: current position: " + currentPosition + " cannot find data element type: " + elementType;
+			String errorMessageString = "HlaDataVariableArrayType: testBuffer: current position: " + myCurrentPosition + " cannot find data element type: " + elementType;
 			logger.error(errorMessageString);
 			throw new EncodingRulesException(errorMessageString);
 		}
 		myCurrentPosition += 4;
 		if (myCurrentPosition + lengthValue > buffer.length) {
-			String errorMessageString = "HlaDataVariableArrayType: testBuffer: current position: " + currentPosition + " field value length: " + myCurrentPosition + lengthValue + " exceeds buffer length: " + buffer.length;
+			String errorMessageString = "HlaDataVariableArrayType: testBuffer: current position: " + myCurrentPosition + " field value length: " + myCurrentPosition + lengthValue + " exceeds buffer length: " + buffer.length;
 			logger.error(errorMessageString);
 			throw new EncodingRulesException(errorMessageString);
 		}
@@ -158,7 +165,7 @@ public class HlaDataVariableArrayType extends HlaDataType {
 			}
 		}
 		if (myCurrentPosition > buffer.length) {
-			String errorMessageString = "HlaDataVariableArrayType: testBuffer: current position: " + currentPosition + " calculated total buffer length: " + myCurrentPosition + " exceeds buffer length: " + buffer.length;
+			String errorMessageString = "HlaDataVariableArrayType: testBuffer: current position: " + myCurrentPosition + " exceeds buffer length: " + buffer.length;
 			logger.error(errorMessageString);
 			throw new EncodingRulesException(errorMessageString);
 		}

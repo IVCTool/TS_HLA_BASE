@@ -44,6 +44,8 @@ public class EncodingRulesTesterTcParam implements IVCT_TcParam {
     private List<String> fomFiles = new ArrayList<String>();
     private List<String> somFiles = new ArrayList<String>();
     private String federation_name;
+    private String rtiHost;
+    private String rtiPort;
     private String settingsDesignator;
     private URL[]        fomUrls;
     private URL[]        somUrls;
@@ -53,7 +55,7 @@ public class EncodingRulesTesterTcParam implements IVCT_TcParam {
     private String sutFederate;
 
 
-    public EncodingRulesTesterTcParam(final String paramJson, final Properties props) throws TcInconclusive {
+    public EncodingRulesTesterTcParam(final String paramJson) throws TcInconclusive {
 		JSONParser jsonParser = new JSONParser();
 		JSONObject jsonObject;
 		try {
@@ -63,8 +65,18 @@ public class EncodingRulesTesterTcParam implements IVCT_TcParam {
 			if (federation_name == null) {
                 throw new TcInconclusive("EncodingRulesTesterTcParam: the key  federationName  was not found");
 			}
-			settingsDesignator = props.getProperty("SETTINGS_DESIGNATOR");
-			
+
+            // get a String from the JSON object
+			rtiHost =  (String) jsonObject.get("rtiHostName");
+			if (rtiHost == null) {
+                throw new TcInconclusive("EncodingRulesTesterTcParam: the key  rtiHostName  was not found");
+			}
+			rtiPort = (String) jsonObject.get("rtiPort");
+			if (rtiPort == null) {
+				throw new TcInconclusive("EncodingRulesTesterTcParam: the rti port id was not found");
+			}
+			settingsDesignator = "crcAddress=" + this.rtiHost + ":" + this.rtiPort;
+
 			// get a String from the JSON object
 			sutFederate =  (String) jsonObject.get("sutFederateName");
 			if (sutFederate == null) {
@@ -168,7 +180,7 @@ public class EncodingRulesTesterTcParam implements IVCT_TcParam {
     public long getSleepTimeWait() {
         return this.sleepTimeWait;
     }
-    
+
     /**
      * @return value of test sleep time wait
      */
