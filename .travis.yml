@@ -15,12 +15,12 @@ script:
 - export VERSION=$(grep "TS_HLA_BaseVersion" ./.shared/libraries.gradle | awk '{print $3}' | tr -d \')
 - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
 
-- cd ../TS_CS_Verification
+- cd TS_CS_Verification
 - docker build --build-arg version=$VERSION -t ivct/ts-hla-cs-verification:$TRAVIS_BRANCH-latest -t ivct/ts-hla-cs-verification:$TRAVIS_BRANCH-$VERSION .
 - if [ $TRAVIS_BRANCH == "master" ]; then docker tag ivct/ts-hla-cs-verification:$TRAVIS_BRANCH-$VERSION ivct/ts-hla-cs-verification:$VERSION && docker tag ivct/ts-hla-cs-verification:$TRAVIS_BRANCH-$VERSION ivct/ts-hla-cs-verification:latest; fi
 - docker push ivct/ts-hla-cs-verification
 
-- cd TS_HLA_EncodingRulesTester
+- cd ../TS_HLA_EncodingRulesTester
 - docker build --build-arg version=$VERSION -t ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-latest -t ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-$VERSION .
 - if [ $TRAVIS_BRANCH == "master" ]; then docker tag ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-$VERSION ivct/ts-hla-encoding-rules:$VERSION && docker tag ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-$VERSION ivct/ts-hla-encoding-rules:latest; fi
 - docker push ivct/ts-hla-encoding-rules
