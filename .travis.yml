@@ -27,17 +27,17 @@ script:
 
 - cd ../TS_HLA_Declaration
 - docker build --build-arg version=$VERSION -t ivct/ts-hla-declaration:$TRAVIS_BRANCH-latest -t ivct/ts-hla-declaration:$TRAVIS_BRANCH-$VERSION .
-- if [ $TRAVIS_BRANCH == "master" ]; then docker tag ivctci/ts-hla-declaration:$TRAVIS_BRANCH-$VERSION ivct/ts-hla-declaration:$VERSION && docker tag ivct/ts-hla-declaration:$TRAVIS_BRANCH-$VERSION ivct/ts-hla-declaration:latest; fi
+- if [ $TRAVIS_BRANCH == "master" ]; then docker tag ivct/ts-hla-declaration:$TRAVIS_BRANCH-$VERSION ivct/ts-hla-declaration:$VERSION && docker tag ivct/ts-hla-declaration:$TRAVIS_BRANCH-$VERSION ivct/ts-hla-declaration:latest; fi
 - docker push ivct/ts-hla-declaration
 
 - cd ../TS_HLA_Object
 - docker build --build-arg version=$VERSION -t ivct/ts-hla-object:$TRAVIS_BRANCH-latest -t ivct/ts-hla-object:$TRAVIS_BRANCH-$VERSION .
-- if [ $TRAVIS_BRANCH == "master" ]; then docker tag ivctci/ts-hla-object:$TRAVIS_BRANCH-$VERSION ivct/ts-hla-object:$VERSION && docker tag ivct/ts-hla-object:$TRAVIS_BRANCH-$VERSION ivct/ts-hla-object:latest; fi
+- if [ $TRAVIS_BRANCH == "master" ]; then docker tag ivct/ts-hla-object:$TRAVIS_BRANCH-$VERSION ivct/ts-hla-object:$VERSION && docker tag ivct/ts-hla-object:$TRAVIS_BRANCH-$VERSION ivct/ts-hla-object:latest; fi
 - docker push ivct/ts-hla-object
 
 - cd ../TS_HLA_Services
 - docker build --build-arg version=$VERSION -t ivct/ts-hla-services:$TRAVIS_BRANCH-latest -t ivct/ts-hla-services:$TRAVIS_BRANCH-$VERSION .
-- if [ $TRAVIS_BRANCH == "master" ]; then docker tag ivctci/ts-hla-services:$TRAVIS_BRANCH-$VERSION ivct/ts-hla-services:$VERSION && docker tag ivct/ts-hla-services:$TRAVIS_BRANCH-$VERSION ivct/ts-hla-services:latest; fi
+- if [ $TRAVIS_BRANCH == "master" ]; then docker tag ivct/ts-hla-services:$TRAVIS_BRANCH-$VERSION ivct/ts-hla-services:$VERSION && docker tag ivct/ts-hla-services:$TRAVIS_BRANCH-$VERSION ivct/ts-hla-services:latest; fi
 - docker push ivct/ts-hla-services
 
 before_cache:
