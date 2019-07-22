@@ -54,7 +54,7 @@ public class TC_001_Files_Check extends AbstractTestCase {
 
     	try {
 	    	CsVerificationTcParam   = new CS_Verification_TcParam(tcParamJson);
-	    	CsVerificationBaseModel = new CS_Verification_BaseModel(logger, ivct_rti, CsVerificationTcParam);
+	    	CsVerificationBaseModel = new CS_Verification_BaseModel(logger, ivct_rti, CsVerificationTcParam, getSutName());
     	}
     	catch(Exception ex) {
     		logger.error(ex.getMessage());

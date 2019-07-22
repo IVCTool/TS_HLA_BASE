@@ -41,8 +41,7 @@ import org.json.simple.parser.ParseException;
  */
 public class HLA_Object_TcParam implements IVCT_TcParam {
     // Get test case parameters
-    private String federationName;
-    private String sutName;
+    private String federationName = new String("No Federate Name");
     private String rtiAddress;
     private String rtiPort;
     private String resultDir;
@@ -59,16 +58,6 @@ public class HLA_Object_TcParam implements IVCT_TcParam {
 		JSONObject jsonObject;
 		try {
 			jsonObject = (JSONObject) jsonParser.parse(paramJson);
-			// get federation name from the JSON object
-			this.federationName =  (String) jsonObject.get("federationName");
-			if (this.federationName == null) {
-                throw new TcInconclusive(TextInternationalization.getString("etc_fra.noFederationNameKey"));
-			}
-			// get federate name from the JSON object
-			this.sutName =  (String) jsonObject.get("sutName");
-			if (this.sutName == null) {
-                throw new TcInconclusive(TextInternationalization.getString("etc_fra.noSutNameKey"));
-			}
 			// get RTI address from the JSON object
 			this.rtiAddress =  (String) jsonObject.get("rtiAddress");
 			if (this.rtiAddress == null) {
@@ -149,14 +138,6 @@ public class HLA_Object_TcParam implements IVCT_TcParam {
     @Override
     public String getFederationName() {
         return this.federationName;
-    }
-
-
-    /**
-     * @return the SUT name
-     */
-    public String getSutName() {
-        return this.sutName;
     }
 
 

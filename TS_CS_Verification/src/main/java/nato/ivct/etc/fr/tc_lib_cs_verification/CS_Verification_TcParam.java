@@ -39,7 +39,6 @@ import org.json.simple.parser.ParseException;
 public class CS_Verification_TcParam implements IVCT_TcParam {
     // Get test case parameters
     private String federationName = "";		// not useful for CS_Verification
-    private String sutName = "";
     private String resultDir;
     private List<String> fomFiles = new ArrayList<String>();
     private List<String> somFiles = new ArrayList<String>();
@@ -53,11 +52,6 @@ public class CS_Verification_TcParam implements IVCT_TcParam {
 		JSONObject jsonObject;
 		try {
 			jsonObject = (JSONObject) jsonParser.parse(paramJson);
-			// get federate name from the JSON object
-			this.sutName =  (String) jsonObject.get("sutName");
-			if (this.sutName == null) {
-                throw new TcInconclusive(TextInternationalization.getString("etc_fra.noSutNameKey"));
-			}
 			// get TC result directory from the JSON object
 			this.resultDir =  (String) jsonObject.get("resultDirectory");
 			if (this.resultDir == null) {
@@ -120,14 +114,6 @@ public class CS_Verification_TcParam implements IVCT_TcParam {
     @Override
     public URL[] getUrls() {
         return this.urls;
-    }
-
-
-    /**
-     * @return the SUT name
-     */
-    public String getSutName() {
-        return this.sutName;
     }
 
 

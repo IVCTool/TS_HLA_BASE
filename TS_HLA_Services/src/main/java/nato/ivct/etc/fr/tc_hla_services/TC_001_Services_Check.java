@@ -56,7 +56,7 @@ public class TC_001_Services_Check extends AbstractTestCase {
     	try {
 	    	HlaServicesTcParam           	= new HLA_Services_TcParam(tcParamJson);
 	    	ivct_rti                        = IVCT_RTI_Factory.getIVCT_RTI(logger);
-	    	HlaServicesBaseModel         	= new HLA_Services_BaseModel(logger, ivct_rti, HlaServicesTcParam);
+	    	HlaServicesBaseModel         	= new HLA_Services_BaseModel(logger, ivct_rti, HlaServicesTcParam, getSutName());
 	    	ivct_LoggingFederateAmbassador  = new IVCT_LoggingFederateAmbassador(HlaServicesBaseModel, logger);
     	}
     	catch(Exception ex) {
@@ -91,7 +91,7 @@ public class TC_001_Services_Check extends AbstractTestCase {
         TcFederateHandle = HlaServicesBaseModel.initiateRti(TcFederateName, ivct_LoggingFederateAmbassador);
 
         // Do the necessary calls to get handles and do publish and subscribe
-        if (HlaServicesBaseModel.init(HlaServicesTcParam.getSutName()))
+        if (HlaServicesBaseModel.init())
             throw new TcInconclusive(TextInternationalization.getString("etc_fra.initError"));
 
     	logger.info(TextInternationalization.getString("etc_fra.RtiConnected"));

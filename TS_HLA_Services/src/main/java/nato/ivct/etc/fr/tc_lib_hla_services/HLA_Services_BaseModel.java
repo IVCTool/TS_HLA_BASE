@@ -112,15 +112,17 @@ public class HLA_Services_BaseModel extends IVCT_BaseModel {
      * @param logger reference to a logger
      * @param ivct_rti reference to the RTI ambassador
      * @param HlaServicesTcParam linked parameters
+     * @param sutName SUT name
      */
-    public HLA_Services_BaseModel(final Logger logger, final IVCT_RTIambassador ivct_rti, final HLA_Services_TcParam HlaServicesTcParam) {
+    public HLA_Services_BaseModel(final Logger logger, final IVCT_RTIambassador ivct_rti, final HLA_Services_TcParam HlaServicesTcParam, String sutName) {
     	
         super(ivct_rti, logger, HlaServicesTcParam);
         this.ivct_rti = ivct_rti;
         this._encoderFactory = ivct_rti.getEncoderFactory();
         this.logger = logger;
         this.tcParams = HlaServicesTcParam;
-		this.filesLoader = new FCTTFilesCheck(logger, HlaServicesTcParam.getResultDir(), HlaServicesTcParam.getSutName());
+        this.sutName = sutName;
+		this.filesLoader = new FCTTFilesCheck(logger, HlaServicesTcParam.getResultDir(), this.sutName);
 
 		// Data models
         this.HlaServicesModel = null;
@@ -156,14 +158,10 @@ public class HLA_Services_BaseModel extends IVCT_BaseModel {
 
 	
     /**
-     * @param sutName system under test name
      * @return true means error, false means correct
      */
-    public boolean init(final String sutName) {
-    	
-    	// SuT name
-    	this.sutName = sutName;
-    	
+    public boolean init() {
+
         // Federation & federate ids
     	ObjectClassHandle	federateId;
     	ObjectClassHandle	federationId;
@@ -290,15 +288,8 @@ public class HLA_Services_BaseModel extends IVCT_BaseModel {
 	public boolean validateServices() {
 		
 		String lCurrentDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy_MM_dd_HH'h'mm'm'ss's'"));
-		
-		FileWriter certifiedServicesResult = null;
-		FileWriter nonCertifiedServicesResult = null;
-		
+
 		try {
-			// Open result files
-			certifiedServicesResult = new FileWriter(certifiedServicesResultFile);
-			nonCertifiedServicesResult = new FileWriter(nonCertifiedServicesResultFile);
-			
 			// Format output
 	    	int lMaxLengthService = HlaResultServicesModel.computeMaxServiceNameLength();
 	    	StringWrapper fileWriter = new StringWrapper("");
@@ -307,34 +298,37 @@ public class HLA_Services_BaseModel extends IVCT_BaseModel {
 	    	
 	    	// Write result files & logs
 	    	String result;
+	    	StringBuilder results = new StringBuilder("\n\n");
 	    	result = saveResultsWriteHeader(lCurrentDate, eBuildResults.ServicesCertificated);
-	    	certifiedServicesResult.write(result);
+	    	results.append(result);
 	    	// 2018/01/09 ETC FRA 1.4, Capgemini, results not logged
 			// logger.info(result);
 	    	result = String.format(headerFormatter, "", TextInternationalization.getString("resultsFile.headerColumns.services"), "");
-	    	certifiedServicesResult.write(result);
+	    	results.append(result);
 			// 2018/01/09 ETC FRA 1.4, Capgemini, results not logged
 			// logger.info(result);
 	    	result = HlaResultServicesModel.writeResults(eBuildResults.ServicesCertificated, fileWriter, formatter).getString();
-	    	certifiedServicesResult.write(result);
+	    	results.append(result);
 	    	// 2018/01/09 ETC FRA 1.4, Capgemini, results not logged
 			// logger.info(result);
 	    	
 	    	result = saveResultsWriteHeader(lCurrentDate, eBuildResults.ServicesNotCertificated);
-	    	nonCertifiedServicesResult.write(result);
+	    	results.append(result);
 	    	// 2018/01/09 ETC FRA 1.4, Capgemini, results not logged
 			// logger.info(result);
 	    	result = String.format(headerFormatter, "", TextInternationalization.getString("resultsFile.headerColumns.services"), "");
-	    	nonCertifiedServicesResult.write(result);
+	    	results.append(result);
 			// 2018/01/09 ETC FRA 1.4, Capgemini, results not logged
 			// logger.info(result);
 	    	result = HlaResultServicesModel.writeResults(eBuildResults.ServicesNotCertificated, fileWriter, formatter).getString();
-	    	nonCertifiedServicesResult.write(result);
+	    	results.append(result);
+	    	results.append("\n\n");
 	    	// 2018/01/09 ETC FRA 1.4, Capgemini, results not logged
 			// logger.info(result);
 			
 			// 2018/01/09 ETC FRA 1.4, Capgemini, results not logged
 			// Log results filenames
+	    	logger.info(results.toString());
 			logger.info(TextInternationalization.getString("etc_fra.lookAtResultsFiles")); 
 			logger.info(" - " + certifiedServicesResultFile.getAbsolutePath()); 
 			logger.info(" - " + nonCertifiedServicesResultFile.getAbsolutePath());
@@ -342,20 +336,7 @@ public class HLA_Services_BaseModel extends IVCT_BaseModel {
 		catch (Exception e) {
 			return false;
 		}
-		
-		finally
-		{
-			try 
-			{
-				certifiedServicesResult.close();
-				nonCertifiedServicesResult.close();
-			} 
-			catch (IOException pIOException) 
-			{
-				logger.error(TextInternationalization.getString("close.error.reportFile") + ": " + pIOException.toString());
-				return false;
-			}
-		}
+
 		return HlaResultServicesModel.getValidated();
 	}
 
@@ -383,7 +364,7 @@ public class HLA_Services_BaseModel extends IVCT_BaseModel {
     	}
     	
     	lHeader = lHeader+"###########################################################\r\n";
-    	lHeader = lHeader+TextInternationalization.getString("resultsFile.header")+" \""+tcParams.getSutName()+"\"\r\n";
+    	lHeader = lHeader+TextInternationalization.getString("resultsFile.header")+" \""+sutName+"\"\r\n";
     	lHeader = lHeader+"Date : "+pCurrentDate;
     	lHeader = lHeader+"\r\n";
     	lHeader = lHeader+"\r\n";
