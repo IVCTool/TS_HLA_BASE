@@ -17,7 +17,7 @@ import com.bmuschko.gradle.docker.tasks.image.*
 // Use task types
 task buildMyAppImage(type: DockerBuildImage) {
     inputDir = file('.')
-    tag="ivct/ts-hla-encoding:${TS_HLA_BaseVersion}"
+    tag="ivct/ts-hla-encoding-rules:${TS_HLA_BaseVersion}"
 }
 
 apply plugin: 'application'
