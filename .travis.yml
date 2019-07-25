@@ -15,10 +15,10 @@ script:
 - export VERSION=$(grep "TS_HLA_BaseVersion" ./.shared/libraries.gradle | awk '{print $3}' | tr -d \')
 - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
 - docker push ivct/ts-hla-encoding-rules
-- docker push ivctci/ts-hla-cs-verification
-- docker push ivctci/ts-hla-declaration
-- docker push ivctci/ts-hla-object
-- docker push ivctci/ts-hla-services
+- docker push ivct/ts-hla-cs-verification
+- docker push ivct/ts-hla-declaration
+- docker push ivct/ts-hla-object
+- docker push ivct/ts-hla-services
 
 before_cache:
 - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
