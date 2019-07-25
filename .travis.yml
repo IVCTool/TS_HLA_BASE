@@ -14,8 +14,8 @@ install: gradle install buildMyAppImage
 script:
 - export VERSION=$(grep "TS_HLA_BaseVersion" ./.shared/libraries.gradle | awk '{print $3}' | tr -d \')
 - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
-- docker push ivct/ts-hla-encoding:2.0.0
-- docker push ivct/ts-cs-verification:2.0.0
+- docker push ivct/ts-hla-encoding-rules:2.0.0
+- docker push ivct/ts-hla-cs-verification:2.0.0
 - docker push ivct/ts-hla-declaration:2.0.0
 - docker push ivct/ts-hla-object:2.0.0
 - docker push ivct/ts-hla-services:2.0.0
