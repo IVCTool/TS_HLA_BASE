@@ -56,7 +56,7 @@ public class TC_001_Publish_Subscribe_Check extends AbstractTestCase {
     	try {
 	    	HlaDeclarationTcParam           = new HLA_Declaration_TcParam(tcParamJson);
 	    	ivct_rti                        = IVCT_RTI_Factory.getIVCT_RTI(logger);
-	    	HlaDeclarationBaseModel         = new HLA_Declaration_BaseModel(logger, ivct_rti, HlaDeclarationTcParam);
+	    	HlaDeclarationBaseModel         = new HLA_Declaration_BaseModel(logger, ivct_rti, HlaDeclarationTcParam, getSutName());
 	    	ivct_LoggingFederateAmbassador  = new IVCT_LoggingFederateAmbassador(HlaDeclarationBaseModel, logger);
     	}
     	catch(Exception ex) {
@@ -95,7 +95,7 @@ public class TC_001_Publish_Subscribe_Check extends AbstractTestCase {
         TcFederateHandle = HlaDeclarationBaseModel.initiateRti(TcFederateName, ivct_LoggingFederateAmbassador);
 
         // Do the necessary calls to get handles and do publish and subscribe
-        if (HlaDeclarationBaseModel.init(HlaDeclarationTcParam.getSutName()))
+        if (HlaDeclarationBaseModel.init())
             throw new TcInconclusive(TextInternationalization.getString("etc_fra.initError"));
 
     	logger.info(TextInternationalization.getString("etc_fra.RtiConnected"));

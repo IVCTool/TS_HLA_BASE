@@ -51,12 +51,12 @@ public class CS_Verification_BaseModel extends IVCT_BaseModel {
      * @param ivct_rti reference to the RTI ambassador
      * @param CsVerificationTcParam linked parameters
      */
-    public CS_Verification_BaseModel(final Logger logger, final IVCT_RTIambassador ivct_rti, final CS_Verification_TcParam CsVerificationTcParam) {
+    public CS_Verification_BaseModel(final Logger logger, final IVCT_RTIambassador ivct_rti, final CS_Verification_TcParam CsVerificationTcParam, String sutName) {
         
         super(ivct_rti, logger, CsVerificationTcParam);
 		this.logger = logger;
 		this.tcParams = CsVerificationTcParam;
-		this.filesValidator = new FCTTFilesCheck(logger,CsVerificationTcParam.getResultDir(),CsVerificationTcParam.getSutName());
+		this.filesValidator = new FCTTFilesCheck(logger,CsVerificationTcParam.getResultDir(),sutName);
 		
     	// Generate result files
 		String fileName = "CS_Verification_report_" + FCTT_Environment.getDateForFileName() + FCTT_Constant.REPORT_FILE_NAME_EX;

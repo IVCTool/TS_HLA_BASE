@@ -56,7 +56,7 @@ public class TC_001_Object_Interaction_Check extends AbstractTestCase {
     	try {
 	    	HlaObjectTcParam           		= new HLA_Object_TcParam(tcParamJson);
 	    	ivct_rti                        = IVCT_RTI_Factory.getIVCT_RTI(logger);
-	    	HlaObjectBaseModel         		= new HLA_Object_BaseModel(logger, ivct_rti, HlaObjectTcParam);
+	    	HlaObjectBaseModel         		= new HLA_Object_BaseModel(logger, ivct_rti, HlaObjectTcParam, getSutName());
 	    	ivct_LoggingFederateAmbassador  = new IVCT_LoggingFederateAmbassador(HlaObjectBaseModel, logger);
     	}
     	catch(Exception ex) {
@@ -91,7 +91,7 @@ public class TC_001_Object_Interaction_Check extends AbstractTestCase {
         TcFederateHandle = HlaObjectBaseModel.initiateRti(TcFederateName, ivct_LoggingFederateAmbassador);
 
         // Do the necessary calls to get handles and do publish and subscribe
-        if (HlaObjectBaseModel.init(HlaObjectTcParam.getSutName()))
+        if (HlaObjectBaseModel.init())
             throw new TcInconclusive(TextInternationalization.getString("etc_fra.initError"));
 
     	logger.info(TextInternationalization.getString("etc_fra.RtiConnected"));
