@@ -10,7 +10,7 @@
 hs_err_pid*
 *.classpath
 *.project
-*.properties
+# *.properties
 .settings
 .metadata
 .recommenders
