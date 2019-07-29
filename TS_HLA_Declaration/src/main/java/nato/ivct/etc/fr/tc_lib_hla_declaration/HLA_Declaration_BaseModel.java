@@ -91,8 +91,6 @@ public class HLA_Declaration_BaseModel extends IVCT_BaseModel {
     private Logger                  logger;
     private HLA_Declaration_TcParam	tcParams;
     private FCTTFilesCheck 			filesLoader;
-    private File					certifiedDataResultFile;
-    private File					nonCertifiedDataResultFile;
     
 	// RTI
     private IVCT_RTIambassador      ivct_rti;
@@ -145,12 +143,6 @@ public class HLA_Declaration_BaseModel extends IVCT_BaseModel {
 		// Data models
         this.HlaDataModel = null;
         this.HlaResultDataModel = null;
-
-    	// Generate result files
-		String certifiedDataFileName = "HLA_Declaration_certified_data_" + FCTT_Environment.getDateForFileName() + FCTT_Constant.REPORT_FILE_NAME_EX;
-		certifiedDataResultFile = new File(HlaDeclarationTcParam.getResultDir() + File.separator + certifiedDataFileName);        
-		String nonCertifiedDataFileName = "HLA_Declaration_non_certified_data_" + FCTT_Environment.getDateForFileName() + FCTT_Constant.REPORT_FILE_NAME_EX;
-		nonCertifiedDataResultFile = new File(HlaDeclarationTcParam.getResultDir() + File.separator + nonCertifiedDataFileName);        
 
         // TC local HLAunicodeString factory
         unicodeStringFactory = new DataElementFactory<HLAunicodeString>()
@@ -361,9 +353,7 @@ public class HLA_Declaration_BaseModel extends IVCT_BaseModel {
 			// 2018/01/09 ETC FRA 1.4, Capgemini, results not logged
 			// Log results filenames
 	    	logger.info(results.toString());
-			logger.info(TextInternationalization.getString("etc_fra.lookAtResultsFiles")); 
-			logger.info(" - " + certifiedDataResultFile.getAbsolutePath()); 
-			logger.info(" - " + nonCertifiedDataResultFile.getAbsolutePath());
+			logger.info("\n-------------------------------------------------------------"); 
 		}
 		catch (Exception e) {
 			return false;

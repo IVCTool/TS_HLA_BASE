@@ -44,9 +44,6 @@ public class EncodingRulesTesterTcParam implements IVCT_TcParam {
     private List<String> fomFiles = new ArrayList<String>();
     private List<String> somFiles = new ArrayList<String>();
     private String federation_name;
-    private String rtiHost;
-    private String rtiPort;
-    private String settingsDesignator;
     private URL[]        fomUrls;
     private URL[]        somUrls;
     private long         sleepTimeCycle     = 1000;
@@ -65,17 +62,6 @@ public class EncodingRulesTesterTcParam implements IVCT_TcParam {
 			if (federation_name == null) {
                 throw new TcInconclusive("EncodingRulesTesterTcParam: the key  federationName  was not found");
 			}
-
-            // get a String from the JSON object
-			rtiHost =  (String) jsonObject.get("rtiHostName");
-			if (rtiHost == null) {
-                throw new TcInconclusive("EncodingRulesTesterTcParam: the key  rtiHostName  was not found");
-			}
-			rtiPort = (String) jsonObject.get("rtiPort");
-			if (rtiPort == null) {
-				throw new TcInconclusive("EncodingRulesTesterTcParam: the rti port id was not found");
-			}
-			settingsDesignator = "crcAddress=" + this.rtiHost + ":" + this.rtiPort;
 
 			// get a String from the JSON object
 			sutFederate =  (String) jsonObject.get("sutFederateName");
@@ -141,28 +127,10 @@ public class EncodingRulesTesterTcParam implements IVCT_TcParam {
 
 
     /**
-     * @return the federation name
-     */
-    @Override
-    public String getFederationName() {
-        return this.federation_name;
-    }
-
-
-    /**
      * @return the RTI host value
      */
     public float getPopulationGrowthValue() {
         return 1.03f;
-    }
-
-
-    /**
-     * @return the settings designator
-     */
-    @Override
-    public String getSettingsDesignator() {
-        return this.settingsDesignator;
     }
 
 

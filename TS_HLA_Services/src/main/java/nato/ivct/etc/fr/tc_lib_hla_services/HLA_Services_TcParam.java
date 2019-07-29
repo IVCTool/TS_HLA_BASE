@@ -41,15 +41,11 @@ import org.json.simple.parser.ParseException;
  */
 public class HLA_Services_TcParam implements IVCT_TcParam {
     // Get test case parameters
-    private String federationName = new String("No Federate Name");
-    private String rtiAddress;
-    private String rtiPort;
     private String resultDir;
     private List<String> fomFiles = new ArrayList<String>();
     private List<String> somFiles = new ArrayList<String>();
     private long testDuration = 0;
     private URL[] urls;
-    private String settingsDesignator;
     
 
     public HLA_Services_TcParam(final String paramJson) throws TcInconclusive {
@@ -58,17 +54,6 @@ public class HLA_Services_TcParam implements IVCT_TcParam {
 		JSONObject jsonObject;
 		try {
 			jsonObject = (JSONObject) jsonParser.parse(paramJson);
-			// get RTI address from the JSON object
-			this.rtiAddress =  (String) jsonObject.get("rtiAddress");
-			if (this.rtiAddress == null) {
-                throw new TcInconclusive(TextInternationalization.getString("etc_fra.noRtiAddressKey"));
-			}
-			settingsDesignator = "crcAddress=" + rtiAddress;
-			// get RTI dialog port from the JSON object
-			this.rtiPort =  (String) jsonObject.get("rtiPort");
-			if (this.rtiPort == null) {
-                throw new TcInconclusive(TextInternationalization.getString("etc_fra.noRtiPortKey"));
-			}
 			// get TC result directory from the JSON object
 			this.resultDir =  (String) jsonObject.get("resultDirectory");
 			if (this.resultDir == null) {
@@ -129,40 +114,6 @@ public class HLA_Services_TcParam implements IVCT_TcParam {
 		catch (ParseException e1) {
 			throw new TcInconclusive(TextInternationalization.getString("etc_fra.invalidConfig"));
 		}
-    }
-
-
-    /**
-     * @return the federation name
-     */
-    @Override
-    public String getFederationName() {
-        return this.federationName;
-    }
-
-
-    /**
-     * @return the RTI address value
-     */
-    public String getRtiAddress() {
-        return this.rtiAddress;
-    }
-
-
-    /**
-     * @return the settings designator
-     */
-    @Override
-    public String getSettingsDesignator() {
-        return this.settingsDesignator;
-    }
-
-
-    /**
-     * @return the RTI port value
-     */
-    public String getRtiPort() {
-        return this.rtiPort;
     }
 
 

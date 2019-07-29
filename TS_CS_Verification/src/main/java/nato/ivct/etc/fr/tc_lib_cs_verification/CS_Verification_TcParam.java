@@ -38,12 +38,10 @@ import org.json.simple.parser.ParseException;
  */
 public class CS_Verification_TcParam implements IVCT_TcParam {
     // Get test case parameters
-    private String federationName = "";		// not useful for CS_Verification
     private String resultDir;
     private List<String> fomFiles = new ArrayList<String>();
     private List<String> somFiles = new ArrayList<String>();
     private URL[]  urls;
-    private String settingsDesignator = "";	// not useful for CS_Verification
     
 
     public CS_Verification_TcParam(final String paramJson) throws TcInconclusive {
@@ -87,24 +85,6 @@ public class CS_Verification_TcParam implements IVCT_TcParam {
 		catch (ParseException e1) {
 			throw new TcInconclusive(TextInternationalization.getString("etc_fra.invalidConfig"));
 		}
-    }
-
-
-    /**
-     * @return the federation name
-     */
-    @Override
-    public String getFederationName() {
-        return this.federationName;
-    }
-
-
-    /**
-     * @return the settings designator
-     */
-    @Override
-    public String getSettingsDesignator() {
-        return this.settingsDesignator;
     }
 
 
