@@ -7,7 +7,7 @@ import java.util.ResourceBundle;
 public class TextInternationalization 
 {
 //	private static final String mBundleName = "nato.ivct.etc.fr.resources.lang";
-	private static final String mBundleName = "lang";
+	private static final String mBundleName = "ivctlang";
 	private static final Locale locale = new Locale(System.getProperty("user.language"),
 													System.getProperty("user.country"));
 	private static ResourceBundle mResourceBundle = ResourceBundle.getBundle(mBundleName,locale);

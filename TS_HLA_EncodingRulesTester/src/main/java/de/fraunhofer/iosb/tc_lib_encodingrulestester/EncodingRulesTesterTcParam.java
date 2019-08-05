@@ -57,17 +57,6 @@ public class EncodingRulesTesterTcParam implements IVCT_TcParam {
 		JSONObject jsonObject;
 		try {
 			jsonObject = (JSONObject) jsonParser.parse(paramJson);
-			// get a String from the JSON object
-			federation_name =  (String) jsonObject.get("federationName");
-			if (federation_name == null) {
-                throw new TcInconclusive("EncodingRulesTesterTcParam: the key  federationName  was not found");
-			}
-
-			// get a String from the JSON object
-			sutFederate =  (String) jsonObject.get("sutFederateName");
-			if (sutFederate == null) {
-                throw new TcInconclusive("EncodingRulesTesterTcParam: the key  sutFederateName  was not found");
-			}
 
 			// get an integer from the JSON object
 			String tempString = (String) jsonObject.get("sleepTestTimeWaitSeconds");
