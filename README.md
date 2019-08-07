@@ -1,7 +1,7 @@
 | Branch | Build status |
 | ------ | ------------ |
-| Master | [![Build Status master branch](https://travis-ci.org/MSG134/TS_HLA_BASE.svg?branch=master)](https://travis-ci.org/MSG134/TS_HLA_BASE) |
-| Development | [![Build Status development branch](https://travis-ci.org/MSG134/TS_HLA_BASE.svg?branch=development)](https://travis-ci.org/MSG134/TS_HLA_BASE) |
+| Master | [![Build Status master branch](https://travis-ci.org/IVCTool/TS_HLA_BASE.svg?branch=master)](https://travis-ci.org/IVCTool/TS_HLA_BASE) |
+| Development | [![Build Status development branch](https://travis-ci.org/IVCTool/TS_HLA_BASE.svg?branch=development)](https://travis-ci.org/IVCTool/TS_HLA_BASE) |
 
 # TS_HLA_BASE
 
