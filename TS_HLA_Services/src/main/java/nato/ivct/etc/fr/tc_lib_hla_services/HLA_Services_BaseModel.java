@@ -98,6 +98,7 @@ public class HLA_Services_BaseModel extends IVCT_BaseModel {
 	private ServiceHLA 				HlaServicesModel;
 	private ResultServicesModel		HlaResultServicesModel;
 
+    private String					sutFederateName;
     private String					sutName;
     private AttributeHandle         federateNameId;
     private AttributeHandle         federateHandleId;
@@ -158,11 +159,14 @@ public class HLA_Services_BaseModel extends IVCT_BaseModel {
 
 	
     /**
+     * @param sutFederateName federate name
      * @return true means error, false means correct
      */
-    public boolean init() {
+    public boolean init(final String sutFederateName) {
 
-        // Federation & federate ids
+    	this.sutFederateName = sutFederateName;
+
+    	// Federation & federate ids
     	ObjectClassHandle	federateId;
     	ObjectClassHandle	federationId;
         try {
@@ -556,10 +560,10 @@ public class HLA_Services_BaseModel extends IVCT_BaseModel {
     	}
 
 // 2017/11/15 ETC FRA V1.3, Capgemini, to avoid several detections of federate to follow
-//    	if ((federateName.equals(sutName)) && (federateHandle != null)) {
-    	if ((sutHandle == null) && (federateName.equals(sutName)) && (federateHandle != null)) {
+//    	if ((federateName.equals(sutFederateName)) && (federateHandle != null)) {
+    	if ((sutHandle == null) && (federateName.equals(sutFederateName)) && (federateHandle != null)) {
 			if (needToFollowFederate(federateHandle) == false) {
-	            logger.info("following federate " + sutName);
+	            logger.info("following federate " + sutFederateName);
 	            sutHandle = federateHandle;
 	            // Force connect, create & join services validation
 	            HlaResultServicesModel.updateState("connect");

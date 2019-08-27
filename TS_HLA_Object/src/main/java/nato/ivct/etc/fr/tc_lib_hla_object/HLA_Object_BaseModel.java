@@ -108,6 +108,7 @@ public class HLA_Object_BaseModel extends IVCT_BaseModel {
 	private DataHLA 				HlaDataModel;
 	private ResultDataModel			HlaResultDataModel;
 
+    private String					sutFederateName;
     private String					sutName;
     private AttributeHandle         federateNameId;
     private AttributeHandle         federateHandleId;
@@ -194,10 +195,13 @@ public class HLA_Object_BaseModel extends IVCT_BaseModel {
 
 	
     /**
+     * @param sutFederateName federate name
      * @return true means error, false means correct
      */
-    public boolean init() {
-    	
+    public boolean init(final String sutFederateName) {
+
+    	this.sutFederateName = sutFederateName;
+
 		// Federation & federate ids
     	ObjectClassHandle	federateId;
     	ObjectClassHandle	federationId;
@@ -817,10 +821,10 @@ public class HLA_Object_BaseModel extends IVCT_BaseModel {
     	}
 
 // 2017/11/15 ETC FRA V1.3, Capgemini, to avoid several detections of federate to follow
-//    	if ((federateName.equals(sutName)) && (federateHandle != null)) {
-    	if ((sutHandle == null) && (federateName.equals(sutName)) && (federateHandle != null)) {
+//    	if ((federateName.equals(sutFederateName)) && (federateHandle != null)) {
+    	if ((sutHandle == null) && (federateName.equals(sutFederateName)) && (federateHandle != null)) {
 			if (needToFollowFederate(federateHandle) == false) {
-	            logger.info("following federate " + sutName);
+	            logger.info("following federate " + sutFederateName);
 // 2017/11/15 ETC FRA V1.3, Capgemini, to avoid several detections of federate to follow
 				sutHandle = federateHandle;
 			}

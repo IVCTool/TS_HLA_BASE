@@ -61,6 +61,7 @@ public class TC_001_Services_Check extends AbstractTestCase {
     	}
     	catch(Exception ex) {
     		logger.error(TextInternationalization.getString("etc_fra.noInstanciation"));
+    		logger.error(ex.toString());
     	}
     	return HlaServicesBaseModel;
     }
@@ -91,7 +92,7 @@ public class TC_001_Services_Check extends AbstractTestCase {
         TcFederateHandle = HlaServicesBaseModel.initiateRti(TcFederateName, ivct_LoggingFederateAmbassador);
 
         // Do the necessary calls to get handles and do publish and subscribe
-        if (HlaServicesBaseModel.init())
+        if (HlaServicesBaseModel.init(getSutFederateName()))
             throw new TcInconclusive(TextInternationalization.getString("etc_fra.initError"));
 
     	logger.info(TextInternationalization.getString("etc_fra.RtiConnected"));

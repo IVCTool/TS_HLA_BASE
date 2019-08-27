@@ -318,7 +318,6 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
     public void init() throws TcInconclusive {
     	// Read SOM files and process them.
     	processSOM();
-    	Boolean b = new Boolean(false);
 
         // Subscribe interactions
     	this.logger.trace("EncodingRulesTesterBaseModel.init: subscribe interactions");

@@ -49,8 +49,6 @@ public class EncodingRulesTesterTcParam implements IVCT_TcParam {
     private long         sleepTimeCycle     = 1000;
     private long         sleepTimeWait      = 3000;
     private long         sleepTestTimeWait = 30000;
-    private String sutFederate;
-
 
     public EncodingRulesTesterTcParam(final String paramJson) throws TcInconclusive {
 		JSONParser jsonParser = new JSONParser();
@@ -143,14 +141,6 @@ public class EncodingRulesTesterTcParam implements IVCT_TcParam {
      */
     public long getTestTimeWait() {
         return this.sleepTestTimeWait;
-    }
-
-
-    /**
-     * @return name of sut federate
-     */
-    public String getSutFederate() {
-        return this.sutFederate;
     }
 
 
