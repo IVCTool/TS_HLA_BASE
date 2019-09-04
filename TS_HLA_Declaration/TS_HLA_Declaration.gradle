@@ -15,9 +15,11 @@ apply plugin: com.bmuschko.gradle.docker.DockerRemoteApiPlugin
 import com.bmuschko.gradle.docker.tasks.image.*
 
 // Use task types
-task buildMyAppImage(type: DockerBuildImage) {
+task dockerBuildImage(type: DockerBuildImage) {
+    dependsOn 'install'
     inputDir = file('.')
-    tag="ivct/ts-hla-declaration:${TS_HLA_BaseVersion}"
+    buildArgs.put('version', "${TS_HLA_BaseVersion}")
+    tags.add("ivct/ts-hla-declaration:${TS_HLA_BaseVersion}")
 }
 apply plugin: 'application'
 

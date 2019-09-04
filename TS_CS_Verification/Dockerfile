@@ -9,8 +9,9 @@ ENTRYPOINT [ "sh", "-c", " \
       echo \"Copied $VOLUME to $1\"; \
    fi" , \
 "--" ]
+ARG version
 
-ADD ./build/distributions/TS_CS_Verification-2.0.0.tar /root/conf/TestSuites/
-ENV VOLUMEDIR /root/conf/TestSuites/TS_CS_Verification-2.0.0
+ADD ./build/distributions/TS_CS_Verification-${version}.tar /root/conf/TestSuites/
+ENV VOLUMEDIR /root/conf/TestSuites/TS_CS_Verification-${version}
 ENV VOLUME ${VOLUMEDIR}/.
 VOLUME ${VOLUMEDIR}

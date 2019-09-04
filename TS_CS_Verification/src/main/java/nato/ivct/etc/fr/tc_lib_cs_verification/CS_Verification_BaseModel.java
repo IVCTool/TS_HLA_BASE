@@ -50,17 +50,18 @@ public class CS_Verification_BaseModel extends IVCT_BaseModel {
      * @param logger reference to a logger
      * @param ivct_rti reference to the RTI ambassador
      * @param CsVerificationTcParam linked parameters
+	 * @param sutName SuT name
      */
     public CS_Verification_BaseModel(final Logger logger, final IVCT_RTIambassador ivct_rti, final CS_Verification_TcParam CsVerificationTcParam, String sutName) {
-        
+
         super(ivct_rti, logger, CsVerificationTcParam);
 		this.logger = logger;
 		this.tcParams = CsVerificationTcParam;
 		this.filesValidator = new FCTTFilesCheck(logger,CsVerificationTcParam.getResultDir(),sutName);
-		
+
     	// Generate result files
 		String fileName = "CS_Verification_report_" + FCTT_Environment.getDateForFileName() + FCTT_Constant.REPORT_FILE_NAME_EX;
-		resultFile = new File(CsVerificationTcParam.getResultDir() + File.separator + fileName);        
+		resultFile = new File(CsVerificationTcParam.getResultDir() + File.separator + fileName);
     }
 
 
@@ -69,12 +70,12 @@ public class CS_Verification_BaseModel extends IVCT_BaseModel {
 	 * @return True if the FOM and SOM files are valid, false if not
 	 */
 	public boolean validateFomSomFiles() {
-		
+
 		// Check files and write result file
 		return filesValidator.checkFiles(tcParams.getFomFiles(),tcParams.getSomFiles(),resultFile);
 	}
 
-	
+
 	/**
      * {@inheritDoc}
      */
@@ -84,8 +85,8 @@ public class CS_Verification_BaseModel extends IVCT_BaseModel {
     	// Supersedes IVCT_BaseModel.terminateRti to
     	// avoid a crash on null ivct_rti dereferencing !
     }
-    
-    
+
+
 	/**
      * {@inheritDoc}
      */
