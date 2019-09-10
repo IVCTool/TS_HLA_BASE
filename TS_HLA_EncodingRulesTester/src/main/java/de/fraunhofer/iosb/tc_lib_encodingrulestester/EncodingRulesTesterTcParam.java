@@ -43,7 +43,6 @@ public class EncodingRulesTesterTcParam implements IVCT_TcParam {
     //      use some constants for this example till we get params from a file
     private List<String> fomFiles = new ArrayList<String>();
     private List<String> somFiles = new ArrayList<String>();
-    private String federation_name;
     private URL[]        fomUrls;
     private URL[]        somUrls;
     private long         sleepTimeCycle     = 1000;
