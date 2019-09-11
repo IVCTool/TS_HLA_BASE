@@ -17,6 +17,7 @@ apply plugin: com.bmuschko.gradle.docker.DockerRemoteApiPlugin
 
 // import remote API plugin task groups
 import com.bmuschko.gradle.docker.tasks.image.*
+import com.bmuschko.gradle.docker.*
 
 // Use task types
 task dockerBuildImage(type: DockerBuildImage) {
