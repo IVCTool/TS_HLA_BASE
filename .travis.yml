@@ -10,7 +10,7 @@ branches:
   - master
   - development
 
-install: gradle install dockerBuildImage
+install: ./gradlew install dockerBuildImage
 script:
 - export VERSION=$(grep "TS_HLA_BaseVersion" ./.shared/libraries.gradle | awk '{print $3}' | tr -d \')
 - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
