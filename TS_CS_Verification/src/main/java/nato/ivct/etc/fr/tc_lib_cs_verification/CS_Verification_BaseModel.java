@@ -50,7 +50,11 @@ public class CS_Verification_BaseModel extends IVCT_BaseModel {
      * @param logger reference to a logger
      * @param ivct_rti reference to the RTI ambassador
      * @param CsVerificationTcParam linked parameters
+<<<<<<< HEAD
 	 * @param sutName SuT name
+=======
+	 * @param sutName the sut name
+>>>>>>> 01a8b8df7299d2faf24506ad814031880a70578f
      */
     public CS_Verification_BaseModel(final Logger logger, final IVCT_RTIambassador ivct_rti, final CS_Verification_TcParam CsVerificationTcParam, String sutName) {
 

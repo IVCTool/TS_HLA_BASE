@@ -15,9 +15,6 @@ allprojects {
     repositories {
 		mavenLocal()
 		mavenCentral()
-		maven {
-			url 'https://oss.sonatype.org/content/repositories/snapshots'
-		}
 	}
 
     ext {
@@ -29,12 +26,8 @@ allprojects {
         buildNumber = System.getProperty("buildNumber", "SNAPSHOT")
         repositoryBranchName = System.getProperty("repositoryBranchName", "UNKNOWN")
         revisionNumber = System.getProperty("revisionNumber", "SNAPSHOT")
-    }
+  }
 }
-
-
-
-
 
 // -----------------------------------------------------------------------------
 // subprojects
@@ -43,11 +36,11 @@ allprojects {
 subprojects { subProject ->
     defaultTasks 'build'
 
-	group = subProject.parent.group
-	if (subProject.version == 'unspecified') {
-		version = subProject.parent.version
-	}
-	description = subProject.parent.description
+  group = subProject.parent.group
+  if (subProject.version == 'unspecified') {
+    version = subProject.parent.version
+  }
+  description = subProject.parent.description
     ext {
         specificationVersion = version
     }
@@ -78,7 +71,6 @@ subprojects { subProject ->
         apply plugin: 'maven' // for install task as well as deploy dependencies
 
 
-
         // custom tasks for creating source/javadoc jars
         // TODO: check if this can be removed
         task sourcesJar(type: Jar) {
@@ -98,7 +90,6 @@ subprojects { subProject ->
         }
     }
 }
-
 
 
 // -----------------------------------------------------------------------------
