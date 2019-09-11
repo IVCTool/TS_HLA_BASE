@@ -11,8 +11,9 @@ buildscript {
 // apply plugin: "com.bmuschko.docker-remote-api"
 apply plugin: com.bmuschko.gradle.docker.DockerRemoteApiPlugin
 
-// Import task types
-import com.bmuschko.gradle.docker.tasks.image.*
+// import remote API plugin task groups
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+
 
 // Use task types
 task dockerBuildImage(type: DockerBuildImage) {
