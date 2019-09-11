@@ -1,6 +1,7 @@
 // apply java application plugin
 apply plugin: 'application'
 
+
 buildscript {
     repositories {
 		mavenLocal()
@@ -9,10 +10,6 @@ buildscript {
   dependencies {
 	classpath libraries.docker
   }
-}
-
-plugins {
-    id 'com.bmuschko.docker-remote-api' version '4.10.0'
 }
 
 // apply plugin: "com.bmuschko.docker-remote-api"
