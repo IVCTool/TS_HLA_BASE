@@ -11,11 +11,12 @@ branches:
   - development
 
 before_install:
-  - gradle -version
+  - chmod +x gradlew
+  - gradlew -version
   - export VERSION=$(grep "TS_HLA_BaseVersion" ./.shared/libraries.gradle | awk '{print $3}' | tr -d \')
   - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
 
-install: gradle install dockerBuildImage
+install: gradlew install dockerBuildImage
 
 script:
 - docker tag ivct/ts-hla-encoding-rules:2.0.0 ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-latest
