@@ -10,10 +10,14 @@ branches:
   - master
   - development
 
+before_install:
+  - gradle -version
+  - export VERSION=$(grep "TS_HLA_BaseVersion" ./.shared/libraries.gradle | awk '{print $3}' | tr -d \')
+  - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
+
 install: gradle install dockerBuildImage
+
 script:
-- export VERSION=$(grep "TS_HLA_BaseVersion" ./.shared/libraries.gradle | awk '{print $3}' | tr -d \')
-- echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
 - docker tag ivct/ts-hla-encoding-rules:2.0.0 ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-latest
 - docker tag ivct/ts-hla-cs-verification:2.0.0 ivct/ts-hla-cs-verification:$TRAVIS_BRANCH-latest
 - docker tag ivct/ts-hla-declaration:2.0.0 ivct/ts-hla-declaration:$TRAVIS_BRANCH-latest
