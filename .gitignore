@@ -10,11 +10,15 @@
 hs_err_pid*
 *.classpath
 *.project
-# *.properties
+
+# user specfic settings
 gradle.properties
 .settings
+
 .metadata
 .recommenders
+
+# temporary build files
 bin
 logs
 build
