@@ -292,8 +292,15 @@ public class HLA_Services_BaseModel extends IVCT_BaseModel {
 	public boolean validateServices() {
 		
 		String lCurrentDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy_MM_dd_HH'h'mm'm'ss's'"));
-
+		
+		FileWriter certifiedServicesResult = null;
+		FileWriter nonCertifiedServicesResult = null;
+		
 		try {
+			// Open result files
+			certifiedServicesResult = new FileWriter(certifiedServicesResultFile);
+			nonCertifiedServicesResult = new FileWriter(nonCertifiedServicesResultFile);
+			
 			// Format output
 	    	int lMaxLengthService = HlaResultServicesModel.computeMaxServiceNameLength();
 	    	StringWrapper fileWriter = new StringWrapper("");
@@ -302,37 +309,34 @@ public class HLA_Services_BaseModel extends IVCT_BaseModel {
 	    	
 	    	// Write result files & logs
 	    	String result;
-	    	StringBuilder results = new StringBuilder("\n\n");
 	    	result = saveResultsWriteHeader(lCurrentDate, eBuildResults.ServicesCertificated);
-	    	results.append(result);
+	    	writeData(certifiedServicesResult, result);
 	    	// 2018/01/09 ETC FRA 1.4, Capgemini, results not logged
 			// logger.info(result);
 	    	result = String.format(headerFormatter, "", TextInternationalization.getString("resultsFile.headerColumns.services"), "");
-	    	results.append(result);
+	    	writeData(certifiedServicesResult, result);
 			// 2018/01/09 ETC FRA 1.4, Capgemini, results not logged
 			// logger.info(result);
 	    	result = HlaResultServicesModel.writeResults(eBuildResults.ServicesCertificated, fileWriter, formatter).getString();
-	    	results.append(result);
+	    	writeData(certifiedServicesResult, result);
 	    	// 2018/01/09 ETC FRA 1.4, Capgemini, results not logged
 			// logger.info(result);
 	    	
 	    	result = saveResultsWriteHeader(lCurrentDate, eBuildResults.ServicesNotCertificated);
-	    	results.append(result);
+	    	writeData(nonCertifiedServicesResult, result);
 	    	// 2018/01/09 ETC FRA 1.4, Capgemini, results not logged
 			// logger.info(result);
 	    	result = String.format(headerFormatter, "", TextInternationalization.getString("resultsFile.headerColumns.services"), "");
-	    	results.append(result);
+	    	writeData(nonCertifiedServicesResult, result);
 			// 2018/01/09 ETC FRA 1.4, Capgemini, results not logged
 			// logger.info(result);
 	    	result = HlaResultServicesModel.writeResults(eBuildResults.ServicesNotCertificated, fileWriter, formatter).getString();
-	    	results.append(result);
-	    	results.append("\n\n");
+	    	writeData(nonCertifiedServicesResult, result);
 	    	// 2018/01/09 ETC FRA 1.4, Capgemini, results not logged
 			// logger.info(result);
 			
 			// 2018/01/09 ETC FRA 1.4, Capgemini, results not logged
 			// Log results filenames
-	    	logger.info(results.toString());
 			logger.info(TextInternationalization.getString("etc_fra.lookAtResultsFiles")); 
 			logger.info(" - " + certifiedServicesResultFile.getAbsolutePath()); 
 			logger.info(" - " + nonCertifiedServicesResultFile.getAbsolutePath());
@@ -340,8 +344,33 @@ public class HLA_Services_BaseModel extends IVCT_BaseModel {
 		catch (Exception e) {
 			return false;
 		}
-
+		
+		finally
+		{
+			try 
+			{
+				certifiedServicesResult.close();
+				nonCertifiedServicesResult.close();
+			} 
+			catch (IOException pIOException) 
+			{
+				logger.error(TextInternationalization.getString("close.error.reportFile") + ": " + pIOException.toString());
+				return false;
+			}
+		}
 		return HlaResultServicesModel.getValidated();
+	}
+
+	/**
+	 * Helper to distribute log information
+	 * 
+	 * @param fileWriter the file writer
+	 * @param text the text to be written
+	 * @throws IOException
+	 */
+	private void writeData(FileWriter fileWriter, String text) throws IOException {
+		fileWriter.write(text);
+		logger.info(text);
 	}
 
 

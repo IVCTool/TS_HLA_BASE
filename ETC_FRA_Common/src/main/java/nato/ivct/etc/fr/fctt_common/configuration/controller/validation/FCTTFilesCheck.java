@@ -157,27 +157,29 @@ public class FCTTFilesCheck
 		lFOMFiles.addAll(fomFiles);
 		lSOMFiles.addAll(somFiles);
 
+		FileWriter lWriter = null;
+
 		try
 		{
 			// Open file
 			if (resultFile != null)
 			{
+				lWriter = new FileWriter(resultFile);
 				// 2018/01/09 ETC FRA 1.4, Capgemini, to generate result message for TS_HLA_Declaration, TS_HLA_Object and TS_HLA_Services
 				lTraceLog = false;
 			}
 
-			WriteMessage("\n\n");
-			WriteMessage(FCTT_Constant.REPORT_FILE_SEPARATOR);
-			WriteMessage(TextInternationalization.getString("files.check.reportFile.federateName")	+ sutName + "\n");
-			WriteMessage(FCTT_Constant.REPORT_FILE_SEPARATOR);
-			WriteMessage(TextInternationalization.getString("files.check.FOM.parse"));
-			WriteMessage(TextInternationalization.getString("files.check.reportFile.FOMFiles"));
-			PrintArrayListString(lFOMFiles); 		
+			WriteMessage(lWriter ,FCTT_Constant.REPORT_FILE_SEPARATOR);
+			WriteMessage(lWriter ,TextInternationalization.getString("files.check.reportFile.federateName")	+ sutName + "\n");
+			WriteMessage(lWriter,FCTT_Constant.REPORT_FILE_SEPARATOR);
+            logger.info(TextInternationalization.getString("files.check.FOM.parse"));
+			WriteMessage(lWriter,TextInternationalization.getString("files.check.reportFile.FOMFiles"));
+			PrintArrayListString(lFOMFiles, lWriter);
 			
 			//
 			// Parse FOM files
 			//
-			try 
+			try
 			{
 
 				// 
@@ -230,17 +232,19 @@ public class FCTTFilesCheck
 
 				// 2018/01/09 ETC FRA 1.4, Capgemini, to generate result message for TS_HLA_Declaration, TS_HLA_Object and TS_HLA_Services
 				lMessage = TextInternationalization.getString("files.check.reportFile.resFOMFiles") + StringResult(true) + "\n";
-				WriteMessage(lMessage);
+				if (lTraceLog) logger.info(lMessage);
+				WriteMessage(lWriter, lMessage);
 				mResTestParseFOM = true;
 			}
 			catch (Exception pException) 
 			{
 				// 2018/01/09 ETC FRA 1.4, Capgemini, to generate result message for TS_HLA_Declaration, TS_HLA_Object and TS_HLA_Services
 				lMessage = TextInternationalization.getString("files.check.reportFile.resFOMFiles") + StringResult(false) + "\n";
+				if (lTraceLog) logger.info(lMessage);
 				logger.error(TextInternationalization.getString("files.check.error.FOM.parse") + ":" + pException.getLocalizedMessage());
 
-				WriteMessage(lMessage);
-				WriteMessage(pException.getLocalizedMessage());
+				WriteMessage(lWriter,lMessage);
+				WriteMessage(lWriter,pException.getLocalizedMessage());
 
 				return false;
 			}
@@ -251,10 +255,10 @@ public class FCTTFilesCheck
 
 			try 
 			{
-				WriteMessage(FCTT_Constant.REPORT_FILE_SEPARATOR);
-				WriteMessage(TextInternationalization.getString("files.check.SOM.parse"));
-				WriteMessage(TextInternationalization.getString("files.check.reportFile.SOMFiles"));
-				PrintArrayListString(lSOMFiles);
+				WriteMessage(lWriter,FCTT_Constant.REPORT_FILE_SEPARATOR);
+				logger.info(TextInternationalization.getString("files.check.SOM.parse"));
+				WriteMessage(lWriter,TextInternationalization.getString("files.check.reportFile.SOMFiles"));
+				PrintArrayListString(lSOMFiles,lWriter);
 				
 				//
 				// Merge SOM modules
@@ -291,8 +295,9 @@ public class FCTTFilesCheck
 
 					// 2018/01/09 ETC FRA 1.4, Capgemini, to generate result message for TS_HLA_Declaration, TS_HLA_Object and TS_HLA_Services
 					lMessage = TextInternationalization.getString("files.check.reportFile.resSOMFiles") + StringResult(false) + "\n";
-					WriteMessage(lMessage);
-					WriteMessage(lError);
+					if (lTraceLog) logger.info(lMessage);
+					WriteMessage(lWriter, lMessage);
+					WriteMessage(lWriter, lError);
 
 					return false;
 				}
@@ -305,8 +310,9 @@ public class FCTTFilesCheck
 
 					// 2018/01/09 ETC FRA 1.4, Capgemini, to generate result message for TS_HLA_Declaration, TS_HLA_Object and TS_HLA_Services
 					lMessage = TextInternationalization.getString("files.check.reportFile.resSOMFiles") + StringResult(false) + "\n";
-					WriteMessage(lMessage);
-					WriteMessage(lError);
+					if (lTraceLog) logger.info(lMessage);
+					WriteMessage(lWriter, lMessage);
+					WriteMessage(lWriter, lError);
 
 					return false;
 				}
@@ -338,15 +344,17 @@ public class FCTTFilesCheck
 
 				// 2018/01/09 ETC FRA 1.4, Capgemini, to generate result message for TS_HLA_Declaration, TS_HLA_Object and TS_HLA_Services
 				lMessage = TextInternationalization.getString("files.check.reportFile.resSOMFiles") + StringResult(true) + "\n";
-				WriteMessage(lMessage);
+				if (lTraceLog) logger.info(lMessage);
+				WriteMessage(lWriter, lMessage);
 			}	
 			catch (Exception pException) 
 			{
 				// 2018/01/09 ETC FRA 1.4, Capgemini, to generate result message for TS_HLA_Declaration, TS_HLA_Object and TS_HLA_Services
 				lMessage = TextInternationalization.getString("files.check.reportFile.resSOMFiles") + StringResult(false) + "\n";
-				WriteMessage(lMessage);
+				if (lTraceLog) logger.info(lMessage);
+				WriteMessage(lWriter,lMessage);
 				logger.error(TextInternationalization.getString("files.check.error.SOM.parse") + ":" + pException.getLocalizedMessage());
-				WriteMessage(pException.getLocalizedMessage());
+				WriteMessage(lWriter,pException.getLocalizedMessage());
 
 				return false;
 			}
@@ -356,31 +364,32 @@ public class FCTTFilesCheck
 			// Check if there are elements in SOM not include in FOM
 			//
 			mResTestInclude = !mSOMParser.IsElemNotInFom();
-			WriteMessage(FCTT_Constant.REPORT_FILE_SEPARATOR);
-			WriteMessage(TextInternationalization.getString("files.check.SOM_IN_FOM"));
+			WriteMessage(lWriter,FCTT_Constant.REPORT_FILE_SEPARATOR);
+			logger.info(TextInternationalization.getString("files.check.SOM_IN_FOM"));
 			// 2018/01/09 ETC FRA 1.4, Capgemini, to generate result message for TS_HLA_Declaration, TS_HLA_Object and TS_HLA_Services
 			lMessage = TextInternationalization.getString("files.check.reportFile.resSOMInFOM") 
 					+ StringResult(mResTestInclude) + "\n";
-			WriteMessage(lMessage);
+			if (lTraceLog) logger.info(lMessage);
+			WriteMessage(lWriter,lMessage);
 
 			// Write in the report file the list of objects classes and interactions not present in FOM
 			if (!mResTestInclude)
 			{
 				logger.error(TextInternationalization.getString("files.check.error.inclusion"));
 				
-				PrintMessList(
+				PrintMessList(lWriter,
 						      TextInternationalization.getString("files.check.reportFile.objNotIncluded"),
 							  mSOMParser.getMlistObjNotInFOM());
 				
-				PrintMessList(
+				PrintMessList(lWriter,
 							  TextInternationalization.getString("files.check.reportFile.attNotIncluded"),
 							  mSOMParser.getMlistAttributNotInFOM());
 				
-				PrintMessList(
+				PrintMessList(lWriter,
 							  TextInternationalization.getString("files.check.reportFile.intNotIncluded"),
 							  mSOMParser.getMlistInterNotInFOM());
 				
-				PrintMessList(
+				PrintMessList(lWriter,
 							  TextInternationalization.getString("files.check.reportFile.paramNotIncluded"),
 							  mSOMParser.getMListParameterNotInFOM());
 			}
@@ -390,19 +399,20 @@ public class FCTTFilesCheck
 			//
 			mResTestParseSOM = mSOMParser.IsSharingOK();
 			
-			WriteMessage(FCTT_Constant.REPORT_FILE_SEPARATOR);
-			WriteMessage(TextInternationalization.getString("files.check.sharing"));
+			WriteMessage(lWriter,FCTT_Constant.REPORT_FILE_SEPARATOR);
+			logger.info(TextInternationalization.getString("files.check.sharing"));
 			// 2018/01/09 ETC FRA 1.4, Capgemini, to generate result message for TS_HLA_Declaration, TS_HLA_Object and TS_HLA_Services
 			lMessage = TextInternationalization.getString("files.check.reportFile.resSharing") 
 					+ StringResult(mResTestParseSOM) + "\n";
-			WriteMessage(lMessage);
+			if (lTraceLog) logger.info(lMessage);
+			WriteMessage(lWriter,lMessage);
 
 			// Write in the report file the sharing errors.
 			if (!mResTestParseSOM) 
 			{
-				WriteMessage(TextInternationalization.getString("files.check.error.sharing") + "\n");
-				WriteMessage(TextInternationalization.getString("files.check.reportFile.sharingErrors"));
-				PrintShareErrors(mSOMParser.getListSharDiff());
+				WriteMessage(lWriter,TextInternationalization.getString("files.check.error.sharing") + "\n");
+				WriteMessage(lWriter,TextInternationalization.getString("files.check.reportFile.sharingErrors"));
+				PrintShareErrors(mSOMParser.getListSharDiff(),lWriter);
 			} 
 
 			// 
@@ -419,8 +429,8 @@ public class FCTTFilesCheck
 			} 
 			catch (IOException pIOException) 
 			{
-				WriteMessage(TextInternationalization.getString("files.check.reportFile.readServicesError"));
-				WriteMessage(pIOException.getLocalizedMessage());
+				WriteMessage(lWriter,TextInternationalization.getString("files.check.reportFile.readServicesError"));
+				WriteMessage(lWriter,pIOException.getLocalizedMessage());
 
 				if (csVerification)
 					return false;
@@ -435,28 +445,29 @@ public class FCTTFilesCheck
 			{
 				// log validation des regles
 				mResTestRules = mRulesChecker.checkRules(lsomFile);
-				WriteMessage(FCTT_Constant.REPORT_FILE_SEPARATOR);
-				WriteMessage(TextInternationalization.getString("files.check.rules"));
+				WriteMessage(lWriter,FCTT_Constant.REPORT_FILE_SEPARATOR);
+				logger.info(TextInternationalization.getString("files.check.rules"));
 				// 2018/01/09 ETC FRA 1.4, Capgemini, to generate result message for TS_HLA_Declaration, TS_HLA_Object and TS_HLA_Services
 				lMessage = TextInternationalization.getString("files.check.reportFile.resultTest")
 						+ StringResult(mResTestRules) + "\n";
-				WriteMessage(lMessage);
+				if (lTraceLog) logger.info(lMessage);
+				WriteMessage(lWriter,lMessage);
 
 				if (!mResTestRules)
 				{
-					PrintArrayListString(mRulesChecker.getListAssert());
+					PrintArrayListString(mRulesChecker.getListAssert(),lWriter);
 				}
 			} 
 			catch (JAXBException | IOException pException) 
 			{
 				// 2018/01/09 ETC FRA 1.4, Capgemini, to generate result message for TS_HLA_Declaration, TS_HLA_Object and TS_HLA_Services
 				lMessage = TextInternationalization.getString("files.check.reportFile.resultTest") + StringResult(false) + "\n";
+				if (lTraceLog) logger.info(lMessage);
 				logger.error(TextInternationalization.getString("files.check.error.rules") + ":" + pException.getLocalizedMessage());
 
-				WriteMessage(FCTT_Constant.REPORT_FILE_SEPARATOR);
-				WriteMessage(lMessage);
-				WriteMessage(pException.getLocalizedMessage());
-				WriteMessage("\n\n");
+				WriteMessage(lWriter,FCTT_Constant.REPORT_FILE_SEPARATOR);
+				WriteMessage(lWriter,lMessage);
+				WriteMessage(lWriter,pException.getLocalizedMessage());
 
 				if (csVerification)
 					return false;
@@ -473,6 +484,19 @@ public class FCTTFilesCheck
 			return false;
 		}
 
+		finally
+		{
+			try
+			{
+				if (lWriter != null)
+					lWriter.close();
+			}
+			catch (IOException pIOException)
+			{
+				logger.error(TextInternationalization.getString("close.error.reportFile") + ":" + resultFile + " " + pIOException.toString());
+			}
+		}
+
 		return lCheckFiles;
 	} 
 
@@ -483,12 +507,12 @@ public class FCTTFilesCheck
 	 * @param pList
 	 * @throws IOException
 	 */
-	void PrintMessList(String pTypeList,ArrayList<String> pList) throws IOException 
+	void PrintMessList(Writer pWriter,String pTypeList,ArrayList<String> pList) throws IOException
 	{
 		if (pList.size() > 0)
 		{
-			WriteMessage(pTypeList);
-			PrintArrayListString(pList);
+			WriteMessage(pWriter,pTypeList);
+			PrintArrayListString(pList,pWriter);
 		}
 	}
 
@@ -516,12 +540,12 @@ public class FCTTFilesCheck
 	 * @param pFOMFiles
 	 * @throws IOException 
 	 */
-	private void PrintArrayListString(List<String> pFOMFiles) throws IOException 
+	private void PrintArrayListString(List<String> pFOMFiles,Writer pWriter) throws IOException
 	{
 		for (String iElem : pFOMFiles)
 		{
-			WriteMessage(iElem);
-			WriteMessage("\n");
+			WriteMessage(pWriter, iElem);
+			WriteMessage(pWriter, "\n");
 		}
 	}
 
@@ -530,13 +554,13 @@ public class FCTTFilesCheck
 	 * @param pWriter
 	 * @throws IOException 
 	 */
-	private void PrintShareErrors(HashMap<String, Pair<String, String>> pHashMap) throws IOException 
+	private void PrintShareErrors(HashMap<String, Pair<String, String>> pHashMap,Writer pWriter) throws IOException
 	{
 		for (Entry<String, Pair<String, String>> currentEntry : pHashMap.entrySet()) 
 		{
 			String lName = currentEntry.getKey();
 			Pair<String, String> value = currentEntry.getValue();
-			WriteMessage(lName + " " + TextInternationalization.getString("files.check.reportFile.InFOM") 
+			WriteMessage(pWriter,lName + " " + TextInternationalization.getString("files.check.reportFile.InFOM")
 					+ value.getFirst() + " "
 					+ TextInternationalization.getString("files.check.reportFile.InSOM")
 					+ value.getSecond() + "\n");
@@ -877,13 +901,18 @@ public class FCTTFilesCheck
 
 	/**
 	 * Write message in file report and in console depending parameter pConsole
+	 * @param pFW output file
 	 * @param pMessage message
 	 * @throws IOException I/O error
 	 */
-	public void WriteMessage(String pMessage) throws IOException {
+	public void WriteMessage(Writer pFW,String pMessage) throws IOException {
 
-			if (csVerification) 
-				logger.info(pMessage);
+		if (pFW != null)
+		{
+			pFW.write(pMessage);
+			logger.info(pMessage);
+		}
 	}
+
 
 }
