@@ -319,6 +319,10 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
     	// Read SOM files and process them.
     	processSOM();
 
+        if (this.interactionClassHandleMap.isEmpty() && this.objectClassAttributeHandleMap.isEmpty()) {
+            throw new TcInconclusive("EncodingRulesTesterBaseModel.init: No interactions or object attributes found to be tested");
+        }
+
         // Subscribe interactions
     	this.logger.trace("EncodingRulesTesterBaseModel.init: subscribe interactions");
 		try {
@@ -594,7 +598,7 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
     public void printParameterResults(StringBuilder stringBuilder) {
         stringBuilder.append("\n\nInteraction Parameter Summary \n");
         if (this.interactionParameterResultsmap.isEmpty()) {
-            stringBuilder.append("- No Results -\n");
+            stringBuilder.append("- No Parameter Results detected-\n");
             return;
         }
     	String interactionClassName = null;
@@ -880,7 +884,7 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
     private void printAttributeResults(StringBuilder stringBuilder) {
         stringBuilder.append("\n\nObject Attribute Summary \n");
         if (this.objectAttributeResultsmap.isEmpty()) {
-            stringBuilder.append("- No Results -\n");
+            stringBuilder.append("- No Object Attributes Results detected -\n");
             this.logger.trace(stringBuilder.toString());
             return;
         }

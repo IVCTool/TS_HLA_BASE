@@ -73,6 +73,7 @@ public class HandleInteractionClass {
 			textPointer = theSelectedNode.getNodeName();
 		}
 		// Do all on this level
+		boolean gotPublish = false;
 		for (Node child = theSelectedNode.getFirstChild(); child != null; child = child.getNextSibling()) {
 			if (child.getNodeType() != Node.ELEMENT_NODE) {
 				continue;
@@ -101,7 +102,7 @@ public class HandleInteractionClass {
 						textPointer = ((Element) child).getFirstChild().getNodeValue();
 						logger.trace("Sharing: " + textPointer);
 						if (textPointer.equals("Publish") || textPointer.equals("PublishSubscribe")) {
-//							interactionHandleSet.add(ich);
+							gotPublish = true;
 						}
 					}
 					logger.trace("HandleInteractionClass.decodeInteractionClass: sharing leave");
@@ -120,7 +121,9 @@ public class HandleInteractionClass {
 				logger.error("HandleInteractionClass.decodeInteractionClass: " + e);
 			}
 		}
-		interactionHandleMap.put(ich, parameterHandleSet);
+		if (gotPublish) {
+            interactionHandleMap.put(ich, parameterHandleSet);
+		}
 		// Do the child level
 		for (Node child = theSelectedNode.getFirstChild(); child != null; child = child.getNextSibling()) {
 			if (child.getNodeType() != Node.ELEMENT_NODE) {
