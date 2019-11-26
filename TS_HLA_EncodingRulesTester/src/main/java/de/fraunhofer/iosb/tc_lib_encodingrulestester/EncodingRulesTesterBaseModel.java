@@ -561,7 +561,6 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
     	 */
     	Map<ParameterHandle, ResultInfo> parameterResultMap = this.interactionParameterResultsmap.get(theInteraction);
     	if (parameterResultMap == null) {
-        	this.logger.trace("EncodingRulesTesterBaseModel.addParameterResult: A");
     		// Interaction not managed - create all elements
         	ResultInfo resultInfo = new ResultInfo();
         	resultInfo.addInfo(b, text);
@@ -570,20 +569,17 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
         	this.interactionParameterResultsmap.put(theInteraction, tmpParameterResultMap);
         	this.logger.trace("EncodingRulesTesterBaseModel.addParameterResult: A size " + this.interactionParameterResultsmap.size());
     	} else {
-        	this.logger.trace("EncodingRulesTesterBaseModel.addParameterResult: B");
     		// Interaction is already managed
     		ResultInfo tmpResultInfo = parameterResultMap.get(theParameter);
     		/*
     		 * Check if parameter is already managed
     		 */
     		if (tmpResultInfo == null) {
-            	this.logger.trace("EncodingRulesTesterBaseModel.addParameterResult: C");
     			// Parameter not managed - create result info
             	ResultInfo resultInfo = new ResultInfo();
             	resultInfo.addInfo(b, text);
             	parameterResultMap.put(theParameter, resultInfo);
     		} else {
-            	this.logger.trace("EncodingRulesTesterBaseModel.addParameterResult: D");
     			// Parameter is already managed - update.
     			tmpResultInfo.addInfo(b, text);
     		}
@@ -817,7 +813,6 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
     	 */
         Map<AttributeHandle, ResultInfoAttribute> attributeResultMap = this.objectAttributeResultsmap.get(theObject);
     	if (attributeResultMap == null) {
-        	this.logger.trace("EncodingRulesTesterBaseModel.addAttributeResult: A");
     		// Object not managed - create all elements
             tmpResultInfo = new ResultInfoAttribute();
             tmpResultInfo.addInfo(b, text);
@@ -826,33 +821,26 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
             this.objectAttributeResultsmap.put(theObject, tmpAttributeResultMap);
         	this.logger.trace("EncodingRulesTesterBaseModel.addAttributeResult: A size " + this.objectAttributeResultsmap.size());
     	} else {
-        	this.logger.trace("EncodingRulesTesterBaseModel.addAttributeResult: B");
     		// Object is already managed
             tmpResultInfo = attributeResultMap.get(theAttribute);
     		/*
     		 * Check if attribute is already managed
     		 */
     		if (tmpResultInfo == null) {
-            	this.logger.trace("EncodingRulesTesterBaseModel.addAttributeResult: C");
     			// Attribute not managed - create result info
                 tmpResultInfo = new ResultInfoAttribute();
                 tmpResultInfo.addInfo(b, text);
                 attributeResultMap.put(theAttribute, tmpResultInfo);
     		} else {
-            	this.logger.trace("EncodingRulesTesterBaseModel.addAttributeResult: D");
     			// Attribute is already managed - update.
     			tmpResultInfo.addInfo(b, text);
     		}
     	}
         if (b == false) {
             try {
-                this.logger.trace("EncodingRulesTesterBaseModel.addAttributeResult: AA");
                 if (tmpResultInfo.haveFederateName() == false) {
-                    this.logger.trace("EncodingRulesTesterBaseModel.addAttributeResult: AAA");
                     this.ivct_rti.queryAttributeOwnership(theObject, theAttribute);
-                    this.logger.trace("EncodingRulesTesterBaseModel.addAttributeResult: BBB");
                 }
-				this.logger.trace("EncodingRulesTesterBaseModel.addAttributeResult: BB");
             } catch (AttributeNotDefined | ObjectInstanceNotKnown | SaveInProgress | RestoreInProgress
                     | FederateNotExecutionMember | NotConnected | RTIinternalError e) {
                 this.logger.error("EncodingRulesTesterBaseModel.addAttributeResult: " + e);
