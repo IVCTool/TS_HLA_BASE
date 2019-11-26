@@ -205,7 +205,7 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 	private int correct = 0;
 	private int incorrect = 0;
     private IVCT_RTIambassador                             ivct_rti;
-    private IVCT_TcParam ivct_TcParam;
+    private EncodingRulesTesterTcParam ivct_TcParam;
     private Logger                                         logger;
     private Map<InteractionClassHandle, Set<ParameterHandle>> interactionClassHandleMap = new HashMap<InteractionClassHandle, Set<ParameterHandle>>();
     private Map<ParameterHandle, String> parameterHandleDataTypeMap = new HashMap<ParameterHandle, String>();
@@ -221,7 +221,7 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
      * @param ivct_rti reference to the RTI ambassador
      * @param ivct_TcParam ivct_TcParam
      */
-    public EncodingRulesTesterBaseModel(final Logger logger, final IVCT_RTIambassador ivct_rti, final IVCT_TcParam ivct_TcParam) {
+    public EncodingRulesTesterBaseModel(final Logger logger, final IVCT_RTIambassador ivct_rti, final EncodingRulesTesterTcParam ivct_TcParam) {
         super(ivct_rti, logger, ivct_TcParam);
         this.logger = logger;
         this.ivct_rti = ivct_rti;
@@ -496,7 +496,7 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
      * @throws TcInconclusive for errors
      */
     private void processSOM() throws TcInconclusive {
-        URL[] somUrls = this.ivct_TcParam.getUrls();
+        URL[] somUrls = this.ivct_TcParam.getSomUrls();
 
 		try {
 			DataTreeBuilder dataTreeBuilder = new DataTreeBuilder(this.ivct_rti, this.hlaDataTypes, this.interactionClassHandleMap, this.parameterHandleDataTypeMap, this.objectClassAttributeHandleMap, this.attributeHandleDataTypeMap);

@@ -190,6 +190,9 @@ public class HandleObjectClass {
 				return true;
 			}
 		}
+		if (gotPublish == false) {
+			return false;
+		}
 
 		// All found
 		if (gotName && gotDataType && gotPublish) {

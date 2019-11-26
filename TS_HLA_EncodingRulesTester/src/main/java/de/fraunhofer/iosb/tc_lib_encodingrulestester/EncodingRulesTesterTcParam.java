@@ -83,11 +83,11 @@ public class EncodingRulesTesterTcParam implements IVCT_TcParam {
 					}
 			        catch (MalformedURLException e) {
 						e.printStackTrace();
-		                throw new TcInconclusive("EncodingRulesTesterTcParam: MalformedURLException");
+		                throw new TcInconclusive("EncodingRulesTesterTcParam: MalformedURLException FOM");
 					}
 					catch (Exception e) {
 						e.printStackTrace();
-		                throw new TcInconclusive("EncodingRulesTesterTcParam: Exception");
+		                throw new TcInconclusive("EncodingRulesTesterTcParam: Exception FOM");
 					}
 				}
 			}
@@ -97,12 +97,26 @@ public class EncodingRulesTesterTcParam implements IVCT_TcParam {
                 throw new TcInconclusive("EncodingRulesTesterTcParam: missing SOM files");
 			}
 			else {
+		        int index = 0;
 				this.somUrls = new URL[somArray.size()];
 				Iterator iter = somArray.iterator();
 				while (iter.hasNext()) {
 					JSONObject element = (JSONObject) iter.next();
 					String fileName = (String) element.get("fileName");
 					this.somFiles.add(fileName);
+			        // add SOM file in url array
+			        try {
+			        	URI uri = (new File(fileName)).toURI();
+						this.somUrls[index++] = uri.toURL();
+					}
+			        catch (MalformedURLException e) {
+						e.printStackTrace();
+		                throw new TcInconclusive("EncodingRulesTesterTcParam: MalformedURLException SOM");
+					}
+					catch (Exception e) {
+						e.printStackTrace();
+		                throw new TcInconclusive("EncodingRulesTesterTcParam: Exception SOM");
+					}
 				}
 			}
 		} catch (ParseException e1) {
