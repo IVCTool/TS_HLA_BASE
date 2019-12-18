@@ -79,10 +79,33 @@ public class TC_001_Object_Interaction_Check extends AbstractTestCase {
         final String testPurpose = stringBuilder.toString();
         logger.info(testPurpose);
     }
+    
+    
+    public void displayOperatorInstructions(final Logger logger) {
+        String s = new String();
+        s = "\n"
+        +   "---------------------------------------------------------------------\n"
+        +   "OPERATOR INSTRUCTIONS: \n"
+        +   "1. Make sure that the test federate "
+        +   getSutFederateName()    
+        +   " is NOT running\n"
+        +   "2. Make sure that you start one or more other federates before the confirmation\n"
+        +   "---------------------------------------------------------------------\n";
+
+        logger.info(s);
+        try {
+            sendOperatorRequest(s);
+        } catch (InterruptedException e) {
+            logger.info("Exception: sendOperatorRequest: " + e);
+        }
+    }
 
 
     @Override
     protected void preambleAction(final Logger logger) throws TcInconclusive {
+        
+        // Notify the operator
+        displayOperatorInstructions(logger);
 
     	// Load FOM/SOM files
         if (HlaObjectBaseModel.loadFomSomFiles() == false)

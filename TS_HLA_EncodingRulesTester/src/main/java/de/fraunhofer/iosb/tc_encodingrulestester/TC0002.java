@@ -79,13 +79,19 @@ public class TC0002 extends AbstractTestCase {
         String s = new String();
         s = "\n"
         +   "---------------------------------------------------------------------\n"
-        +   "OPERATOR INSTRUCTIONS: Start the test federate before starting the test case with the same\n"
-        +   "OPERATOR INSTRUCTIONS: federate name as in the TcParam.json file\n"
-        +   "OPERATOR INSTRUCTIONS: The federate should run for the full duration of all the encoding\n"
-        +   "OPERATOR INSTRUCTIONS: rules test\n"
+        +   "OPERATOR INSTRUCTIONS: \n"
+		+	"1. Start the test federate before starting the test case with the federate name "
+		+	getSutFederateName()	
+		+ 	"\n"
+        +   "2. The federate should run for the full duration of all the encoding rules test\n"
         +   "---------------------------------------------------------------------\n";
 
         logger.info(s);
+		try {
+			sendOperatorRequest(s);
+		} catch (InterruptedException e) {
+            logger.info("Exception: sendOperatorRequest: " + e);
+		}
     }
 
     @Override
