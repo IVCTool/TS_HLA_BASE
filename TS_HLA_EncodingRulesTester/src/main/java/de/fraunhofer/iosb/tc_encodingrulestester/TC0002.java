@@ -16,8 +16,6 @@ limitations under the License.
 
 package de.fraunhofer.iosb.tc_encodingrulestester;
 
-import java.util.Properties;
-
 import org.slf4j.Logger;
 
 import de.fraunhofer.iosb.tc_lib.AbstractTestCase;
@@ -80,10 +78,10 @@ public class TC0002 extends AbstractTestCase {
         s = "\n"
         +   "---------------------------------------------------------------------\n"
         +   "OPERATOR INSTRUCTIONS: \n"
-		+	"1. Start the test federate before starting the test case with the federate name "
-		+	getSutFederateName()	
-		+ 	"\n"
-        +   "2. The federate should run for the full duration of all the encoding rules test\n"
+        +   "1. Start the test federate "
+        +   getSutFederateName()    
+        +   " before the confirmation\n"
+        +   "2. The federate should run for the full duration of the tests\n"
         +   "---------------------------------------------------------------------\n";
 
         logger.info(s);

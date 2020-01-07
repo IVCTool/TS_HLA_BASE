@@ -89,7 +89,7 @@ public class TC_001_Object_Interaction_Check extends AbstractTestCase {
         +   "1. Make sure that the test federate "
         +   getSutFederateName()    
         +   " is NOT running\n"
-        +   "2. Make sure that you start one or more other federates before the confirmation\n"
+        +   "2. Start the partner federate before the confirmation\n"
         +   "---------------------------------------------------------------------\n";
 
         logger.info(s);
@@ -135,6 +135,23 @@ public class TC_001_Object_Interaction_Check extends AbstractTestCase {
         // Allow time to work and get some reflect values.
         long remainingTestDuration = HlaObjectTcParam.getTestDuration();
         long notificationPeriod = HLA_Object_BaseModel.defaultNotificationPeriod;
+        
+        String s = new String();
+        s = "\n"
+        +   "---------------------------------------------------------------------\n"
+        +   "OPERATOR INSTRUCTIONS: \n"
+        +   "1. Start the test federate "
+        +   getSutFederateName()    
+        +   " before the confirmation\n"
+        +   "---------------------------------------------------------------------\n";
+
+        logger.info(s);
+        try {
+            sendOperatorRequest(s);
+        } catch (InterruptedException e) {
+            logger.info("Exception: sendOperatorRequest: " + e);
+        }
+        
         while (remainingTestDuration > 0) {
             if (HlaObjectBaseModel.sleepFor(logger,notificationPeriod)) {
                 throw new TcInconclusive(TextInternationalization.getString("etc_fra.sleepError"));
