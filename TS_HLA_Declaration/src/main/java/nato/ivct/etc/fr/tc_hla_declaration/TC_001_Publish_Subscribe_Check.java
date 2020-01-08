@@ -90,7 +90,7 @@ public class TC_001_Publish_Subscribe_Check extends AbstractTestCase {
         +   "1. Make sure that the test federate "
         +   getSutFederateName()    
         +   " is NOT running\n"
-        +   "2. Start the partner federate before the confirmation\n"
+        +   "2. Start the partner federate and then hit confirm button\n"
         +   "---------------------------------------------------------------------\n";
 
         logger.info(s);
@@ -145,7 +145,7 @@ public class TC_001_Publish_Subscribe_Check extends AbstractTestCase {
         +   "OPERATOR INSTRUCTIONS: \n"
         +   "1. Start the test federate "
         +   getSutFederateName()    
-        +   " before the confirmation\n"
+        +   " and then hit confirm button\n"
         +   "---------------------------------------------------------------------\n";
 
         logger.info(s);
