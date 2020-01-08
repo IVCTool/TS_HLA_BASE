@@ -46,7 +46,7 @@ public class TC_001_Services_Check extends AbstractTestCase {
     // Get logging-IVCT-RTI using tc_param federation name, host
     private static IVCT_RTIambassador           ivct_rti;
     static HLA_Services_BaseModel            	HlaServicesBaseModel;
-    
+
     static IVCT_LoggingFederateAmbassador		ivct_LoggingFederateAmbassador;
 
 
@@ -68,7 +68,7 @@ public class TC_001_Services_Check extends AbstractTestCase {
 
     @Override
     protected void logTestPurpose(final Logger logger) {
-    	
+
     	// Build purpose text
         final StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(FCTT_Constant.REPORT_FILE_SEPARATOR);
@@ -80,14 +80,14 @@ public class TC_001_Services_Check extends AbstractTestCase {
         logger.info(testPurpose);
     }
 
-    
-    public void displayOperatorInstructions(final Logger logger) {
+
+    public void displayOperatorInstructions(final Logger logger) throws TcInconclusive {
         String s = new String();
         s = "\n"
         +   "---------------------------------------------------------------------\n"
         +   "OPERATOR INSTRUCTIONS: \n"
         +   "1. Make sure that the test federate "
-        +   getSutFederateName()    
+        +   getSutFederateName()
         +   " is NOT running\n"
         +   "2. Start the partner federate before the confirmation\n"
         +   "---------------------------------------------------------------------\n";
@@ -99,18 +99,18 @@ public class TC_001_Services_Check extends AbstractTestCase {
             logger.info("Exception: sendOperatorRequest: " + e);
         }
     }
-    
+
 
     @Override
     protected void preambleAction(final Logger logger) throws TcInconclusive {
-        
+
         // Notify the operator
         displayOperatorInstructions(logger);
 
     	// Load FOM/SOM files
         if (HlaServicesBaseModel.loadFomSomFiles() == false)
         	throw new TcInconclusive(TextInternationalization.getString("etc_fra.FomSomError"));
-        
+
     	// Initiate rti
         TcFederateHandle = HlaServicesBaseModel.initiateRti(TcFederateName, ivct_LoggingFederateAmbassador);
 
@@ -131,17 +131,17 @@ public class TC_001_Services_Check extends AbstractTestCase {
         File resultFile = new File(resultFileName);
         if (!resultFile.exists())
             throw new TcInconclusive(String.format(TextInternationalization.getString("etc_fra.resultDirError"),resultFileName));
-    	
+
         // Allow time to work and get some reflect values.
         long remainingTestDuration = HlaServicesTcParam.getTestDuration();
         long notificationPeriod = HLA_Services_BaseModel.defaultNotificationPeriod;
-               
+
         String s = new String();
         s = "\n"
         +   "---------------------------------------------------------------------\n"
         +   "OPERATOR INSTRUCTIONS: \n"
         +   "1. Start the test federate "
-        +   getSutFederateName()    
+        +   getSutFederateName()
         +   " before the confirmation\n"
         +   "---------------------------------------------------------------------\n";
 
@@ -151,7 +151,7 @@ public class TC_001_Services_Check extends AbstractTestCase {
         } catch (InterruptedException e) {
             logger.info("Exception: sendOperatorRequest: " + e);
         }
-        
+
         while (remainingTestDuration > 0) {
             if (HlaServicesBaseModel.sleepFor(logger,notificationPeriod)) {
                 throw new TcInconclusive(TextInternationalization.getString("etc_fra.sleepError"));
@@ -159,7 +159,7 @@ public class TC_001_Services_Check extends AbstractTestCase {
             remainingTestDuration -= notificationPeriod;
             sendTcStatus ("wait to get reflect values", (int) ((100 * (HlaServicesTcParam.getTestDuration() - remainingTestDuration) / HlaServicesTcParam.getTestDuration())));
         }
-        
+
     	logger.info(TextInternationalization.getString("etc_fra.wakeup"));
 
     	// Generate result files
@@ -170,7 +170,7 @@ public class TC_001_Services_Check extends AbstractTestCase {
 
     @Override
     protected void postambleAction(final Logger logger) throws TcInconclusive, TcInconclusive {
-        
+
         // Terminate rti
         HlaServicesBaseModel.terminateRti();
     }
