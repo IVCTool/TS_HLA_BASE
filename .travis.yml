@@ -18,11 +18,11 @@ before_install:
 install: ./gradlew install dockerBuildImage
 
 script:
-- docker tag ivct/ts-hla-encoding-rules:2.0.0 ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-latest
-- docker tag ivct/ts-hla-cs-verification:2.0.0 ivct/ts-hla-cs-verification:$TRAVIS_BRANCH-latest
-- docker tag ivct/ts-hla-declaration:2.0.0 ivct/ts-hla-declaration:$TRAVIS_BRANCH-latest
-- docker tag ivct/ts-hla-object:2.0.0 ivct/ts-hla-object:$TRAVIS_BRANCH-latest
-- docker tag ivct/ts-hla-services:2.0.0 ivct/ts-hla-services:$TRAVIS_BRANCH-latest
+- docker tag ivct/ts-hla-encoding-rules:2.1.0 ivct/ts-hla-encoding-rules:$TRAVIS_BRANCH-latest
+- docker tag ivct/ts-hla-cs-verification:2.1.0 ivct/ts-hla-cs-verification:$TRAVIS_BRANCH-latest
+- docker tag ivct/ts-hla-declaration:2.1.0 ivct/ts-hla-declaration:$TRAVIS_BRANCH-latest
+- docker tag ivct/ts-hla-object:2.1.0 ivct/ts-hla-object:$TRAVIS_BRANCH-latest
+- docker tag ivct/ts-hla-services:2.1.0 ivct/ts-hla-services:$TRAVIS_BRANCH-latest
 - docker push ivct/ts-hla-encoding-rules
 - docker push ivct/ts-hla-cs-verification
 - docker push ivct/ts-hla-declaration

@@ -46,10 +46,10 @@ public class TC_001_Publish_Subscribe_Check extends AbstractTestCase {
     // Get logging-IVCT-RTI using tc_param federation name, host
     private static IVCT_RTIambassador           ivct_rti;
     static HLA_Declaration_BaseModel            HlaDeclarationBaseModel;
-    
+
     static IVCT_LoggingFederateAmbassador		ivct_LoggingFederateAmbassador;
 
-    
+
     @Override
     public IVCT_BaseModel getIVCT_BaseModel(final String tcParamJson, final Logger logger) throws TcInconclusive {
 
@@ -68,7 +68,7 @@ public class TC_001_Publish_Subscribe_Check extends AbstractTestCase {
 
     @Override
     protected void logTestPurpose(final Logger logger) {
-    	
+
     	// Build purpose text
         final StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(FCTT_Constant.REPORT_FILE_SEPARATOR);
@@ -82,16 +82,38 @@ public class TC_001_Publish_Subscribe_Check extends AbstractTestCase {
     }
 
 
+    public void displayOperatorInstructions(final Logger logger) throws TcInconclusive {
+        String s = new String();
+        s = "\n"
+        +   "---------------------------------------------------------------------\n"
+        +   "OPERATOR INSTRUCTIONS: \n"
+        +   "1. Make sure that the test federate "
+        +   getSutFederateName()
+        +   " is NOT running\n"
+        +   "2. Start the partner federate and then hit confirm button\n"
+        +   "---------------------------------------------------------------------\n";
+
+        logger.info(s);
+        try {
+            sendOperatorRequest(s);
+        } catch (InterruptedException e) {
+            logger.info("Exception: sendOperatorRequest: " + e);
+        }
+    }
+
     @Override
     protected void preambleAction(final Logger logger) throws TcInconclusive {
 
+        // Notify the operator
+        displayOperatorInstructions(logger);
+
     	// Environment verification
 //    	logger.error(String.format("*** RMA  *** : " + System.getenv("se.pitch.prti1516e.enableSmartFormatterForReporting")));
-    	
+
     	// Load FOM/SOM files
         if (HlaDeclarationBaseModel.loadFomSomFiles() == false)
         	throw new TcInconclusive(TextInternationalization.getString("etc_fra.FomSomError"));
-        
+
     	// Initiate rti
         TcFederateHandle = HlaDeclarationBaseModel.initiateRti(TcFederateName, ivct_LoggingFederateAmbassador);
 
@@ -112,10 +134,27 @@ public class TC_001_Publish_Subscribe_Check extends AbstractTestCase {
         File resultFile = new File(resultFileName);
         if (!resultFile.exists())
             throw new TcInconclusive(String.format(TextInternationalization.getString("etc_fra.resultDirError"),resultFileName));
-    	
+
         // Allow time to work and get some reflect values.
         long remainingTestDuration = HlaDeclarationTcParam.getTestDuration();
         long notificationPeriod = HLA_Declaration_BaseModel.defaultNotificationPeriod;
+
+        String s = new String();
+        s = "\n"
+        +   "---------------------------------------------------------------------\n"
+        +   "OPERATOR INSTRUCTIONS: \n"
+        +   "1. Start the test federate "
+        +   getSutFederateName()
+        +   " and then hit confirm button\n"
+        +   "---------------------------------------------------------------------\n";
+
+        logger.info(s);
+        try {
+            sendOperatorRequest(s);
+        } catch (InterruptedException e) {
+            logger.info("Exception: sendOperatorRequest: " + e);
+        }
+
         while (remainingTestDuration > 0) {
             if (HlaDeclarationBaseModel.sleepFor(logger,notificationPeriod)) {
                 throw new TcInconclusive(TextInternationalization.getString("etc_fra.sleepError"));
@@ -123,7 +162,7 @@ public class TC_001_Publish_Subscribe_Check extends AbstractTestCase {
             remainingTestDuration -= notificationPeriod;
             sendTcStatus ("wait to observe declarations", (int) ((100 * (HlaDeclarationTcParam.getTestDuration() - remainingTestDuration) / HlaDeclarationTcParam.getTestDuration())));
         }
-        
+
     	logger.info(TextInternationalization.getString("etc_fra.wakeup"));
 
     	// Generate result files
@@ -134,7 +173,7 @@ public class TC_001_Publish_Subscribe_Check extends AbstractTestCase {
 
     @Override
     protected void postambleAction(final Logger logger) throws TcInconclusive, TcInconclusive {
-        
+
         // Terminate rti
         HlaDeclarationBaseModel.terminateRti();
     }
