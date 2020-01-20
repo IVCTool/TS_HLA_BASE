@@ -47,7 +47,7 @@ This test case verifies that the federate sends and receives only the objects an
 
 The interoperability requirements associated with this test case are as follows:
 * [IR-SOM-0011]:	SuT shall register at least one object instance for each published object class
-* [IR-SOM-0012]:	SuT shall discover object instances for all object classes with attributes defined as subscribed 
+* [IR-SOM-0012]:	SuT shall discover object instances for all object classes with attributes defined as subscribed
 * [IR-SOM-0013]:	SuT shall update attribute values for each published object class attribute
 * [IR-SOM-0014]:	SuT shall reflect attribute values for each subscribed object class attribute
 * [IR-SOM-0015]:	SuT shall send at least one interaction for each published interaction class
@@ -84,3 +84,9 @@ The interoperability requirements associated with this test case are as follows:
 * [IR-SOM-0002]:	SuT CS/SOM shall be consistent
 
 derrived from https://github.com/MSG134/TS_CS_Verification
+
+## LICENCE
+
+Copyright 2019 NATO/OTAN
+
+Licensed under the Apache License, Version 2.0: http://www.apache.org/licenses/LICENSE-2.0
