@@ -82,8 +82,7 @@ public class TC_001_Object_Interaction_Check extends AbstractTestCase {
 
 
     public void displayOperatorInstructions(final Logger logger) throws TcInconclusive {
-        String s = new String();
-        s = "\n"
+        String s = "\n"
         +   "---------------------------------------------------------------------\n"
         +   "OPERATOR INSTRUCTIONS: \n"
         +   "1. Make sure that the test federate "
@@ -93,11 +92,7 @@ public class TC_001_Object_Interaction_Check extends AbstractTestCase {
         +   "---------------------------------------------------------------------\n";
 
         logger.info(s);
-        try {
-            sendOperatorRequest(s);
-        } catch (InterruptedException e) {
-            logger.info("Exception: sendOperatorRequest: " + e);
-        }
+        sendOperatorRequest(s);
     }
 
 
@@ -136,8 +131,7 @@ public class TC_001_Object_Interaction_Check extends AbstractTestCase {
         long remainingTestDuration = HlaObjectTcParam.getTestDuration();
         long notificationPeriod = HLA_Object_BaseModel.defaultNotificationPeriod;
 
-        String s = new String();
-        s = "\n"
+        String s = "\n"
         +   "---------------------------------------------------------------------\n"
         +   "OPERATOR INSTRUCTIONS: \n"
         +   "1. Start the test federate "
@@ -146,11 +140,7 @@ public class TC_001_Object_Interaction_Check extends AbstractTestCase {
         +   "---------------------------------------------------------------------\n";
 
         logger.info(s);
-        try {
-            sendOperatorRequest(s);
-        } catch (InterruptedException e) {
-            logger.info("Exception: sendOperatorRequest: " + e);
-        }
+        sendOperatorRequest(s);
 
         while (remainingTestDuration > 0) {
             if (HlaObjectBaseModel.sleepFor(logger,notificationPeriod)) {

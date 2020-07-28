@@ -83,8 +83,7 @@ public class TC_001_Publish_Subscribe_Check extends AbstractTestCase {
 
 
     public void displayOperatorInstructions(final Logger logger) throws TcInconclusive {
-        String s = new String();
-        s = "\n"
+        String s = "\n"
         +   "---------------------------------------------------------------------\n"
         +   "OPERATOR INSTRUCTIONS: \n"
         +   "1. Make sure that the test federate "
@@ -94,11 +93,7 @@ public class TC_001_Publish_Subscribe_Check extends AbstractTestCase {
         +   "---------------------------------------------------------------------\n";
 
         logger.info(s);
-        try {
-            sendOperatorRequest(s);
-        } catch (InterruptedException e) {
-            logger.info("Exception: sendOperatorRequest: " + e);
-        }
+        sendOperatorRequest(s);
     }
 
     @Override
@@ -139,8 +134,7 @@ public class TC_001_Publish_Subscribe_Check extends AbstractTestCase {
         long remainingTestDuration = HlaDeclarationTcParam.getTestDuration();
         long notificationPeriod = HLA_Declaration_BaseModel.defaultNotificationPeriod;
 
-        String s = new String();
-        s = "\n"
+        String s = "\n"
         +   "---------------------------------------------------------------------\n"
         +   "OPERATOR INSTRUCTIONS: \n"
         +   "1. Start the test federate "
@@ -149,11 +143,7 @@ public class TC_001_Publish_Subscribe_Check extends AbstractTestCase {
         +   "---------------------------------------------------------------------\n";
 
         logger.info(s);
-        try {
-            sendOperatorRequest(s);
-        } catch (InterruptedException e) {
-            logger.info("Exception: sendOperatorRequest: " + e);
-        }
+        sendOperatorRequest(s);
 
         while (remainingTestDuration > 0) {
             if (HlaDeclarationBaseModel.sleepFor(logger,notificationPeriod)) {

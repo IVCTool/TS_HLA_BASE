@@ -58,8 +58,7 @@ public class TC0002 extends AbstractTestCase {
 
     @Override
     protected void logTestPurpose(final Logger logger) {
-        String s = new String();
-        s = "\n"
+        String s = "\n"
         +   "---------------------------------------------------------------------\n"
         +   "TEST PURPOSE: Test if a federate correctly encodes the attribute and parameter data\n"
         +   "TEST PURPOSE: fields\n"
@@ -74,8 +73,7 @@ public class TC0002 extends AbstractTestCase {
     }
 
     public void displayOperatorInstructions(final Logger logger) throws TcInconclusive {
-        String s = new String();
-        s = "\n"
+        String s = "\n"
         +   "---------------------------------------------------------------------\n"
         +   "OPERATOR INSTRUCTIONS: \n"
         +   "1. Start the test federate "
@@ -85,11 +83,7 @@ public class TC0002 extends AbstractTestCase {
         +   "---------------------------------------------------------------------\n";
 
         logger.info(s);
-		try {
-			sendOperatorRequest(s);
-		} catch (InterruptedException e) {
-            logger.info("Exception: sendOperatorRequest: " + e);
-		}
+        sendOperatorRequest(s);
     }
 
     @Override
