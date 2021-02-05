@@ -25,3 +25,6 @@ build
 target
 /.gradle
 /.nb-gradle/
+
+# IVCT temporary file
+testCaseBuild.properties

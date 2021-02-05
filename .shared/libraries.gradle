@@ -8,7 +8,7 @@ ext {
         gradleWrapperVersion = "${gradleVersion}"
 
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~ IVCT settings
-		ivctVersion = '3.1.0-SNAPSHOT'
+        ivctVersion = '4.0.0'
 
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~ HLA Encoding Rules Tester settings
 		TS_HLA_BaseVersion = '2.1.0'
