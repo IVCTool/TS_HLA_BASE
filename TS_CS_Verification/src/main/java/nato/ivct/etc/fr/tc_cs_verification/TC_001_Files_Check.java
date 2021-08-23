@@ -91,17 +91,23 @@ public class TC_001_Files_Check extends AbstractTestCase {
     @Override
     protected void performTest(final Logger logger) throws TcInconclusive, TcFailed {
 
+        logger.debug("starting test:");
+
     	// Check result directory
     	String resultFileName = CsVerificationTcParam.getResultDir();
+        logger.debug("test - create result file");
         File resultFile = new File(resultFileName);
         if (!resultFile.exists())
             throw new TcInconclusive(String.format(TextInternationalization.getString("etc_fra.resultDirError"),resultFileName));
 
         // Check FOM/SOM files
+        logger.debug("test - checking FOM / SOM compliance");
         if (CsVerificationBaseModel.validateFomSomFiles() == false)
         	throw new TcFailed(TextInternationalization.getString("csverification.invalidFomSom"));
     	
     	logger.info(FCTT_Constant.REPORT_FILE_SEPARATOR);
+
+        logger.debug("test completed");
     }
 
 
