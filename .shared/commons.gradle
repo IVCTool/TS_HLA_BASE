@@ -69,7 +69,7 @@ subprojects { subProject ->
 		}
 
 
-        apply plugin: 'maven' // for install task as well as deploy dependencies
+		apply plugin: 'maven-publish'
 
 
         // custom tasks for creating source/javadoc jars
