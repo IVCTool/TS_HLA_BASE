@@ -1,59 +1,45 @@
-// apply java application plugin
-apply plugin: 'application'
-
-
 buildscript {
-    repositories {
-		mavenLocal()
-		mavenCentral()
-	}
-  dependencies {
-	classpath libraries.docker
+  repositories {
+  mavenLocal()
+  mavenCentral()
   }
 }
 
-// apply plugin: "com.bmuschko.docker-remote-api"
-apply plugin: com.bmuschko.gradle.docker.DockerRemoteApiPlugin
-
-// import remote API plugin task groups
-import com.bmuschko.gradle.docker.tasks.image.*
-import com.bmuschko.gradle.docker.*
-
-// Use task types
-task dockerBuildImage(type: DockerBuildImage) {
-    dependsOn 'install'
-    inputDir = file('.')
-    buildArgs.put('version', "${TS_HLA_BaseVersion}")
-    tags.add ("ivct/ts-hla-cs-verification:${TS_HLA_BaseVersion}")
+plugins {
+	// use java application packaging feature
+	id 'application'
 }
 
 mainClassName = 'de.fraunhofer.iosb.testrunner.JMSTestRunner'
 
+task dockerBuildImage (type: Exec) {
+	group = 'Docker'
+	description = 'command line task to create docker image'
+	executable 'docker'
+	args 'build', '-t', "ivct/ts-hla-cs-verification:${TS_HLA_BaseVersion}", '--build-arg', "version=${TS_HLA_BaseVersion}", '.'
+	dependsOn('distTar')
+}
+
 dependencies {
-    compileOnly     project(':ETC_FRA_Common')
+	implementation project(':ETC_FRA_Common')
 
-    compileOnly libraries.ieee
+	compileOnly libraries.ieee
 	compileOnly libraries.tc_lib
-    compileOnly libraries.jsonSimple
-    compileOnly group: 'org.openjfx', name: 'javafx', version: '12'
+	compileOnly libraries.jsonSimple
+	compileOnly libraries.slf4j_api
 
-	compileOnly     libraries.slf4j_api
+	// jfx is needed because docker images is currently using openjdk version 1.8.0_111-internal which has no jfx support
+	// implementation group: 'org.openjfx', name: 'javafx', version: '12'
+	// implementation fileTree(dir: 'libs', include: '*.jar')
 
-//	compileOnly     fileTree(dir: 'libs', include: '*.jar')
+	testImplementation project(':ETC_FRA_Common')
+	testImplementation libraries.logback_classic
+	testImplementation libraries.logback_core
+	testImplementation libraries.slf4j_jcl_over_slf4j
+	testImplementation libraries.slf4j_jul_to_slf4j
+	testImplementation libraries.slf4j_log4j_over_slf4j
 
-    runtime     project(':ETC_FRA_Common')
-
-	runtime		libraries.logback_classic
-	runtime		libraries.logback_core
-	runtime     libraries.slf4j_jcl_over_slf4j
-	runtime     libraries.slf4j_jul_to_slf4j
-	runtime     libraries.slf4j_log4j_over_slf4j
-
-// https://mvnrepository.com/artifact/org.openjfx/javafx
-//    runtime group: 'org.openjfx', name: 'javafx', version: '11'
-
-     // jfx is needed because docker images is currently using openjdk version 1.8.0_111-internal which has no jfx support
-     implementation     files('libs/jfxrt.jar')
+	// testImplementation files('libs/jfxrt.jar')
 }
 
 
