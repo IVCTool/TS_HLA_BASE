@@ -1,7 +1,4 @@
-| Branch | Build status |
-| ------ | ------------ |
-| Master | [![Build Status master branch](https://travis-ci.org/IVCTool/TS_HLA_BASE.svg?branch=master)](https://travis-ci.org/IVCTool/TS_HLA_BASE) |
-| Development | [![Build Status development branch](https://travis-ci.org/IVCTool/TS_HLA_BASE.svg?branch=development)](https://travis-ci.org/IVCTool/TS_HLA_BASE) |
+[![gradle-publish](https://github.com/IVCTool/TS_HLA_BASE/actions/workflows/gradle-publish.yml/badge.svg)](https://github.com/IVCTool/TS_HLA_BASE/actions/workflows/gradle-publish.yml)
 
 # TS_HLA_BASE
 
