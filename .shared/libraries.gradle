@@ -20,6 +20,12 @@ ext {
 		logbackVersion = '1.1.3'
 		slf4jVersion = '1.7.10'
         jsonSimpleVersion = '1.1.1'
+        controlsfxVersion = '8.40.10'
+        dom4jVersion = '1.6.1'
+        jdomVersion = '2.0.6'
+        log4jVersion = '2.4.1'
+        eclipseCoreVersion = '3.7.0'
+        xercesVersion = '2.12.1'
 
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~  now create libraries with the versions from above
 		libraries = [
@@ -35,6 +41,15 @@ ext {
             slf4j_jul_to_slf4j:             "org.slf4j:jul-to-slf4j:${slf4jVersion}",
             slf4j_log4j_over_slf4j:         "org.slf4j:log4j-over-slf4j:${slf4jVersion}",
             jsonSimple:						"com.googlecode.json-simple:json-simple:${jsonSimpleVersion}",
+            controlsfx:                     "org.controlsfx:controlsfx:${controlsfxVersion}",
+            dom4j:                          "org.dom4j:com.springsource.org.dom4j:${dom4jVersion}",
+            jdom:                           "org.jdom:jdom2:${jdomVersion}",
+            log4j_api:                      "org.apache.logging.log4j:log4j-api:${log4jVersion}",
+            log4j_core:                     "org.apache.logging.log4j:log4j-core:${log4jVersion}",
+            eclipse_core:                   "org.eclipse.core:org.eclipse.core.runtime:${eclipseCoreVersion}",
+            xerces:                         "xerces:xercesImpl:${xercesVersion}",
+
+
 
             // ~~~~~~~~~~~~~~~~~~~~~~~~~~ testing
             junit:                          "junit:junit:${junitVersion}",

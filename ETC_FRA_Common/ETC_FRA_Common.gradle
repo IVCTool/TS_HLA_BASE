@@ -6,9 +6,28 @@ dependencies {
 	compileOnly     libraries.jsonSimple
 	compileOnly     libraries.slf4j_api
 
-//	implementation     fileTree(dir: 'libs', include: '*.jar')
-	implementation     files('libs/com.springsource.org.dom4j-1.6.1.jar')
-	implementation     files('libs/controlsfx-8.40.10.jar')
+	implementation libraries.controlsfx
+	implementation libraries.dom4j
+	implementation libraries.jdom
+	implementation libraries.log4j_api
+	implementation libraries.log4j_core
+	implementation libraries.eclipse_core
+	implementation libraries.xerces
+
+	// pre-loaded jar replaced by central repository lookup
+	//	implementation     fileTree(dir: 'libs', include: '*.jar')
+	//	implementation     files('libs/com.springsource.org.dom4j-1.6.1.jar')
+	//	implementation     files('libs/controlsfx-8.40.10.jar')
+	//	implementation     files('libs/jdom-2.0.6.jar')
+	//	implementation     files('libs/jfxrt.jar')
+	//	implementation     files('libs/log4j-1.2-api-2.4.1.jar')
+	//	implementation     files('libs/log4j-api-2.4.1.jar')
+	//	implementation     files('libs/log4j-core-2.4.1.jar')
+	//	implementation     files('libs/org.eclipse.core.runtime-3.1.0.jar')
+	//	implementation     files('libs/xercesImpl.jar')
+
+	// Libraries not supported by public repositories
+	implementation     files('libs/probatron.jar')
 	implementation     files('libs/fr.itcs.sme.architecture.mm_3.0.0.201206041019.jar')
 	implementation     files('libs/fr.itcs.sme.base.api_3.0.0.201206041019.jar')
 	implementation     files('libs/fr.itcs.sme.base.core_3.0.0.201206041019.jar')
@@ -17,18 +36,11 @@ dependencies {
 	implementation     files('libs/fr.itcs.sme.configuration.mm_3.0.0.201206041019.jar')
 	implementation     files('libs/fr.itcs.sme.deployment.mm_3.0.0.201206041019.jar')
 	implementation     files('libs/fr.itcs.sme.specification.mm_3.0.0.201206041019.jar')
-	implementation     files('libs/jdom-2.0.6.jar')
-//	implementation     files('libs/jfxrt.jar')
-//	implementation     files('libs/log4j-1.2-api-2.4.1.jar')
-	implementation     files('libs/log4j-api-2.4.1.jar')
-	implementation     files('libs/log4j-core-2.4.1.jar')
-	implementation     files('libs/org.eclipse.core.runtime-3.1.0.jar')
+	// eclipse emf framework is currently on version 2.26. Version 2.5 is no longer supported
 	implementation     files('libs/org.eclipse.emf.common_2.5.0.v200906151043.jar')
 	implementation     files('libs/org.eclipse.emf.ecore.xmi_2.5.0.v200906151043.jar')
 	implementation     files('libs/org.eclipse.emf.ecore_2.5.0.v200906151043.jar')
 	implementation     files('libs/org.eclipse.emf.edit_2.5.0.v200906151043.jar')
-	implementation     files('libs/probatron.jar')
-	implementation     files('libs/xercesImpl.jar')
 
     // JAX-B dependencies for JDK 9+
     implementation "jakarta.xml.bind:jakarta.xml.bind-api:2.3.2"
