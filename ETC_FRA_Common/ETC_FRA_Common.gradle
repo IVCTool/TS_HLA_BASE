@@ -27,6 +27,7 @@ dependencies {
 	//	implementation     files('libs/xercesImpl.jar')
 
 	// Libraries not supported by public repositories
+	implementation     files('libs/jfxrt.jar')
 	implementation     files('libs/probatron.jar')
 	implementation     files('libs/fr.itcs.sme.architecture.mm_3.0.0.201206041019.jar')
 	implementation     files('libs/fr.itcs.sme.base.api_3.0.0.201206041019.jar')
