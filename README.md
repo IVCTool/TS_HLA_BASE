@@ -1,4 +1,4 @@
-[![gradle-publish](https://github.com/IVCTool/TS_HLA_BASE/actions/workflows/gradle-publish.yml/badge.svg)](https://github.com/IVCTool/TS_HLA_BASE/actions/workflows/gradle-publish.yml)
+[![gradle-publish](https://github.com/IVCTool/TS_HLA_BASE/actions/workflows/gradle-publish.yml/badge.svg)](https://github.com/IVCTool/TS_HLA_BASE/actions/workflows/gradle-publish.yml) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/7d80be1e1faf45c086368357158e9607)](https://www.codacy.com/gh/IVCTool/TS_HLA_BASE/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=IVCTool/TS_HLA_BASE&amp;utm_campaign=Badge_Grade)
 
 # TS_HLA_BASE
 
