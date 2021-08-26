@@ -1,5 +1,6 @@
 | Branch | Build status |
 | ------ | ------------ |
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/7850d411b237434db54297ecbe40b719)](https://app.codacy.com/gh/IVCTool/TS_HLA_BASE?utm_source=github.com&utm_medium=referral&utm_content=IVCTool/TS_HLA_BASE&utm_campaign=Badge_Grade_Settings)
 | Master | [![Build Status master branch](https://travis-ci.org/IVCTool/TS_HLA_BASE.svg?branch=master)](https://travis-ci.org/IVCTool/TS_HLA_BASE) |
 | Development | [![Build Status development branch](https://travis-ci.org/IVCTool/TS_HLA_BASE.svg?branch=development)](https://travis-ci.org/IVCTool/TS_HLA_BASE) |
 
