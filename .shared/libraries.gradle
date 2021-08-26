@@ -49,8 +49,6 @@ ext {
             eclipse_core:                   "org.eclipse.core:org.eclipse.core.runtime:${eclipseCoreVersion}",
             xerces:                         "xerces:xercesImpl:${xercesVersion}",
 
-
-
             // ~~~~~~~~~~~~~~~~~~~~~~~~~~ testing
             junit:                          "junit:junit:${junitVersion}",
         ]
