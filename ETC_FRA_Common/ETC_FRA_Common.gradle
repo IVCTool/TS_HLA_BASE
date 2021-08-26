@@ -1,7 +1,9 @@
 apply plugin: 'java-library'
 
 dependencies {
+	// only required to compile, will be replaced at runtime by RTI
 	compileOnly     libraries.ieee
+	// only required to compile, will be available at runtime within the test case engine
 	compileOnly     libraries.tc_lib
 	compileOnly     libraries.jsonSimple
 	compileOnly     libraries.slf4j_api
@@ -12,7 +14,9 @@ dependencies {
 	implementation libraries.log4j_api
 	implementation libraries.log4j_core
 	implementation libraries.eclipse_core
+
 	implementation libraries.xerces
+	// implementation files('libs/xercesImpl.jar')
 
 	// pre-loaded jar replaced by central repository lookup
 	//	implementation     fileTree(dir: 'libs', include: '*.jar')
@@ -27,23 +31,23 @@ dependencies {
 	//	implementation     files('libs/xercesImpl.jar')
 
 	// Libraries not supported by public repositories
-	implementation     files('libs/jfxrt.jar')
-	implementation     files('libs/probatron.jar')
-	implementation     files('libs/fr.itcs.sme.architecture.mm_3.0.0.201206041019.jar')
-	implementation     files('libs/fr.itcs.sme.base.api_3.0.0.201206041019.jar')
-	implementation     files('libs/fr.itcs.sme.base.core_3.0.0.201206041019.jar')
-	implementation     files('libs/fr.itcs.sme.base.mm_3.0.0.201206041019.jar')
-	implementation     files('libs/fr.itcs.sme.conception.mm_3.0.0.201206041019.jar')
-	implementation     files('libs/fr.itcs.sme.configuration.mm_3.0.0.201206041019.jar')
-	implementation     files('libs/fr.itcs.sme.deployment.mm_3.0.0.201206041019.jar')
-	implementation     files('libs/fr.itcs.sme.specification.mm_3.0.0.201206041019.jar')
+	api     files('libs/jfxrt.jar')
+	api     files('libs/probatron.jar')
+	api     files('libs/fr.itcs.sme.architecture.mm_3.0.0.201206041019.jar')
+	api     files('libs/fr.itcs.sme.base.api_3.0.0.201206041019.jar')
+	api     files('libs/fr.itcs.sme.base.core_3.0.0.201206041019.jar')
+	api     files('libs/fr.itcs.sme.base.mm_3.0.0.201206041019.jar')
+	api     files('libs/fr.itcs.sme.conception.mm_3.0.0.201206041019.jar')
+	api     files('libs/fr.itcs.sme.configuration.mm_3.0.0.201206041019.jar')
+	api     files('libs/fr.itcs.sme.deployment.mm_3.0.0.201206041019.jar')
+	api     files('libs/fr.itcs.sme.specification.mm_3.0.0.201206041019.jar')
 	// eclipse emf framework is currently on version 2.26. Version 2.5 is no longer supported
-	implementation     files('libs/org.eclipse.emf.common_2.5.0.v200906151043.jar')
-	implementation     files('libs/org.eclipse.emf.ecore.xmi_2.5.0.v200906151043.jar')
-	implementation     files('libs/org.eclipse.emf.ecore_2.5.0.v200906151043.jar')
-	implementation     files('libs/org.eclipse.emf.edit_2.5.0.v200906151043.jar')
+	api     files('libs/org.eclipse.emf.common_2.5.0.v200906151043.jar')
+	api     files('libs/org.eclipse.emf.ecore.xmi_2.5.0.v200906151043.jar')
+	api     files('libs/org.eclipse.emf.ecore_2.5.0.v200906151043.jar')
+	api     files('libs/org.eclipse.emf.edit_2.5.0.v200906151043.jar')
 
     // JAX-B dependencies for JDK 9+
-    implementation "jakarta.xml.bind:jakarta.xml.bind-api:2.3.2"
-    implementation "org.glassfish.jaxb:jaxb-runtime:2.3.2"
+    api "jakarta.xml.bind:jakarta.xml.bind-api:2.3.2"
+    api "org.glassfish.jaxb:jaxb-runtime:2.3.2"
 }

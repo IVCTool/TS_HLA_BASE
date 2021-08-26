@@ -28,15 +28,6 @@ dependencies {
 	compileOnly libraries.slf4j_api
 	compileOnly libraries.jsonSimple
 
-	compileOnly files('libs/fr.itcs.sme.architecture.mm_3.0.0.201206041019.jar')
-	compileOnly files('libs/fr.itcs.sme.base.api_3.0.0.201206041019.jar')
-	compileOnly files('libs/fr.itcs.sme.base.core_3.0.0.201206041019.jar')
-	compileOnly files('libs/fr.itcs.sme.base.mm_3.0.0.201206041019.jar')
-	compileOnly files('libs/fr.itcs.sme.conception.mm_3.0.0.201206041019.jar')
-	compileOnly files('libs/fr.itcs.sme.configuration.mm_3.0.0.201206041019.jar')
-	compileOnly files('libs/fr.itcs.sme.deployment.mm_3.0.0.201206041019.jar')
-	compileOnly files('libs/fr.itcs.sme.specification.mm_3.0.0.201206041019.jar')
-
 	testImplementation project(':ETC_FRA_Common')
 
 	testImplementation libraries.logback_classic
@@ -46,7 +37,7 @@ dependencies {
 	testImplementation libraries.slf4j_log4j_over_slf4j
 
 	// jfx is needed because docker images is currently using openjdk version 1.8.0_111-internal which has no jfx support
-	testImplementation     files('libs/jfxrt.jar')
+	// testImplementation     files('libs/jfxrt.jar')
 }
 
 
