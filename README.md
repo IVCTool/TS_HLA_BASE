@@ -82,6 +82,24 @@ The interoperability requirements associated with this test case are as follows:
 
 derrived from https://github.com/MSG134/TS_CS_Verification
 
+## Release Notes
+
+### Version 2.1.1-SNAPSHOT
+
+NOTE: Work in progress. Snapshot release is subject to further chances. 
+
+- upgrade to IVCT_Framework version 4.0.1-SNAPSHOT 
+- update to gradle 7.2
+- replace Travis build pipeline by github actions
+- replace outdated docker plugin by native docker build calls
+- retrieve third party libraries from public repository
+
+### Version 2.1.0
+
+- upgrade to IVCT_Framework version 3.1.0 
+- process test case abort command
+- include operator instructions into test cases
+
 ## LICENCE
 
 Copyright 2019 NATO/OTAN
