@@ -72,9 +72,6 @@ subprojects { subProject ->
 			options.encoding = "UTF-8"
 			options.tags = [ "noinspection" ]
 		}
-
-
-		apply plugin: 'maven-publish'
     }
 }
 
