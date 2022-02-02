@@ -4,7 +4,7 @@ dependencies {
 	// only required to compile, will be replaced at runtime by RTI
 	compileOnly     libraries.ieee
 	// only required to compile, will be available at runtime within the test case engine
-	api     libraries.tc_lib
+	compileOnly     libraries.tc_lib
 	api     libraries.jsonSimple
 	api     libraries.slf4j_api
 	api 	libraries.log4j_api
