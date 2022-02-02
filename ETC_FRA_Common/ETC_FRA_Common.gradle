@@ -4,23 +4,23 @@ dependencies {
 	// only required to compile, will be replaced at runtime by RTI
 	compileOnly     libraries.ieee
 	// only required to compile, will be available at runtime within the test case engine
-	compileOnly     libraries.tc_lib
-	compileOnly     libraries.jsonSimple
-	compileOnly     libraries.slf4j_api
+	api     libraries.tc_lib
+	api     libraries.jsonSimple
+	api     libraries.slf4j_api
+	api 	libraries.log4j_api
 
 	implementation libraries.controlsfx
-	implementation libraries.dom4j
 	implementation libraries.jdom
-	implementation libraries.log4j_api
-	implementation libraries.log4j_core
+
 	implementation libraries.eclipse_core
 
 	implementation libraries.xerces
-	// implementation files('libs/xercesImpl.jar')
 
-	// pre-loaded jar replaced by central repository lookup
+
+	// online jar versions are replaced by central repository lookup
+	//  implementation files('libs/xercesImpl.jar')
 	//	implementation     fileTree(dir: 'libs', include: '*.jar')
-	//	implementation     files('libs/com.springsource.org.dom4j-1.6.1.jar')
+	implementation     files('libs/com.springsource.org.dom4j-1.6.1.jar')
 	//	implementation     files('libs/controlsfx-8.40.10.jar')
 	//	implementation     files('libs/jdom-2.0.6.jar')
 	//	implementation     files('libs/jfxrt.jar')
