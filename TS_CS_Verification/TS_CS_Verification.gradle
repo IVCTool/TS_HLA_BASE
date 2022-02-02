@@ -35,7 +35,8 @@ dependencies {
 	testImplementation project(':ETC_FRA_Common')
 	testImplementation libraries.ieee
 	testImplementation libraries.tc_lib
-	testImplementation libraries.slf4j_api
+  testImplementation libraries.slf4j_log4j_over_slf4j
+  testImplementation libraries.log4j_to_slf4j
 	testImplementation libraries.logback_classic
 	testImplementation libraries.logback_core
 	testImplementation libraries.jsonSimple

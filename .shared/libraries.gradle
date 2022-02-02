@@ -1,12 +1,6 @@
 // Provides a map of the dependency artifacts to use.
 // Allows centralized definition of the version of artifacts to use.
 ext {
-
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~ Gradle Build Environment
-		//artifactCache = "${artifactory_contextUrl}/gradle"
-        gradleVersion = '5.5.1'
-        gradleWrapperVersion = "${gradleVersion}"
-
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~ IVCT settings
 		ivctVersion = '4.0.1-SNAPSHOT'
 
@@ -14,7 +8,6 @@ ext {
 		TS_HLA_BaseVersion = '2.1.1-SNAPSHOT'
 
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~ testing
-        junitVersion = '4.+'
         jupiterVersion = '5.6.2'
         activemqVersion = '5.14.5'
 
@@ -47,13 +40,13 @@ ext {
             // dom4j:                          "org.dom4j:com.springsource.org.dom4j:${dom4jVersion}",
             jdom:                           "org.jdom:jdom2:${jdomVersion}",
             log4j_api:                      "org.apache.logging.log4j:log4j-api:${log4jVersion}",
-            log4j_slf4j:                    "org.apache.logging.log4j:log4j-slf4j-impl:${log4jVersion}",
-            // log4j_core:                     "org.apache.logging.log4j:log4j-core:${log4jVersion}",   // using logback as log implementation
+            log4j_to_slf4j:                 "org.apache.logging.log4j:log4j-to-slf4j:${log4jVersion}",
+            log4j_slf4j_impl:               "org.apache.logging.log4j:log4j-slf4j-impl:${log4jVersion}",
+            log4j_core:                     "org.apache.logging.log4j:log4j-core:${log4jVersion}", 
             eclipse_core:                   "org.eclipse.core:org.eclipse.core.runtime:${eclipseCoreVersion}",
             xerces:                         "xerces:xercesImpl:${xercesVersion}",
 
             // ~~~~~~~~~~~~~~~~~~~~~~~~~~ testing
-            junit:                          "junit:junit:${junitVersion}",
             junit_jupiter_engine:           "org.junit.jupiter:junit-jupiter-engine:${jupiterVersion}",
             activemqEmbedded: 				"org.apache.activemq:activemq-broker:${activemqVersion}",
         ]
