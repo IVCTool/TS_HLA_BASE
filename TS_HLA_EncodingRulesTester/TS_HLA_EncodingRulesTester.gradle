@@ -22,7 +22,7 @@ task dockerBuildImage (type: Exec) {
 
 dependencies {
 	compileOnly libraries.ieee
-	compileOnly libraries.tc_lib
+	implementation libraries.tc_lib
 	compileOnly libraries.slf4j_api
 	compileOnly libraries.logback_classic
 	compileOnly libraries.logback_core

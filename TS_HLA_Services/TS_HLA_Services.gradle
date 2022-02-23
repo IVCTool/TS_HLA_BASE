@@ -24,7 +24,7 @@ dependencies {
 	implementation project(':ETC_FRA_Common')
 
 	compileOnly libraries.ieee
-	compileOnly libraries.tc_lib
+	implementation libraries.tc_lib
 	compileOnly libraries.slf4j_api
 	compileOnly libraries.jsonSimple
 
