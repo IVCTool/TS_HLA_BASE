@@ -40,8 +40,6 @@ public class TC0001 extends AbstractTestCase {
     // Build test case parameters to use
     static EncodingRulesTesterTcParam              encodingRulesTesterTcParam;
 
-    // Get logging-IVCT-RTI using tc_param federation name, host
-    private static IVCT_RTIambassador           ivct_rti;
     static EncodingRulesTesterBaseModel            encodingRulesTesterBaseModel;
 
     static IVCT_LoggingFederateAmbassador ivct_LoggingFederateAmbassador;
@@ -49,8 +47,7 @@ public class TC0001 extends AbstractTestCase {
     @Override
     public IVCT_BaseModel getIVCT_BaseModel(final String tcParamJson, final Logger logger) throws TcInconclusive {
         encodingRulesTesterTcParam              = new EncodingRulesTesterTcParam(tcParamJson);
-    	ivct_rti             = IVCT_RTI_Factory.getIVCT_RTI(logger);
-    	encodingRulesTesterBaseModel          = new EncodingRulesTesterBaseModel(logger, ivct_rti, encodingRulesTesterTcParam);
+    	encodingRulesTesterBaseModel          = new EncodingRulesTesterBaseModel(logger, encodingRulesTesterTcParam);
     	ivct_LoggingFederateAmbassador = new IVCT_LoggingFederateAmbassador(encodingRulesTesterBaseModel, logger);
     	return encodingRulesTesterBaseModel;
     }

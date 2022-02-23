@@ -43,8 +43,6 @@ public class TC_001_Services_Check extends AbstractTestCase {
     // Build test case parameters to use
     static HLA_Services_TcParam              	HlaServicesTcParam;
 
-    // Get logging-IVCT-RTI using tc_param federation name, host
-    private static IVCT_RTIambassador           ivct_rti;
     static HLA_Services_BaseModel            	HlaServicesBaseModel;
 
     static IVCT_LoggingFederateAmbassador		ivct_LoggingFederateAmbassador;
@@ -55,8 +53,7 @@ public class TC_001_Services_Check extends AbstractTestCase {
 
     	try {
 	    	HlaServicesTcParam           	= new HLA_Services_TcParam(tcParamJson);
-	    	ivct_rti                        = IVCT_RTI_Factory.getIVCT_RTI(logger);
-	    	HlaServicesBaseModel         	= new HLA_Services_BaseModel(logger, ivct_rti, HlaServicesTcParam, getSutName());
+	    	HlaServicesBaseModel         	= new HLA_Services_BaseModel(logger, HlaServicesTcParam, getSutName());
 	    	ivct_LoggingFederateAmbassador  = new IVCT_LoggingFederateAmbassador(HlaServicesBaseModel, logger);
     	}
     	catch(Exception ex) {

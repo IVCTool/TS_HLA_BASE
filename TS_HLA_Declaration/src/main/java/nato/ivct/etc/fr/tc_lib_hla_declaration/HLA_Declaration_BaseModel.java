@@ -94,10 +94,6 @@ public class HLA_Declaration_BaseModel extends IVCT_BaseModel {
     private File					certifiedDataResultFile;
     private File					nonCertifiedDataResultFile;
     
-	// RTI
-    private IVCT_RTIambassador      ivct_rti;
-    private EncoderFactory          _encoderFactory;
-     
 // 2017/11/15 ETC FRA V1.3, Capgemini, to avoid several detections of federate to follow
     // SUT management
 	private byte[] 					sutHandle = null;
@@ -133,11 +129,9 @@ public class HLA_Declaration_BaseModel extends IVCT_BaseModel {
      * @param HlaDeclarationTcParam linked parameters
      * @param sutName SUT name
      */
-    public HLA_Declaration_BaseModel(final Logger logger, final IVCT_RTIambassador ivct_rti, final HLA_Declaration_TcParam HlaDeclarationTcParam, String sutName) {
+    public HLA_Declaration_BaseModel(final Logger logger, final HLA_Declaration_TcParam HlaDeclarationTcParam, String sutName) {
     	
-        super(ivct_rti, logger, HlaDeclarationTcParam);
-        this.ivct_rti = ivct_rti;
-        this._encoderFactory = ivct_rti.getEncoderFactory();
+        super(logger, HlaDeclarationTcParam);
         this.logger = logger;
         this.tcParams = HlaDeclarationTcParam;
         this.sutName = sutName;
@@ -197,6 +191,7 @@ public class HLA_Declaration_BaseModel extends IVCT_BaseModel {
     	ObjectClassHandle	federateId;
     	ObjectClassHandle	federationId;
         try {
+			String v = ivct_rti.getHLAversion();
             federateId = ivct_rti.getObjectClassHandle("HLAmanager.HLAfederate");
 
             federateNameId = ivct_rti.getAttributeHandle(federateId, "HLAfederateName");

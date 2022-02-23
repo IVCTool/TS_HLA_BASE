@@ -19,8 +19,6 @@ package nato.ivct.etc.fr.tc_hla_object;
 import de.fraunhofer.iosb.tc_lib.AbstractTestCase;
 import de.fraunhofer.iosb.tc_lib.IVCT_BaseModel;
 import de.fraunhofer.iosb.tc_lib.IVCT_LoggingFederateAmbassador;
-import de.fraunhofer.iosb.tc_lib.IVCT_RTI_Factory;
-import de.fraunhofer.iosb.tc_lib.IVCT_RTIambassador;
 import de.fraunhofer.iosb.tc_lib.TcFailed;
 import de.fraunhofer.iosb.tc_lib.TcInconclusive;
 import hla.rti1516e.FederateHandle;
@@ -43,8 +41,6 @@ public class TC_001_Object_Interaction_Check extends AbstractTestCase {
     // Build test case parameters to use
     static HLA_Object_TcParam              		HlaObjectTcParam;
 
-    // Get logging-IVCT-RTI using tc_param federation name, host
-    private static IVCT_RTIambassador           ivct_rti;
     static HLA_Object_BaseModel            		HlaObjectBaseModel;
 
     static IVCT_LoggingFederateAmbassador		ivct_LoggingFederateAmbassador;
@@ -55,8 +51,7 @@ public class TC_001_Object_Interaction_Check extends AbstractTestCase {
 
     	try {
 	    	HlaObjectTcParam           		= new HLA_Object_TcParam(tcParamJson);
-	    	ivct_rti                        = IVCT_RTI_Factory.getIVCT_RTI(logger);
-	    	HlaObjectBaseModel         		= new HLA_Object_BaseModel(logger, ivct_rti, HlaObjectTcParam, getSutName());
+	    	HlaObjectBaseModel         		= new HLA_Object_BaseModel(logger, HlaObjectTcParam, getSutName());
 	    	ivct_LoggingFederateAmbassador  = new IVCT_LoggingFederateAmbassador(HlaObjectBaseModel, logger);
     	}
     	catch(Exception ex) {
