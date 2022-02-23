@@ -40,8 +40,7 @@ public class TC_001_Publish_Subscribe_CheckTest {
 		// MaK default
 		// String settingsDesignator = "(setqb RTI_tcpPort 4000) (setqb RTI_tcpForwarderAddr \"rtiexec\")";
 		// Pitch default
-		// String settingsDesignator = "crcAddress=localhost:8989";
-		String settingsDesignator = "crcAddress=192.168.178.45:8989";
+		String settingsDesignator = "crcAddress=localhost:8989";
 
 		testCase.setSettingsDesignator(settingsDesignator);
 		testCase.setFederationName(federationName);
@@ -76,6 +75,10 @@ public class TC_001_Publish_Subscribe_CheckTest {
 
     }
 
+	/**
+	 * for testing the publish subscribe test case, you need to break execution in the operator message,
+	 * in order to start the system under test at the requested point in time
+	 */
     @Test
 	@EnabledIfEnvironmentVariable(named = "LRC_CLASSPATH", matches = ".*")
     void testPerformTest() {
