@@ -29,7 +29,6 @@ public class TC_001_Publish_Subscribe_CheckTest {
 		"  { \"fileName\"    : \"C:/Runtime_4_0_1_Mirror/IVCTsut/hw_iosb/TS-HLA-Declaration-2019/HelloWorldSOM.xml\" } " +
 		"] " +
 	  "}\""; 
-	protected Logger runLogger = LoggerFactory.getLogger(TC_001_Publish_Subscribe_CheckTest.class);
 
 	public void setUp(AbstractTestCase testCase) {
 		// test case settings
@@ -41,7 +40,8 @@ public class TC_001_Publish_Subscribe_CheckTest {
 		// String settingsDesignator = "(setqb RTI_tcpPort 4000) (setqb RTI_tcpForwarderAddr \"rtiexec\")";
 		// Pitch default
 		String settingsDesignator = "crcAddress=localhost:8989";
-
+		TestOperatorService opService = new TestOperatorService();
+		
 		testCase.setSettingsDesignator(settingsDesignator);
 		testCase.setFederationName(federationName);
 		testCase.setSutName(sutName);
@@ -49,7 +49,11 @@ public class TC_001_Publish_Subscribe_CheckTest {
 		testCase.setTcName(TC_001_Publish_Subscribe_CheckTest.class.getName());
 		testCase.setTsName(tsName);
 		testCase.setTcParam(tcParamJson);
-		testCase.setSkipOperatorMsg(true);
+		testCase.setOperatorService(opService);
+		
+		opService.initialize(testCase.getSutName(), testCase.getTsName(), testCase.getTcName(), "TestOperator");
+		testCase.setSkipOperatorMsg(false);
+		LOGGER.trace("setup {}", testCase);
 	}
 	
 	@BeforeAll
@@ -87,8 +91,8 @@ public class TC_001_Publish_Subscribe_CheckTest {
 		TC_001_Publish_Subscribe_Check tc0001 = new TC_001_Publish_Subscribe_Check();
 
 		setUp(tc0001);
-		verdict = tc0001.execute(runLogger);
-		runLogger.info("Test Case Verdict: {}", verdict);
+		verdict = tc0001.execute(LOGGER);
+		LOGGER.info("Test Case Verdict: {}", verdict);
 		assertTrue(verdict.verdict == IVCT_Verdict.Verdict.PASSED);	
     }
 
