@@ -40,7 +40,6 @@ dependencies {
 	testImplementation libraries.logback_classic
 	testImplementation libraries.logback_core
 	testImplementation libraries.jsonSimple
-	testImplementation "io.github.ivctool:Command:${ivctVersion}"
 	testImplementation files("$System.env.LRC_CLASSPATH")
 	testImplementation libraries.junit_jupiter_engine
 	testImplementation libraries.activemqEmbedded

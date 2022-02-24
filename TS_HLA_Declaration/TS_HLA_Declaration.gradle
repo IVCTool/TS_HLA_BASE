@@ -35,7 +35,6 @@ dependencies {
     testImplementation libraries.log4j_to_slf4j
 	testImplementation libraries.logback_classic
 	testImplementation libraries.logback_core
-	testImplementation "io.github.ivctool:Command:${ivctVersion}"
 	testImplementation files("$System.env.LRC_CLASSPATH")
 	testImplementation libraries.junit_jupiter_engine
 	testImplementation libraries.activemqEmbedded
