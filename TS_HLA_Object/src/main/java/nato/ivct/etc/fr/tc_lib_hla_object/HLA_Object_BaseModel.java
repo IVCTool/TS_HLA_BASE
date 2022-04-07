@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import de.fraunhofer.iosb.tc_lib.IVCT_BaseModel;
-import de.fraunhofer.iosb.tc_lib.IVCT_RTIambassador;
 
 import hla.rti1516e.AttributeHandle;
 import hla.rti1516e.AttributeHandleSet;
@@ -43,7 +42,6 @@ import hla.rti1516e.ParameterHandleValueMap;
 import hla.rti1516e.TransportationTypeHandle;
 import hla.rti1516e.encoding.DataElementFactory;
 import hla.rti1516e.encoding.DecoderException;
-import hla.rti1516e.encoding.EncoderFactory;
 import hla.rti1516e.encoding.HLAboolean;
 import hla.rti1516e.encoding.HLAunicodeString;
 import hla.rti1516e.encoding.HLAvariableArray;
@@ -96,10 +94,6 @@ public class HLA_Object_BaseModel extends IVCT_BaseModel {
     private File					certifiedDataResultFile;
     private File					nonCertifiedDataResultFile;
     
-	// RTI
-    private IVCT_RTIambassador      ivct_rti;
-    private EncoderFactory          _encoderFactory;
-     
 // 2017/11/15 ETC FRA V1.3, Capgemini, to avoid several detections of federate to follow
     // SUT management
 	private byte[] 					sutHandle = null;
@@ -140,11 +134,9 @@ public class HLA_Object_BaseModel extends IVCT_BaseModel {
      * @param HlaObjectTcParam linked parameters
      * @param sutName SUT name
      */
-    public HLA_Object_BaseModel(final Logger logger, final IVCT_RTIambassador ivct_rti, final HLA_Object_TcParam HlaObjectTcParam, String sutName) {
+    public HLA_Object_BaseModel(final Logger logger, final HLA_Object_TcParam HlaObjectTcParam, String sutName) {
     	
-        super(ivct_rti, logger, HlaObjectTcParam);
-        this.ivct_rti = ivct_rti;
-        this._encoderFactory = ivct_rti.getEncoderFactory();
+        super(logger, HlaObjectTcParam);
         this.logger = logger;
         this.tcParams = HlaObjectTcParam;
     	// SuT name

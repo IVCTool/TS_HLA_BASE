@@ -24,7 +24,7 @@ dependencies {
 	implementation project(':ETC_FRA_Common')
 
 	compileOnly libraries.ieee
-	compileOnly libraries.tc_lib
+	implementation libraries.tc_lib
 	compileOnly libraries.jsonSimple
 	compileOnly libraries.slf4j_api
 
@@ -40,7 +40,6 @@ dependencies {
 	testImplementation libraries.logback_classic
 	testImplementation libraries.logback_core
 	testImplementation libraries.jsonSimple
-	testImplementation "io.github.ivctool:Command:${ivctVersion}"
 	testImplementation files("$System.env.LRC_CLASSPATH")
 	testImplementation libraries.junit_jupiter_engine
 	testImplementation libraries.activemqEmbedded

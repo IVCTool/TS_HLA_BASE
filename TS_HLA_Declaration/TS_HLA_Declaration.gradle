@@ -23,24 +23,30 @@ task dockerBuildImage (type: Exec) {
 
 dependencies {
 	implementation project(':ETC_FRA_Common')
+	implementation  libraries.tc_lib
 
 	compileOnly     libraries.slf4j_api
 	compileOnly     libraries.ieee
-	compileOnly     libraries.tc_lib
 	compileOnly     libraries.jsonSimple
 
-	testImplementation     project(':ETC_FRA_Common')
-
-	testImplementation		libraries.logback_classic
-	testImplementation		libraries.logback_core
-	testImplementation     libraries.slf4j_jcl_over_slf4j
-	testImplementation     libraries.slf4j_jul_to_slf4j
-	testImplementation     libraries.slf4j_log4j_over_slf4j
+	testImplementation libraries.slf4j_jcl_over_slf4j
+	testImplementation libraries.slf4j_jul_to_slf4j
+	testImplementation libraries.slf4j_log4j_over_slf4j
+    testImplementation libraries.log4j_to_slf4j
+	testImplementation libraries.logback_classic
+	testImplementation libraries.logback_core
+	testImplementation files("$System.env.LRC_CLASSPATH")
+	testImplementation libraries.junit_jupiter_engine
+	testImplementation libraries.activemqEmbedded
 
 	// jfx is needed because docker images is currently using openjdk version 1.8.0_111-internal which has no jfx support
 	// testImplementation     files('libs/jfxrt.jar')
 }
 
+test {
+    // Enable JUnit 5 (Gradle 4.6+).
+    useJUnitPlatform()
+}
 
 // Write the  IVCT-Version as set to variable in libraries.gradle
 // in a  property-file

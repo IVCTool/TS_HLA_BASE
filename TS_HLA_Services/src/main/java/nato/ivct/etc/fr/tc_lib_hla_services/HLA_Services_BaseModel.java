@@ -87,10 +87,6 @@ public class HLA_Services_BaseModel extends IVCT_BaseModel {
     private File					certifiedServicesResultFile;
     private File					nonCertifiedServicesResultFile;
     
-	// RTI
-    private IVCT_RTIambassador      ivct_rti;
-    private EncoderFactory          _encoderFactory;
-    
     // SUT management
 	private byte[] 					sutHandle = null;
 
@@ -115,11 +111,9 @@ public class HLA_Services_BaseModel extends IVCT_BaseModel {
      * @param HlaServicesTcParam linked parameters
      * @param sutName SUT name
      */
-    public HLA_Services_BaseModel(final Logger logger, final IVCT_RTIambassador ivct_rti, final HLA_Services_TcParam HlaServicesTcParam, String sutName) {
+    public HLA_Services_BaseModel(final Logger logger, final HLA_Services_TcParam HlaServicesTcParam, String sutName) {
     	
-        super(ivct_rti, logger, HlaServicesTcParam);
-        this.ivct_rti = ivct_rti;
-        this._encoderFactory = ivct_rti.getEncoderFactory();
+        super(logger, HlaServicesTcParam);
         this.logger = logger;
         this.tcParams = HlaServicesTcParam;
         this.sutName = sutName;

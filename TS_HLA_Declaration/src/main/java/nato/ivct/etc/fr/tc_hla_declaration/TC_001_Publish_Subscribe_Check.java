@@ -43,8 +43,6 @@ public class TC_001_Publish_Subscribe_Check extends AbstractTestCase {
     // Build test case parameters to use
     static HLA_Declaration_TcParam              HlaDeclarationTcParam;
 
-    // Get logging-IVCT-RTI using tc_param federation name, host
-    private static IVCT_RTIambassador           ivct_rti;
     static HLA_Declaration_BaseModel            HlaDeclarationBaseModel;
 
     static IVCT_LoggingFederateAmbassador		ivct_LoggingFederateAmbassador;
@@ -55,8 +53,7 @@ public class TC_001_Publish_Subscribe_Check extends AbstractTestCase {
 
     	try {
 	    	HlaDeclarationTcParam           = new HLA_Declaration_TcParam(tcParamJson);
-	    	ivct_rti                        = IVCT_RTI_Factory.getIVCT_RTI(logger);
-	    	HlaDeclarationBaseModel         = new HLA_Declaration_BaseModel(logger, ivct_rti, HlaDeclarationTcParam, getSutName());
+	    	HlaDeclarationBaseModel         = new HLA_Declaration_BaseModel(logger, HlaDeclarationTcParam, getSutName());
 	    	ivct_LoggingFederateAmbassador  = new IVCT_LoggingFederateAmbassador(HlaDeclarationBaseModel, logger);
     	}
     	catch(Exception ex) {

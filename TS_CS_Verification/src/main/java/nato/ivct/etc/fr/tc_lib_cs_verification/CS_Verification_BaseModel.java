@@ -54,7 +54,7 @@ public class CS_Verification_BaseModel extends IVCT_BaseModel {
      */
     public CS_Verification_BaseModel(final Logger logger, final IVCT_RTIambassador ivct_rti, final CS_Verification_TcParam CsVerificationTcParam, String sutName) {
 
-        super(ivct_rti, logger, CsVerificationTcParam);
+        super(logger, CsVerificationTcParam);
 		this.logger = logger;
 		this.tcParams = CsVerificationTcParam;
 		this.filesValidator = new FCTTFilesCheck(logger,CsVerificationTcParam.getResultDir(),sutName);

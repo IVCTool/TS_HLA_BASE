@@ -204,7 +204,6 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
 
 	private int correct = 0;
 	private int incorrect = 0;
-    private IVCT_RTIambassador                             ivct_rti;
     private EncodingRulesTesterTcParam ivct_TcParam;
     private Logger                                         logger;
     private Map<InteractionClassHandle, Set<ParameterHandle>> interactionClassHandleMap = new HashMap<InteractionClassHandle, Set<ParameterHandle>>();
@@ -221,10 +220,9 @@ public class EncodingRulesTesterBaseModel extends IVCT_BaseModel {
      * @param ivct_rti reference to the RTI ambassador
      * @param ivct_TcParam ivct_TcParam
      */
-    public EncodingRulesTesterBaseModel(final Logger logger, final IVCT_RTIambassador ivct_rti, final EncodingRulesTesterTcParam ivct_TcParam) {
-        super(ivct_rti, logger, ivct_TcParam);
+    public EncodingRulesTesterBaseModel(final Logger logger, final EncodingRulesTesterTcParam ivct_TcParam) {
+        super(logger, ivct_TcParam);
         this.logger = logger;
-        this.ivct_rti = ivct_rti;
         this.ivct_TcParam = ivct_TcParam;
         logger.warn("DISPLAY SOME HELPER VERSION NUMBER TO CONFIRM VERSION USED: 2019-01-04T15:00");
     }

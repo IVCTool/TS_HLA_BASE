@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fraunhofer.iosb.tc_lib.AbstractTestCase;
-import de.fraunhofer.iosb.tc_lib.IVCT_Verdict;
+import de.fraunhofer.iosb.tc_lib_if.IVCT_Verdict;
 
 public class TestTC_001_Files_Check {
 
@@ -49,6 +49,7 @@ public class TestTC_001_Files_Check {
 		testCase.setSutFederateName(sutFederateName);			
 		testCase.setTcName(TestTC_001_Files_Check.class.getName());
 		testCase.setTsName(tsName);
+		testCase.setTcParam(tcParamJson);
 		testCase.setSkipOperatorMsg(true);
 	}
 	
@@ -78,7 +79,7 @@ public class TestTC_001_Files_Check {
 		TC_001_Files_Check tc0001 = new TC_001_Files_Check();
 
 		setUp(tc0001);
-		verdict = tc0001.execute(tcParamJson, runLogger);
+		verdict = tc0001.execute(runLogger);
 		runLogger.info("Test Case Verdict: {}", verdict);
 		assertTrue(verdict.verdict == IVCT_Verdict.Verdict.PASSED);	
 	}
